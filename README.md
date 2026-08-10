@@ -38,6 +38,12 @@ The strongest valid positive statement is:
 # from repo root, with Python 3.12+
 uv sync --extra dev
 uv run smallestlie doctor
+uv run pytest -q
+
+# full offline CI gate (naive must FA; honest must clean)
+uv run smallestlie ci-gate --budget-seconds 600
+
+# single campaign
 uv run smallestlie campaign run \
   --target fixtures/naive_gate \
   --catalog catalogs/canonical-m1.yaml \
@@ -56,11 +62,22 @@ uv run smallestlie report outputs/<campaign-id>
 
 ## Status
 
-M0–M3 prototype (synthetic fixtures only):
+**v0.4.0** — M0–M5 harness (synthetic fixtures; real adapters design-only)
 
-- **M0** containment (auth, path guard, sandbox, ledger)
-- **M1** full canonical attack catalog (15 attacks)
-- **M2** O2/O3 fact-based oracles (execution, artifact, workflow, authority, semantics, …)
-- **M3** ddmin minimization, 3× replay confirmation, regression export
+| Milestone | Status |
+|---|---|
+| M0 containment | done |
+| M1 canonical attacks (15) | done |
+| M2 oracles O2/O3 | done |
+| M3 minimize + regression | done |
+| M4 compound campaigns | done |
+| M5 CI gate | done |
+| Real adapters | design only (TomorrowCI / ClaimGate / Greenwash) |
 
-Does **not** claim any repository is secure.
+Does **not** claim any repository is secure. Real targets require a signed authorization package — pick “who to hit” only after that.
+
+## Docs
+
+- [docs/ci-gate.md](docs/ci-gate.md) — CI gate contract
+- [docs/adapters/README.md](docs/adapters/README.md) — real adapter designs
+- [docs/architecture.md](docs/architecture.md) — architecture index

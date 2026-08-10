@@ -11,6 +11,8 @@ from typing import Any
 from smallestlie import __version__
 from smallestlie.attacks.catalog import load_catalog
 from smallestlie.campaign.runner import run_campaign
+from smallestlie.ci.baseline import compare_to_baseline, load_summary
+from smallestlie.ci.gate import CiGateConfig, run_ci_gate
 from smallestlie.ledger.verify import verify_ledger
 from smallestlie.models import ExitCode
 from smallestlie.policy.authorization import (
@@ -83,6 +85,23 @@ def main(argv: list[str] | None = None) -> int:
     p_inspect.add_argument("--target", required=True)
     p_inspect.add_argument("--adapter", default="fixture_gate")
 
+    p_ci = sub.add_parser("ci-gate", help="Offline CI gate (synthetic fixtures; honest status)")
+    p_ci.add_argument("--budget-seconds", type=int, default=600)
+    p_ci.add_argument("--output", default="outputs/ci")
+    p_ci.add_argument("--artifact-dir", default="artifacts/smallestlie")
+    p_ci.add_argument("--diff-file", default=None, help="git diff --name-only file")
+    p_ci.add_argument("--baseline", default=None, help="Prior ci-summary.json for comparison")
+    p_ci.add_argument("--seed", type=int, default=49314)
+    p_ci.add_argument(
+        "--full",
+        action="store_true",
+        help="Use catalogs/ci-offline-full.yaml instead of fast subset",
+    )
+
+    p_bc = sub.add_parser("baseline-compare", help="Compare two campaign/ci summaries")
+    p_bc.add_argument("--current", required=True)
+    p_bc.add_argument("--baseline", required=True)
+
     args = parser.parse_args(argv)
     root = _project_root()
 
@@ -104,6 +123,10 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_report(args.campaign_dir)
     if args.command == "inspect-target":
         return cmd_inspect(args, root)
+    if args.command == "ci-gate":
+        return cmd_ci_gate(args, root)
+    if args.command == "baseline-compare":
+        return cmd_baseline_compare(args)
     print(f"unknown command: {args.command}", file=sys.stderr)
     return int(ExitCode.INVALID_CONFIG)
 
@@ -367,3 +390,66 @@ def cmd_inspect(args: Any, root: Path) -> int:
             break
     print(json.dumps(info, indent=2))
     return 0 if target.is_dir() else int(ExitCode.INVALID_CONFIG)
+
+
+def cmd_ci_gate(args: Any, root: Path) -> int:
+    from smallestlie.ci.gate import CiProfile
+
+    catalog = "catalogs/ci-offline-full.yaml" if args.full else "catalogs/ci-offline-fast.yaml"
+    profiles = [
+        CiProfile(
+            name="naive_expect_false_accept",
+            target="fixtures/naive_gate",
+            catalog=catalog,
+            expect="fail_false_accept",
+            seed=args.seed,
+        ),
+        CiProfile(
+            name="honest_expect_clean",
+            target="fixtures/honest_gate",
+            catalog=catalog,
+            expect="pass_no_false_accept",
+            seed=args.seed,
+        ),
+    ]
+    cfg = CiGateConfig(
+        profiles=profiles,
+        budget_seconds=args.budget_seconds,
+        output_root=args.output,
+        artifact_dir=args.artifact_dir,
+        diff_file=args.diff_file,
+        baseline_path=args.baseline,
+        seed=args.seed,
+    )
+    summary = run_ci_gate(project_root=root, config=cfg, profiles=profiles)
+    print(
+        json.dumps(
+            {
+                "projection": summary.get("projection"),
+                "exit_code": summary.get("exit_code"),
+                "gha_conclusion": summary.get("gha_conclusion"),
+                "budget_exceeded": summary.get("budget_exceeded"),
+                "elapsed_seconds": summary.get("elapsed_seconds"),
+                "profiles": [
+                    {
+                        "name": p.get("name"),
+                        "expectation_met": p.get("expectation_met"),
+                        "false_accept_count": p.get("false_accept_count"),
+                        "projection": p.get("projection"),
+                    }
+                    for p in (summary.get("profiles") or [])
+                ],
+                "artifacts": (summary.get("artifacts") or {}).get("staging_dir"),
+            },
+            indent=2,
+        )
+    )
+    return int(summary.get("exit_code", ExitCode.HARNESS_ERROR))
+
+
+def cmd_baseline_compare(args: Any) -> int:
+    current = load_summary(args.current)
+    baseline = load_summary(args.baseline)
+    result = compare_to_baseline(current, baseline)
+    print(json.dumps(result, indent=2))
+    return 0 if result.get("ok") else int(ExitCode.FALSE_ACCEPT)

@@ -1,5 +1,6 @@
 # Runtime
 outputs/
+artifacts/
 *.pyc
 __pycache__/
 .pytest_cache/

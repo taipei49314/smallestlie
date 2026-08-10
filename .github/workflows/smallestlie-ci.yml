@@ -1,0 +1,74 @@
+# SmallestLie offline CI gate (synthetic fixtures only).
+# Never treats skipped/blocked as pass. Does not claim "secure".
+name: smallestlie-ci
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  offline-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Setup Python
+        run: uv python install 3.12
+
+      - name: Sync
+        run: uv sync --extra dev
+
+      - name: Doctor
+        run: uv run smallestlie doctor
+
+      - name: Unit + policy + integration tests
+        run: uv run pytest -q
+
+      - name: Collect PR diff names (if PR)
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin "${{ github.base_ref }}" --depth=1 || true
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" > /tmp/sl-diff.txt || true
+          if [ ! -s /tmp/sl-diff.txt ]; then
+            echo "# empty diff" > /tmp/sl-diff.txt
+          fi
+          echo "DIFF_FILE=/tmp/sl-diff.txt" >> "$GITHUB_ENV"
+
+      - name: CI gate (offline fixtures)
+        id: gate
+        run: |
+          EXTRA=()
+          if [ -n "${DIFF_FILE:-}" ] && [ -f "$DIFF_FILE" ]; then
+            EXTRA+=(--diff-file "$DIFF_FILE")
+          fi
+          set +e
+          uv run smallestlie ci-gate \
+            --budget-seconds 900 \
+            --output outputs/ci \
+            --artifact-dir artifacts/smallestlie \
+            "${EXTRA[@]}"
+          code=$?
+          set -e
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          if [ -f outputs/ci/ci-summary.md ]; then
+            cat outputs/ci/ci-summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+          # Propagate gate exit code (0/2/3/4/5/6) — never convert skip to 0.
+          exit $code
+
+      - name: Upload SmallestLie artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smallestlie-ci-${{ github.run_id }}
+          path: artifacts/smallestlie/
+          if-no-files-found: warn

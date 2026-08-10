@@ -1,0 +1,20 @@
+name: ci-offline-full
+seed_default: 49314
+description: Full M1 catalog for slower CI jobs (still synthetic fixtures only).
+mode: single
+attacks:
+  - EVD-001
+  - EVD-002
+  - EVD-003
+  - EXE-001
+  - EXE-002
+  - EXE-003
+  - SEM-001
+  - SEM-003
+  - PATH-001
+  - PATH-002
+  - TIME-001
+  - WF-001
+  - AUTH-001
+  - CFG-001
+  - PROJ-005

@@ -1,0 +1,20 @@
+mode: enforce
+require_tests: true
+require_policy: true
+bind_evidence_revision: true
+bind_artifact_hash: false
+check_protected_path: true
+require_channel_agreement: true
+require_full_matrix: false
+require_full_execution: false
+require_canonical_identity: true
+require_approval: true
+# Composition-only weakness toggles (documented intentional bug surface)
+legacy_projector_on_double_failure: true
+allowed_approvers:
+  - alice-release
+min_discovered_tests: 1
+success_tokens:
+  - VERIFIED
+  - PASS
+  - OK

@@ -1,0 +1,21 @@
+name: canonical-m4-compound
+seed_default: 49314
+description: >-
+  M4 compound corpus plus parent singles needed for compound-only detection
+  on composition_blind_gate.
+mode: mixed
+attacks:
+  # Parents for compound-only demonstration
+  - PATH-001
+  - PATH-002
+  - EVD-002
+  # Declarative compounds (loaded separately by path pattern too)
+  - CMP-001
+composition_pairs:
+  # Ordered pairs for extra pairwise generation (optional)
+  - [PATH-002, EVD-002]
+  - [PATH-001, EVD-002]
+limits:
+  max_depth: 2
+  max_compound_runs: 8
+  max_mutations_total: 16

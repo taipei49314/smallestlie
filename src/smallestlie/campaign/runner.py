@@ -13,7 +13,8 @@ import yaml
 from smallestlie import __version__
 from smallestlie.adapters.base import get_adapter
 from smallestlie.attacks.catalog import catalog_snapshot, load_catalog
-from smallestlie.attacks.planner import plan_campaign
+from smallestlie.attacks.composition import CompositionLimits
+from smallestlie.attacks.planner import interaction_report, plan_campaign
 from smallestlie.attacks.primitives import MutationError, apply_mutations
 from smallestlie.attacks.schema import AttackSpec, load_attack_spec
 from smallestlie.baseline.capture import capture_baseline
@@ -57,6 +58,7 @@ def run_campaign(
     authorization_path: str | Path | None = None,
     project_root: str | Path | None = None,
     keep_workspaces: bool = False,
+    plan_mode: str | None = None,
 ) -> dict[str, Any]:
     project_root = Path(project_root or Path.cwd()).resolve()
     target_path = Path(target)
@@ -149,15 +151,39 @@ def run_campaign(
         json.dumps(snap, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
 
+    mode = plan_mode or catalog.plan_mode or "single"
+    limits = CompositionLimits(
+        max_depth=int(catalog.composition_limits.get("max_depth", 2)),
+        max_compound_runs=int(catalog.composition_limits.get("max_compound_runs", 32)),
+        max_mutations_total=int(catalog.composition_limits.get("max_mutations_total", 16)),
+        require_distinct_families=bool(
+            catalog.composition_limits.get("require_distinct_families", False)
+        ),
+        require_distinct_ids=bool(
+            catalog.composition_limits.get("require_distinct_ids", True)
+        ),
+    )
+    # Declarative compounds: any catalog attack with family composition
+    declared = [a for a in catalog.ordered() if a.family == "composition"]
+    # Parent singles only for planning base set when mixed
     plan = plan_campaign(
         catalog,
         seed=seed,
         baseline_digest=baseline["baseline_digest"],
         authorization_digest=auth_digest,
         allowed_families=set(auth.allowed_attack_families),
+        mode=mode,  # type: ignore[arg-type]
+        composition_limits=limits,
+        pairwise_allowlist=catalog.composition_pairs or None,
+        compound_specs=declared if mode in ("mixed", "pairwise") else None,
     )
+    composed_registry: dict[str, AttackSpec] = dict(plan.pop("_composed_specs", {}) or {})
+    # Also register declared composition attacks
+    for a in declared:
+        composed_registry[a.attack_id] = a
+    plan_for_disk = {k: v for k, v in plan.items() if not k.startswith("_")}
     (campaign_dir / "plan.json").write_text(
-        json.dumps(plan, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        json.dumps(plan_for_disk, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
 
     env_info = {
@@ -172,13 +198,22 @@ def run_campaign(
 
     run_results: list[dict[str, Any]] = []
     allowlist = adapter.command_allowlist()
+    # Deduplicate plan runs by attack_id (declared + pairwise may overlap)
+    seen_attack_ids: set[str] = set()
 
     for planned in plan["runs"]:
+        aid = planned["attack_id"]
+        if aid in seen_attack_ids and planned.get("kind") != "single":
+            # Skip duplicate compound generation of same id
+            continue
+        seen_attack_ids.add(aid)
+
         if planned["status"] != "PLANNED":
             run_results.append(
                 {
                     "run_id": planned["run_id"],
                     "attack_id": planned["attack_id"],
+                    "kind": planned.get("kind", "single"),
                     "comparison": {"result": planned["status"]},
                     "skipped": True,
                     "reason": planned["reason"],
@@ -186,7 +221,22 @@ def run_campaign(
             )
             continue
 
-        attack = catalog.attacks[planned["attack_id"]]
+        if planned["attack_id"] in catalog.attacks:
+            attack = catalog.attacks[planned["attack_id"]]
+        elif planned["attack_id"] in composed_registry:
+            attack = composed_registry[planned["attack_id"]]
+        else:
+            run_results.append(
+                {
+                    "run_id": planned["run_id"],
+                    "attack_id": planned["attack_id"],
+                    "comparison": {"result": ComparisonResult.HARNESS_ERROR.value},
+                    "harness_error": True,
+                    "error": f"attack not found: {planned['attack_id']}",
+                }
+            )
+            continue
+
         result = _execute_run(
             run_id=planned["run_id"],
             attack=attack,
@@ -202,6 +252,8 @@ def run_campaign(
             keep_workspaces=keep_workspaces,
             seed=seed,
         )
+        result["kind"] = planned.get("kind", "single")
+        result["parents"] = planned.get("parents")
         run_results.append(result)
 
     # Source immutability check
@@ -258,7 +310,8 @@ def run_campaign(
         "seed": seed,
         "authorization_digest": auth_digest,
         "baseline_digest": baseline["baseline_digest"],
-        "plan_digest": plan["plan_digest"],
+        "plan_digest": plan.get("plan_digest"),
+        "plan_mode": mode,
         "source_immutable": source_immutable,
         "source_digest_before": source_digest_before,
         "source_digest_after": source_digest_after,
@@ -268,16 +321,23 @@ def run_campaign(
         "inconclusive_count": len(inconclusive),
         "limitations": [
             "synthetic fixture target" if auth.mode == "synthetic_fixture" else "local authorized target",
-            "M1–M3 prototype: single attacks + minimize + O2/O3 oracles",
-            "no compound pairwise campaigns yet (M4)",
+            "M1–M4: singles + compound planner + minimize + O2/O3 oracles",
+            f"plan_mode={mode}",
             "network denied",
         ],
         "campaign_dir": str(campaign_dir),
     }
+    ix = interaction_report(plan_for_disk, run_results)
+    summary["interaction"] = ix
+    (campaign_dir / "interaction-report.json").write_text(
+        json.dumps(ix, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
     ledger.append(ev.EVENT_CAMPAIGN_SUMMARY, {
         "status": status.value,
         "false_accept_count": len(false_accepts),
         "source_immutable": source_immutable,
+        "compound_only_false_accepts": len(ix.get("compound_only_false_accepts") or []),
+        "plan_truncated": bool(ix.get("plan_truncated")),
     })
 
     write_json_report(campaign_dir / "campaign-report.json", summary)
@@ -293,7 +353,14 @@ def _resolve_authorization(
         return load_authorization(authorization_path)
     # Auto synthetic fixture auth when target looks like shipped fixture.
     name = target_path.name
-    if name in {"naive_gate", "honest_gate", "stale_evidence_gate", "path_blind_gate", "authority_blind_gate"}:
+    if name in {
+        "naive_gate",
+        "honest_gate",
+        "stale_evidence_gate",
+        "path_blind_gate",
+        "authority_blind_gate",
+        "composition_blind_gate",
+    }:
         return default_fixture_authorization(target_path)
     # Also auto if gate_policy or fixture marker present.
     if (target_path / "fixture_gate").is_dir() and (target_path / "REVISION").is_file():

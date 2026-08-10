@@ -1,0 +1,8 @@
+name: composition-corpus
+seed_default: 49314
+description: Declarative M4 compound attack corpus (North Star initial set mapped).
+attacks:
+  - CMP-001
+  - CMP-002
+  - CMP-003
+  - CMP-004

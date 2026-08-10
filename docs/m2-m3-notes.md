@@ -29,8 +29,16 @@ On each `FALSE_ACCEPT_OBSERVED`:
 
 CLI: `smallestlie minimize <run-dir> --target <fixture>`
 
-## Not yet (M4+)
+## M4 — Compound campaigns
 
-- pairwise compound planner
-- real-repository adapters
-- model hypothesis layer
+- `plan_mode`: single | pairwise | mixed
+- declarative corpus: `attacks/composition/CMP-*.yaml`
+- auto pairwise SEQUENCE with budgets + truncation disclosure
+- `composition_blind_gate` fixture (compound-only false accept)
+- `interaction-report.json` with compound-only detection
+
+## Not yet
+
+- real-repository adapter implementation (designs exist)
+- model hypothesis layer (M7)
+- CI release-gate integration (M5)

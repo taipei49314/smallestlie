@@ -1,0 +1,65 @@
+schema_version: smallestlie.attack/v1
+attack_id: CMP-002
+name: partial-run-plus-channel-disagreement
+family: composition
+purpose: >-
+  Partial execution configuration combined with exit/report disagreement pressure.
+
+parents:
+  - EXE-001
+  - PROJ-005
+
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+
+preconditions:
+  - type: file_exists
+    path: config/execution.yaml
+  - type: file_exists
+    path: evidence/evidence.json
+
+mutations:
+  - type: structured_set
+    path: config/execution.yaml
+    pointer: /run_only
+    value:
+      - test_required
+  - type: write_json
+    path: evidence/evidence.json
+    content:
+      target_revision: rev-B
+      status: PASS
+      force_channel_disagree: true
+      producer: compound-partial-proj
+
+execute:
+  command_ref: run_target_verifier
+  timeout_seconds: 60
+
+oracle:
+  type: composite
+  plugins:
+    - type: matrix_completeness
+      expected:
+        full_matrix_executed: false
+    - type: report_exit_consistency
+      expected:
+        channels_consistent: false
+
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false
+
+minimization:
+  remove_steps: true
+  required_replays: 3
+  compound: true
+
+composition:
+  form: SEQUENCE
+  depth: 2
+  lineage:
+    left: EXE-001
+    right: PROJ-005

@@ -54,6 +54,12 @@ def main(argv: list[str] | None = None) -> int:
     p_camp_run.add_argument("--authorization", default=None)
     p_camp_run.add_argument("--output", default="outputs")
     p_camp_run.add_argument("--keep-workspaces", action="store_true")
+    p_camp_run.add_argument(
+        "--plan-mode",
+        choices=["single", "pairwise", "mixed"],
+        default=None,
+        help="Override catalog plan mode (single|pairwise|mixed)",
+    )
 
     p_replay = sub.add_parser("replay", help="Replay a witness directory")
     p_replay.add_argument("witness_dir")
@@ -195,6 +201,7 @@ def cmd_campaign_run(args: Any, root: Path) -> int:
         authorization_path=args.authorization,
         project_root=root,
         keep_workspaces=args.keep_workspaces,
+        plan_mode=args.plan_mode,
     )
     print(json.dumps({
         "campaign_id": summary.get("campaign_id"),

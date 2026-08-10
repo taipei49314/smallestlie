@@ -1,0 +1,4 @@
+status_map:
+  PASS: ACCEPT
+  FAIL: REJECT
+  invert: false

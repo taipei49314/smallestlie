@@ -14,13 +14,20 @@ This directory holds **design packages** for connecting SmallestLie to Nelson-ow
 
 | Order | Target | Status |
 |------:|--------|--------|
-| 0 | Synthetic `fixture_gate` | **Implemented** (M0–M3) |
-| 1 | **TomorrowCI** (verify / evidence authority) | **Design only** — this folder |
-| 2 | ClaimGate | Planned |
-| 3 | Greenwash | Planned |
+| 0 | Synthetic `fixture_gate` (+ composition fixture) | **Implemented** (M0–M4) |
+| 1 | **TomorrowCI** (verify / evidence authority) | **Design only** — [tomorrowci.md](./tomorrowci.md) |
+| 2 | **ClaimGate** (claim authorization semantics) | **Design only** — [claimgate.md](./claimgate.md) · *no local tree* |
+| 3 | **Greenwash** (anti-theater / green credibility) | **Design only** — [greenwash.md](./greenwash.md) · *no local tree* |
 | 4 | RepoPassport | Planned |
 | 5 | TraceCapsule | Planned |
 | 6 | Larger evidence systems | Deferred |
+
+### Design documents
+
+- [tomorrowci.md](./tomorrowci.md) — first real target (local tree observed)
+- [claimgate.md](./claimgate.md) — claim authorization (interface-first; source missing)
+- [greenwash.md](./greenwash.md) — green theater detection (interface-first; source missing)
+- [authorization-package.template.yaml](./authorization-package.template.yaml)
 
 ## Why TomorrowCI first
 

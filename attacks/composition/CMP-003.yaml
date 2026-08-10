@@ -1,0 +1,63 @@
+schema_version: smallestlie.attack/v1
+attack_id: CMP-003
+name: missing-config-plus-success-alias
+family: composition
+purpose: >-
+  Remove required policy and invert success semantics (alias / invert map).
+
+parents:
+  - CFG-001
+  - SEM-001
+
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+
+preconditions:
+  - type: file_exists
+    path: gate_policy.yaml
+  - type: file_exists
+    path: config/semantics.yaml
+
+mutations:
+  - type: delete_path
+    path: gate_policy.yaml
+  - type: structured_set
+    path: config/semantics.yaml
+    pointer: /status_map/invert
+    value: true
+  - type: structured_set
+    path: config/semantics.yaml
+    pointer: /status_map/FAIL
+    value: ACCEPT
+
+execute:
+  command_ref: run_target_verifier
+  timeout_seconds: 60
+
+oracle:
+  type: composite
+  plugins:
+    - type: required_policy_presence
+      expected:
+        policy_present: false
+    - type: semantic_policy
+      expected:
+        semantics_intact: false
+
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false
+
+minimization:
+  remove_steps: true
+  required_replays: 3
+  compound: true
+
+composition:
+  form: SEQUENCE
+  depth: 2
+  lineage:
+    left: CFG-001
+    right: SEM-001

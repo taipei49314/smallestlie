@@ -1,0 +1,6 @@
+{
+  "target_revision": "rev-B",
+  "status": "PASS",
+  "producer": "composition_blind_gate",
+  "note": "valid for current revision when untouched"
+}

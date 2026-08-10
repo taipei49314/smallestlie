@@ -1,0 +1,66 @@
+schema_version: smallestlie.attack/v1
+attack_id: CMP-004
+name: unauthorized-actor-plus-projection
+family: composition
+purpose: >-
+  Unauthorized approver combined with forced channel disagreement projection.
+
+parents:
+  - AUTH-001
+  - PROJ-005
+
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+
+preconditions:
+  - type: file_exists
+    path: authority/approval.json
+  - type: file_exists
+    path: evidence/evidence.json
+
+mutations:
+  - type: write_json
+    path: authority/approval.json
+    content:
+      approver: mallory-intruder
+      role: outsider
+      decision: approve
+  - type: write_json
+    path: evidence/evidence.json
+    content:
+      target_revision: rev-B
+      status: PASS
+      force_channel_disagree: true
+      producer: compound-auth-proj
+
+execute:
+  command_ref: run_target_verifier
+  timeout_seconds: 60
+
+oracle:
+  type: composite
+  plugins:
+    - type: actor_authority
+      expected:
+        approver_authorized: false
+    - type: report_exit_consistency
+      expected:
+        channels_consistent: false
+
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false
+
+minimization:
+  remove_steps: true
+  required_replays: 3
+  compound: true
+
+composition:
+  form: SEQUENCE
+  depth: 2
+  lineage:
+    left: AUTH-001
+    right: PROJ-005

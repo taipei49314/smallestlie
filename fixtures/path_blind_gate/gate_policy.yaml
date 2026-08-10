@@ -1,0 +1,9 @@
+mode: enforce
+bind_evidence_revision: true
+check_protected_path: false
+require_canonical_identity: false
+require_tests: true
+require_approval: true
+allowed_approvers:
+  - alice-release
+min_discovered_tests: 1

@@ -1,0 +1,6 @@
+{
+  "target_revision": "rev-B",
+  "status": "PASS",
+  "producer": "honest_gate_fixture",
+  "note": "bound to current revision"
+}

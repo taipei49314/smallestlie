@@ -113,6 +113,7 @@ def measure_oracle_plugin_inventory(project_root: Path) -> Measurement:
         "authority",
         "semantic_policy",
         "path_canonical",
+        "verifier_rules",
     }
     missing = sorted(expected - set(plugins))
     verdict = MeterVerdict.MEASURED_PASS if not missing else MeterVerdict.MEASURED_WARN

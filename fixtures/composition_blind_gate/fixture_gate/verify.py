@@ -65,6 +65,10 @@ def main(argv: list[str] | None = None) -> int:
     if not policy:
         return _emit(root, False, "REJECTED", [], None, ["required_policy_missing"])
 
+    # Rule surface for VRF-001 (composition still uses strict_ev below).
+    if policy.get("bind_evidence_revision", True):
+        pass
+
     tests = discover_tests(root)
     if policy.get("require_tests", True) and len(tests) < int(policy.get("min_discovered_tests", 1)):
         return _emit(root, False, "REJECTED", tests, None, ["zero_or_insufficient_tests"])

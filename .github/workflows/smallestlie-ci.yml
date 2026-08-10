@@ -9,7 +9,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  offline-gate:
+  # Fast path: subset catalog + unit tests
+  offline-gate-fast:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -33,64 +34,117 @@ jobs:
       - name: Unit + policy + integration tests
         run: uv run pytest -q
 
-      - name: Collect PR diff names (if PR)
-        if: github.event_name == 'pull_request'
-        run: |
-          git fetch origin "${{ github.base_ref }}" --depth=1 || true
-          git diff --name-only "origin/${{ github.base_ref }}...HEAD" > /tmp/sl-diff.txt || true
-          if [ ! -s /tmp/sl-diff.txt ]; then
-            echo "# empty diff" > /tmp/sl-diff.txt
-          fi
-          echo "DIFF_FILE=/tmp/sl-diff.txt" >> "$GITHUB_ENV"
-
-      - name: CI gate (offline fixtures)
+      - name: CI gate (fast catalog)
         id: gate
         run: |
-          EXTRA=()
-          if [ -n "${DIFF_FILE:-}" ] && [ -f "$DIFF_FILE" ]; then
-            EXTRA+=(--diff-file "$DIFF_FILE")
-          fi
           set +e
           uv run smallestlie ci-gate \
             --budget-seconds 900 \
-            --output outputs/ci \
-            --artifact-dir artifacts/smallestlie \
-            "${EXTRA[@]}"
+            --output outputs/ci-fast \
+            --artifact-dir artifacts/smallestlie-fast
           code=$?
           set -e
           echo "exit_code=$code" >> "$GITHUB_OUTPUT"
-          if [ -f outputs/ci/ci-summary.md ]; then
-            cat outputs/ci/ci-summary.md >> "$GITHUB_STEP_SUMMARY"
+          if [ -f outputs/ci-fast/ci-summary.md ]; then
+            echo "## Fast gate" >> "$GITHUB_STEP_SUMMARY"
+            cat outputs/ci-fast/ci-summary.md >> "$GITHUB_STEP_SUMMARY"
           fi
-          # Propagate gate exit code (0/2/3/4/5/6) — never convert skip to 0.
           exit $code
 
-      - name: Measure (meters before trusting claims)
+      - name: Upload fast artifacts
         if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smallestlie-ci-fast-${{ github.run_id }}
+          path: artifacts/smallestlie-fast/
+          if-no-files-found: warn
+
+  # Full M1 (+ VRF) catalog — closes ci.fast_catalog_incomplete_m1 blind spot
+  offline-gate-full:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Setup Python
+        run: uv python install 3.12
+
+      - name: Sync
+        run: uv sync --extra dev
+
+      - name: CI gate (full catalog)
+        id: gate_full
+        run: |
+          set +e
+          uv run smallestlie ci-gate \
+            --full \
+            --budget-seconds 2400 \
+            --output outputs/ci-full \
+            --artifact-dir artifacts/smallestlie-full
+          code=$?
+          set -e
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          if [ -f outputs/ci-full/ci-summary.md ]; then
+            echo "## Full catalog gate" >> "$GITHUB_STEP_SUMMARY"
+            cat outputs/ci-full/ci-summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit $code
+
+      - name: Upload full artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smallestlie-ci-full-${{ github.run_id }}
+          path: artifacts/smallestlie-full/
+          if-no-files-found: warn
+
+  measure:
+    runs-on: ubuntu-latest
+    needs: [offline-gate-fast, offline-gate-full]
+    if: always()
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Setup Python
+        run: uv python install 3.12
+
+      - name: Sync
+        run: uv sync --extra dev
+
+      - name: Measure + blindspots
         run: |
           set +e
           uv run smallestlie measure --output outputs/measurements
           mcode=$?
+          uv run smallestlie blindspots --report outputs/measurements/measurement-report.json
+          bcode=$?
           set -e
           if [ -f outputs/measurements/measurement-report.md ]; then
-            echo "" >> "$GITHUB_STEP_SUMMARY"
             cat outputs/measurements/measurement-report.md >> "$GITHUB_STEP_SUMMARY"
           fi
-          # Soft findings (3) allowed; hard fail (2) fails job
+          # Hard measure fail only
           if [ "$mcode" -eq 2 ]; then exit 2; fi
+          # High blind spots fail (blindspots exit 2)
+          if [ "$bcode" -eq 2 ]; then exit 2; fi
           exit 0
 
-      - name: Blind spots queue
-        if: always()
-        run: |
-          uv run smallestlie blindspots --report outputs/measurements/measurement-report.json || true
-
-      - name: Upload SmallestLie artifacts
+      - name: Upload measurement artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: smallestlie-ci-${{ github.run_id }}
-          path: |
-            artifacts/smallestlie/
-            outputs/measurements/
+          name: smallestlie-measure-${{ github.run_id }}
+          path: outputs/measurements/
           if-no-files-found: warn

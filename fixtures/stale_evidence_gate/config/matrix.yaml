@@ -1,0 +1,4 @@
+required_jobs:
+  - unit
+  - integration
+  - gate

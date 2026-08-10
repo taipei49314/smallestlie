@@ -17,6 +17,7 @@ from smallestlie.oracle import (
     report_exit,
     revision_binding,
     semantic_policy,
+    verifier_rules,
     workflow,
 )
 
@@ -90,6 +91,10 @@ def evaluate_oracle(
     pathc = path_canonical.evaluate(workspace, mutations_applied=mutations_applied)
     plugin_results["path_canonical"] = pathc
     facts.update({f"path.{k}": v for k, v in pathc["facts"].items()})
+
+    vrf = verifier_rules.evaluate(workspace)
+    plugin_results["verifier_rules"] = vrf
+    facts.update({f"verifier.{k}": v for k, v in vrf["facts"].items()})
 
     if target_verdict is not None:
         re = report_exit.evaluate(workspace, target_verdict)
@@ -200,6 +205,12 @@ def evaluate_oracle(
         if not approver_ok:
             reasons.append("approver_not_authorized")
         evidence.append("oracle/authority.json")
+
+    elif otype == "verifier_rule_presence":
+        valid = bool(vrf["facts"].get("required_rules_intact", False))
+        if not valid:
+            reasons.append("verifier_required_rules_missing_or_disabled")
+        evidence.append("oracle/verifier-rules.json")
 
     elif otype == "composite":
         valids: list[bool | None] = []

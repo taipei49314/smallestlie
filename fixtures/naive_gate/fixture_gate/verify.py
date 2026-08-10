@@ -83,6 +83,10 @@ def main(argv: list[str] | None = None) -> int:
     tests = discover_tests(root)
     revision = read_revision(root)
 
+    # Honest-shaped rule guard (naive does not bind). VRF-001 mutates this line.
+    if policy.get("bind_evidence_revision", True):
+        pass
+
     # Matrix / workflow fixtures
     matrix = _load_yaml(root / "config" / "matrix.yaml")
     required_jobs = list(matrix.get("required_jobs") or ["unit", "integration"])

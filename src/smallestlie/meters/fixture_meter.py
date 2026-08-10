@@ -19,6 +19,18 @@ EXPECTED_FIXTURES = {
         "role": "compound_only_false_accept",
         "required_files": ["fixture_gate/verify.py", "REVISION", "gate_policy.yaml"],
     },
+    "stale_evidence_gate": {
+        "role": "isolation_freshness",
+        "required_files": ["fixture_gate/verify.py", "REVISION", "gate_policy.yaml"],
+    },
+    "path_blind_gate": {
+        "role": "isolation_path",
+        "required_files": ["fixture_gate/verify.py", "REVISION", "gate_policy.yaml"],
+    },
+    "authority_blind_gate": {
+        "role": "isolation_authority",
+        "required_files": ["fixture_gate/verify.py", "REVISION", "gate_policy.yaml"],
+    },
 }
 
 
@@ -43,8 +55,6 @@ def measure_fixture_matrix(project_root: Path) -> Measurement:
     else:
         verdict = MeterVerdict.MEASURED_PASS
 
-    # North Star later fixtures not required yet
-    deferred = ["stale_evidence_gate", "path_blind_gate", "authority_blind_gate"]
     return Measurement(
         meter_id="fixture.matrix",
         name="Required synthetic fixture matrix",
@@ -56,6 +66,5 @@ def measure_fixture_matrix(project_root: Path) -> Measurement:
             "present": present,
             "missing": missing,
             "incomplete": incomplete,
-            "deferred_not_required": deferred,
         },
     )

@@ -1,6 +1,6 @@
 name: ci-offline-full
 seed_default: 49314
-description: Full M1 catalog for slower CI jobs (still synthetic fixtures only).
+description: Full M1 + VRF catalog for slower CI jobs (still synthetic fixtures only).
 mode: single
 attacks:
   - EVD-001
@@ -18,3 +18,4 @@ attacks:
   - AUTH-001
   - CFG-001
   - PROJ-005
+  - VRF-001

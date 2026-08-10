@@ -1,0 +1,7 @@
+name: isolation-path
+seed_default: 49314
+description: Isolation catalog for path_blind_gate.
+mode: single
+attacks:
+  - PATH-001
+  - PATH-002

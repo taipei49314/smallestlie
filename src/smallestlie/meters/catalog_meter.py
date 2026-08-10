@@ -41,6 +41,7 @@ M1_MINIMUM_IDS = {
     "AUTH-001",
     "CFG-001",
     "PROJ-005",
+    "VRF-001",
 }
 
 
@@ -70,12 +71,7 @@ def measure_family_coverage(project_root: Path) -> Measurement:
     present = sorted(families_present & DECLARED_FAMILIES)
     ratio = len(present) / len(DECLARED_FAMILIES) if DECLARED_FAMILIES else 0.0
     # verifier may be empty intentionally at M1-M5 — warn not fail if only verifier missing
-    # Pre-VRF milestone: missing `verifier` family is an explicit backlog blind spot,
-    # not a failed measurement of the current declared M1–M5 surface.
-    soft_allow = {"verifier"}
-    hard_missing = [f for f in missing if f not in soft_allow]
-    soft_missing = [f for f in missing if f in soft_allow]
-    if hard_missing:
+    if missing:
         verdict = MeterVerdict.MEASURED_FAIL
     else:
         verdict = MeterVerdict.MEASURED_PASS
@@ -85,19 +81,14 @@ def measure_family_coverage(project_root: Path) -> Measurement:
         verdict=verdict,
         value=round(ratio, 4),
         unit="ratio",
-        threshold={"hard_missing_must_be_empty": True, "soft_allow": sorted(soft_allow)},
+        threshold={"missing_must_be_empty": True},
         evidence={
             "present_families": present,
             "missing_families": missing,
-            "hard_missing": hard_missing,
-            "soft_missing": soft_missing,
             "attack_count": len(attacks),
             "attacks_by_family": _by_family(attacks),
         },
-        notes=[
-            "soft_missing families remain as blind-spot backlog items",
-            "MEASURED_PASS here does not mean full North Star taxonomy is complete",
-        ],
+        notes=["MEASURED_PASS means each taxonomy family has ≥1 attack, not product security"],
     )
 
 

@@ -29,6 +29,7 @@ M1_ATTACKS = [
     "AUTH-001",
     "CFG-001",
     "PROJ-005",
+    "VRF-001",
 ]
 
 
@@ -88,14 +89,21 @@ def test_honest_gate_rejects_invalid_states(tmp_path: Path) -> None:
         project_root=ROOT,
     )
     assert summary["source_immutable"] is True
-    assert summary["false_accept_count"] == 0
 
     by_attack = {
         r["attack_id"]: r.get("comparison", {}).get("result")
         for r in summary["runs"]
         if not r.get("skipped")
     }
+    # VRF-001 mutates the verifier itself — honest_gate is expected to false-accept
+    # after rule deletion + stale evidence (that is the attack succeeding).
     for aid in M1_ATTACKS:
+        if aid == "VRF-001":
+            assert by_attack.get(aid) == ComparisonResult.FALSE_ACCEPT_OBSERVED.value, (
+                aid,
+                by_attack.get(aid),
+            )
+            continue
         assert by_attack.get(aid) == ComparisonResult.ATTACK_REJECTED.value, (
             aid,
             by_attack.get(aid),
@@ -104,6 +112,7 @@ def test_honest_gate_rejects_invalid_states(tmp_path: Path) -> None:
                 None,
             ),
         )
+    assert summary["false_accept_count"] == 1
 
 
 @pytest.mark.integration

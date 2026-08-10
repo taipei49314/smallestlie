@@ -1,0 +1,7 @@
+name: isolation-stale
+seed_default: 49314
+description: Isolation catalog for stale_evidence_gate (freshness / evidence binding).
+mode: single
+attacks:
+  - EVD-002
+  - TIME-001

@@ -1,0 +1,2 @@
+required_tests:
+  - tests/test_required.py

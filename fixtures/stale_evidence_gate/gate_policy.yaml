@@ -1,0 +1,9 @@
+mode: enforce
+# Isolation: policy claims binding but verifier ignores it
+bind_evidence_revision: true
+check_protected_path: true
+require_tests: true
+require_approval: true
+allowed_approvers:
+  - alice-release
+min_discovered_tests: 1

@@ -99,6 +99,7 @@ def find_blindspots(
         "authority": {"actor_authority"},
         "semantic_policy": {"semantic_policy", "fail_closed_defaults"},
         "path_canonical": {"path_canonicalization"},
+        "verifier_rules": {"verifier_rule_presence"},
     }
     m_oracle = by_id.get("catalog.oracle_type_usage")
     counts = (m_oracle.evidence or {}).get("counts") if m_oracle else {}
@@ -119,39 +120,60 @@ def find_blindspots(
                     )
                 )
 
-    # 5) Fixtures deferred
+    # 5) Isolation fixtures required
     fixtures = project_root / "fixtures"
     for name in ("stale_evidence_gate", "path_blind_gate", "authority_blind_gate"):
         if not (fixtures / name).is_dir():
             spots.append(
                 BlindSpot(
                     spot_id=f"fixture.missing.{name}",
-                    severity="low",
+                    severity="medium",
                     category="fixture_gap",
-                    description=f"North Star fixture not present: {name}",
-                    remediation="Add specialized fixture when isolating that trust surface",
+                    description=f"Isolation fixture not present: {name}",
+                    remediation="Add specialized fixture under fixtures/",
                 )
             )
 
-    # 6) CI fast catalog vs full M1
-    ci_fast = project_root / "catalogs" / "ci-offline-fast.yaml"
-    if ci_fast.is_file():
-        import yaml
+    # 6) CI coverage: full catalog must cover M1; fast may be subset if full job exists
+    import yaml
 
-        raw = yaml.safe_load(ci_fast.read_text(encoding="utf-8")) or {}
-        fast_ids = set(raw.get("attacks") or [])
-        not_in_ci = sorted(M1_MINIMUM_IDS - fast_ids)
-        if not_in_ci:
+    ci_full = project_root / "catalogs" / "ci-offline-full.yaml"
+    workflow = project_root / ".github" / "workflows" / "smallestlie-ci.yml"
+    has_full_job = False
+    if workflow.is_file():
+        wf_text = workflow.read_text(encoding="utf-8")
+        has_full_job = "offline-gate-full" in wf_text or "--full" in wf_text
+
+    if ci_full.is_file():
+        full_ids = set((yaml.safe_load(ci_full.read_text(encoding="utf-8")) or {}).get("attacks") or [])
+        not_in_full = sorted(M1_MINIMUM_IDS - full_ids)
+        if not_in_full:
             spots.append(
                 BlindSpot(
-                    spot_id="ci.fast_catalog_incomplete_m1",
-                    severity="medium",
+                    spot_id="ci.full_catalog_incomplete_m1",
+                    severity="high",
                     category="ci_gap",
-                    description="ci-offline-fast does not cover full M1 minimum set",
-                    remediation="Accept as budget tradeoff or expand ci-offline-fast / rely on --full job",
-                    evidence={"missing_from_fast": not_in_ci, "fast_ids": sorted(fast_ids)},
+                    description="ci-offline-full does not cover full M1 minimum set",
+                    remediation="Add missing attack ids to catalogs/ci-offline-full.yaml",
+                    evidence={"missing_from_full": not_in_full},
                 )
             )
+    elif not has_full_job:
+        ci_fast = project_root / "catalogs" / "ci-offline-fast.yaml"
+        if ci_fast.is_file():
+            fast_ids = set((yaml.safe_load(ci_fast.read_text(encoding="utf-8")) or {}).get("attacks") or [])
+            not_in_ci = sorted(M1_MINIMUM_IDS - fast_ids)
+            if not_in_ci:
+                spots.append(
+                    BlindSpot(
+                        spot_id="ci.fast_catalog_incomplete_m1",
+                        severity="medium",
+                        category="ci_gap",
+                        description="No full CI catalog/job; fast catalog incomplete vs M1",
+                        remediation="Add offline-gate-full job and ci-offline-full.yaml",
+                        evidence={"missing_from_fast": not_in_ci},
+                    )
+                )
 
     # 7) Meters that are NOT_MEASURED while non-optional claims need them
     for c in BEHAVIOR_CLAIMS:

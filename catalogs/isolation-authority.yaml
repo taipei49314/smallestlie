@@ -1,0 +1,6 @@
+name: isolation-authority
+seed_default: 49314
+description: Isolation catalog for authority_blind_gate.
+mode: single
+attacks:
+  - AUTH-001

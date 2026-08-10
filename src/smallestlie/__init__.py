@@ -1,6 +1,6 @@
 """SmallestLie — authorized adversarial repository verification harness."""
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 __schema_versions__ = {
     "attack": "smallestlie.attack/v1",
     "result": "smallestlie.result/v1",

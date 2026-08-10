@@ -65,10 +65,32 @@ jobs:
           # Propagate gate exit code (0/2/3/4/5/6) — never convert skip to 0.
           exit $code
 
+      - name: Measure (meters before trusting claims)
+        if: always()
+        run: |
+          set +e
+          uv run smallestlie measure --output outputs/measurements
+          mcode=$?
+          set -e
+          if [ -f outputs/measurements/measurement-report.md ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            cat outputs/measurements/measurement-report.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+          # Soft findings (3) allowed; hard fail (2) fails job
+          if [ "$mcode" -eq 2 ]; then exit 2; fi
+          exit 0
+
+      - name: Blind spots queue
+        if: always()
+        run: |
+          uv run smallestlie blindspots --report outputs/measurements/measurement-report.json || true
+
       - name: Upload SmallestLie artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: smallestlie-ci-${{ github.run_id }}
-          path: artifacts/smallestlie/
+          path: |
+            artifacts/smallestlie/
+            outputs/measurements/
           if-no-files-found: warn

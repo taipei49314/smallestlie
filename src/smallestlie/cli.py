@@ -14,6 +14,7 @@ from smallestlie.campaign.runner import run_campaign
 from smallestlie.ci.baseline import compare_to_baseline, load_summary
 from smallestlie.ci.gate import CiGateConfig, run_ci_gate
 from smallestlie.ledger.verify import verify_ledger
+from smallestlie.meters.suite import run_measurement_suite
 from smallestlie.models import ExitCode
 from smallestlie.policy.authorization import (
     AuthorizationError,
@@ -102,6 +103,25 @@ def main(argv: list[str] | None = None) -> int:
     p_bc.add_argument("--current", required=True)
     p_bc.add_argument("--baseline", required=True)
 
+    p_measure = sub.add_parser(
+        "measure",
+        help="Run measurement suite (meter first; trust claims only if meters pass)",
+    )
+    p_measure.add_argument(
+        "--campaign",
+        default=None,
+        help="Optional campaign dir to meter (false-accept yield, replay, etc.)",
+    )
+    p_measure.add_argument("--output", default="outputs/measurements")
+
+    p_bs = sub.add_parser(
+        "blindspots",
+        help="Print blind-spot queue from latest or fresh measurement report",
+    )
+    p_bs.add_argument("--report", default=None, help="measurement-report.json path")
+    p_bs.add_argument("--output", default="outputs/measurements")
+    p_bs.add_argument("--refresh", action="store_true", help="Re-run measure first")
+
     args = parser.parse_args(argv)
     root = _project_root()
 
@@ -127,6 +147,10 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_ci_gate(args, root)
     if args.command == "baseline-compare":
         return cmd_baseline_compare(args)
+    if args.command == "measure":
+        return cmd_measure(args, root)
+    if args.command == "blindspots":
+        return cmd_blindspots(args, root)
     print(f"unknown command: {args.command}", file=sys.stderr)
     return int(ExitCode.INVALID_CONFIG)
 
@@ -453,3 +477,71 @@ def cmd_baseline_compare(args: Any) -> int:
     result = compare_to_baseline(current, baseline)
     print(json.dumps(result, indent=2))
     return 0 if result.get("ok") else int(ExitCode.FALSE_ACCEPT)
+
+
+def cmd_measure(args: Any, root: Path) -> int:
+    report = run_measurement_suite(
+        root,
+        campaign_dir=args.campaign,
+        output_dir=args.output,
+    )
+    s = report.get("summary") or {}
+    print(
+        json.dumps(
+            {
+                "suite_ok": s.get("suite_ok"),
+                "exit_code": report.get("exit_code"),
+                "MEASURED_PASS": s.get("MEASURED_PASS"),
+                "MEASURED_FAIL": s.get("MEASURED_FAIL"),
+                "MEASURED_WARN": s.get("MEASURED_WARN"),
+                "NOT_MEASURED": s.get("NOT_MEASURED"),
+                "claims_trusted": s.get("claims_trusted"),
+                "claims_deferred": s.get("claims_deferred"),
+                "claims_untrusted": s.get("claims_untrusted"),
+                "blindspots": s.get("blindspots"),
+                "blindspots_high": s.get("blindspots_high"),
+                "report_json": report.get("report_json"),
+                "report_md": report.get("report_md"),
+            },
+            indent=2,
+        )
+    )
+    return int(report.get("exit_code", 5))
+
+
+def cmd_blindspots(args: Any, root: Path) -> int:
+    report_path = Path(args.report) if args.report else None
+    if args.refresh or report_path is None or not Path(report_path).is_file():
+        out = args.output
+        report = run_measurement_suite(root, output_dir=out)
+        report_path = Path(report["report_json"])
+    else:
+        report = json.loads(Path(report_path).read_text(encoding="utf-8"))
+
+    spots = report.get("blindspots") or []
+    # severity filter print
+    high = [s for s in spots if s.get("severity") == "high"]
+    med = [s for s in spots if s.get("severity") == "medium"]
+    low = [s for s in spots if s.get("severity") == "low"]
+    print(
+        json.dumps(
+            {
+                "report": str(report_path),
+                "counts": {"high": len(high), "medium": len(med), "low": len(low)},
+                "high": high,
+                "medium": med,
+                "low": low,
+                "retest_queue": [
+                    {
+                        "id": s.get("spot_id"),
+                        "severity": s.get("severity"),
+                        "remediation": s.get("remediation"),
+                    }
+                    for s in spots
+                ],
+            },
+            indent=2,
+        )
+    )
+    # exit 2 if high blind spots remain
+    return 2 if high else (3 if med else 0)

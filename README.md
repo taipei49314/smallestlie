@@ -62,19 +62,26 @@ uv run smallestlie report outputs/<campaign-id>
 
 ## Status
 
-**v0.4.0** — M0–M5 harness (synthetic fixtures; real adapters design-only)
+**v0.5.0** — M0–M5 harness + **measurement discipline** (meter → trust → blind spots)
 
 | Milestone | Status |
 |---|---|
-| M0 containment | done |
-| M1 canonical attacks (15) | done |
-| M2 oracles O2/O3 | done |
-| M3 minimize + regression | done |
-| M4 compound campaigns | done |
-| M5 CI gate | done |
+| M0–M5 | done |
+| Measurement suite | done (`measure` / `blindspots`) |
 | Real adapters | design only (TomorrowCI / ClaimGate / Greenwash) |
 
-Does **not** claim any repository is secure. Real targets require a signed authorization package — pick “who to hit” only after that.
+### Confidence loop
+
+```bash
+uv run pytest -q
+uv run smallestlie ci-gate
+uv run smallestlie measure          # meters first
+uv run smallestlie blindspots       # retest queue
+```
+
+Trust behavior claims only when `measure` marks them trusted. See [docs/meters.md](docs/meters.md).
+
+Does **not** claim any repository is secure. Real targets require a signed authorization package.
 
 ## Docs
 

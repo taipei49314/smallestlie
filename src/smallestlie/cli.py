@@ -60,6 +60,11 @@ def main(argv: list[str] | None = None) -> int:
     p_replay.add_argument("--target", default=None, help="Override fixture path")
     p_replay.add_argument("--attempts", type=int, default=3)
 
+    p_min = sub.add_parser("minimize", help="Re-minimize mutations for a run directory")
+    p_min.add_argument("run_dir", help="Path to campaign runs/<run-id>")
+    p_min.add_argument("--target", required=True)
+    p_min.add_argument("--attempts", type=int, default=3)
+
     p_ledger = sub.add_parser("ledger", help="Ledger operations")
     led_sub = p_ledger.add_subparsers(dest="ledger_cmd", required=True)
     p_led_v = led_sub.add_parser("verify", help="Verify campaign ledger")
@@ -85,6 +90,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_campaign_run(args, root)
     if args.command == "replay":
         return cmd_replay(args, root)
+    if args.command == "minimize":
+        return cmd_minimize(args, root)
     if args.command == "ledger" and args.ledger_cmd == "verify":
         return cmd_ledger_verify(args.campaign_dir)
     if args.command == "report":
@@ -254,6 +261,60 @@ def cmd_replay(args: Any, root: Path) -> int:
     if replay.get("stable"):
         return 0
     return int(ExitCode.HARNESS_ERROR)
+
+
+def cmd_minimize(args: Any, root: Path) -> int:
+    import yaml
+    from smallestlie.adapters.base import get_adapter
+    from smallestlie.attacks.schema import parse_attack_spec
+    from smallestlie.baseline.capture import capture_baseline
+    from smallestlie.campaign.runner import _run_mutant_once
+    from smallestlie.minimize.ddmin import ddmin
+    from smallestlie.models import ComparisonResult
+    from smallestlie.policy.authorization import default_fixture_authorization
+
+    run_dir = Path(args.run_dir)
+    if not run_dir.is_absolute():
+        run_dir = (Path.cwd() / run_dir).resolve()
+    attack_path = run_dir / "attack.yaml"
+    if not attack_path.is_file():
+        print(f"missing attack.yaml in {run_dir}", file=sys.stderr)
+        return int(ExitCode.INVALID_CONFIG)
+    attack = parse_attack_spec(
+        yaml.safe_load(attack_path.read_text(encoding="utf-8")),
+        source_path=str(attack_path),
+    )
+    target = Path(args.target)
+    if not target.is_absolute():
+        target = (root / target).resolve()
+    adapter = get_adapter("fixture_gate")
+    auth = default_fixture_authorization(target)
+    baseline = capture_baseline(
+        target,
+        adapter_name=adapter.name,
+        adapter_version=adapter.version,
+        authorization_digest=auth.digest(),
+    )
+
+    def interesting(subset: list) -> bool:
+        one = _run_mutant_once(
+            mutations=subset,
+            attack=attack,
+            target_path=target,
+            baseline=baseline,
+            adapter=adapter,
+            allowlist=adapter.command_allowlist(),
+        )
+        return (
+            one.get("comparison", {}).get("result")
+            == ComparisonResult.FALSE_ACCEPT_OBSERVED.value
+        )
+
+    result = ddmin(list(attack.mutations), interesting)
+    out = run_dir / "minimization.json"
+    out.write_text(json.dumps(result.to_dict(), indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(json.dumps(result.to_dict(), indent=2, default=str))
+    return 0
 
 
 def cmd_ledger_verify(campaign_dir: str) -> int:

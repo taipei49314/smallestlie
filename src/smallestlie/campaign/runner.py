@@ -36,8 +36,10 @@ from smallestlie.policy.authorization import (
 )
 from smallestlie.policy.command_allowlist import CommandAllowlistError
 from smallestlie.policy.path_guard import PathGuardError
+from smallestlie.minimize.ddmin import ddmin
 from smallestlie.report.json_report import write_json_report
 from smallestlie.report.markdown_report import write_markdown_report
+from smallestlie.report.regression import export_regression
 from smallestlie.report.replay_bundle import write_replay_bundle
 from smallestlie.sandbox.executor import SandboxExecutor
 from smallestlie.sandbox.limits import ResourceLimits
@@ -266,8 +268,8 @@ def run_campaign(
         "inconclusive_count": len(inconclusive),
         "limitations": [
             "synthetic fixture target" if auth.mode == "synthetic_fixture" else "local authorized target",
-            "M0–M1 prototype: single-attack kernel only",
-            "oracle level O2 cross-checks",
+            "M1–M3 prototype: single attacks + minimize + O2/O3 oracles",
+            "no compound pairwise campaigns yet (M4)",
             "network denied",
         ],
         "campaign_dir": str(campaign_dir),
@@ -468,7 +470,7 @@ def _execute_run(
                     "",
                     f"- attack: {attack.attack_id}",
                     "- synthetic fixture execution",
-                    "- O2 oracle cross-checks",
+                    "- O2/O3 oracle cross-checks (never target verdict as truth)",
                     "",
                 ]
             ),
@@ -494,24 +496,80 @@ def _execute_run(
         }
 
         if comparison.result == ComparisonResult.FALSE_ACCEPT_OBSERVED:
+            required_replays = int(
+                (attack.minimization or {}).get("required_replays", 3)
+            )
+            do_minimize = bool((attack.minimization or {}).get("remove_steps", True))
+
+            minimal_mutations = list(attack.mutations)
+            minimize_info: dict[str, Any] = {
+                "original_steps": len(attack.mutations),
+                "minimal_steps": len(attack.mutations),
+                "skipped": not do_minimize or len(attack.mutations) <= 1,
+            }
+            if do_minimize and len(attack.mutations) > 1:
+
+                def _interesting(subset: list[dict[str, Any]]) -> bool:
+                    one = _run_mutant_once(
+                        mutations=subset,
+                        attack=attack,
+                        target_path=target_path,
+                        baseline=baseline,
+                        adapter=adapter,
+                        allowlist=allowlist,
+                    )
+                    return (
+                        one.get("comparison", {}).get("result")
+                        == ComparisonResult.FALSE_ACCEPT_OBSERVED.value
+                    )
+
+                min_result = ddmin(list(attack.mutations), _interesting)
+                minimal_mutations = min_result.minimal_mutations
+                minimize_info = min_result.to_dict()
+                ledger.append(
+                    ev.EVENT_COMPARATOR_RESULT,
+                    {
+                        "run_id": run_id,
+                        "event": "minimization",
+                        **{k: v for k, v in minimize_info.items() if k != "minimal_mutations"},
+                        "minimal_steps": minimize_info.get("minimal_steps"),
+                    },
+                )
+
+            result["minimization"] = minimize_info
+            result["minimal_mutations"] = minimal_mutations
+
+            # Build minimized attack view for witness
+            min_attack_raw = dict(attack.to_dict())
+            min_attack_raw["mutations"] = minimal_mutations
+            from smallestlie.attacks.schema import parse_attack_spec
+
+            min_attack = parse_attack_spec(min_attack_raw, source_path=attack.source_path)
+
             witness_id = f"W-{attack.attack_id}-{run_id}"
             witness_dir = witnesses_dir / witness_id
             write_replay_bundle(
                 witness_dir=witness_dir,
-                attack=attack,
+                attack=min_attack,
                 run_result=result,
                 baseline=baseline,
                 authorization_digest=auth.digest(),
                 source_fixture_name=target_path.name,
             )
-            # Replay confirmation (3 attempts) against fresh workspaces.
+            (witness_dir / "minimized.patch.json").write_text(
+                json.dumps(minimal_mutations, indent=2, sort_keys=True, default=str)
+                + "\n",
+                encoding="utf-8",
+            )
+
             replay = _replay_false_accept(
-                attack=attack,
+                attack=min_attack,
                 target_path=target_path,
                 baseline=baseline,
                 adapter=adapter,
                 allowlist=allowlist,
-                attempts=3,
+                attempts=required_replays,
+                mutations=minimal_mutations,
             )
             result["replay"] = replay
             (witness_dir / "replay-result.json").write_text(
@@ -523,6 +581,20 @@ def _execute_run(
                 {"run_id": run_id, "witness_id": witness_id, **replay},
             )
             result["witness_id"] = witness_id
+
+            if replay.get("stable"):
+                reg = export_regression(
+                    regressions_dir=campaign_dir / "regressions",
+                    attack=min_attack,
+                    minimal_mutations=minimal_mutations,
+                    run_result=result,
+                    campaign_id=campaign_dir.name,
+                )
+                result["regression"] = reg
+                ledger.append(
+                    ev.EVENT_REGRESSION_EXPORT,
+                    {"run_id": run_id, **reg},
+                )
 
         _write_run_comparison(run_dir, result)
         return result
@@ -578,6 +650,43 @@ def _check_preconditions(target: Path, attack: AttackSpec) -> dict[str, Any]:
     return {"ok": len(hard) == 0, "reasons": reasons}
 
 
+def _run_mutant_once(
+    *,
+    mutations: list[dict[str, Any]],
+    attack: AttackSpec,
+    target_path: Path,
+    baseline: dict[str, Any],
+    adapter: Any,
+    allowlist: Any,
+) -> dict[str, Any]:
+    ws = DisposableWorkspace.create(target_path)
+    try:
+        applied = apply_mutations(ws.workspace_path, mutations, source_path=target_path)
+        spec = allowlist.resolve(str(attack.execute["command_ref"]))
+        executor = SandboxExecutor(ws.workspace_path)
+        execution = executor.run(
+            spec,
+            extra_env={"PYTHONPATH": str(ws.workspace_path)},
+        )
+        verdict = adapter.parse_verdict(ws.workspace_path, execution)
+        oracle = evaluate_oracle(
+            ws.workspace_path,
+            attack_oracle=attack.oracle,
+            baseline=baseline,
+            target_verdict=verdict,
+            mutations_applied=applied,
+        )
+        comparison = compare(oracle, verdict)
+        return {
+            "comparison": comparison.to_dict(),
+            "target_accepted": verdict.accepted,
+            "oracle_valid": oracle.valid,
+            "exit_code": execution.exit_code,
+        }
+    finally:
+        ws.cleanup()
+
+
 def _replay_false_accept(
     *,
     attack: AttackSpec,
@@ -586,41 +695,31 @@ def _replay_false_accept(
     adapter: Any,
     allowlist: Any,
     attempts: int = 3,
+    mutations: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
+    muts = mutations if mutations is not None else list(attack.mutations)
     successes = 0
     details: list[dict[str, Any]] = []
     for i in range(attempts):
-        ws = DisposableWorkspace.create(target_path)
-        try:
-            apply_mutations(ws.workspace_path, attack.mutations, source_path=target_path)
-            spec = allowlist.resolve(str(attack.execute["command_ref"]))
-            executor = SandboxExecutor(ws.workspace_path)
-            execution = executor.run(
-                spec,
-                extra_env={"PYTHONPATH": str(ws.workspace_path)},
-            )
-            verdict = adapter.parse_verdict(ws.workspace_path, execution)
-            oracle = evaluate_oracle(
-                ws.workspace_path,
-                attack_oracle=attack.oracle,
-                baseline=baseline,
-                target_verdict=verdict,
-                mutations_applied=attack.mutations,
-            )
-            comparison = compare(oracle, verdict)
-            ok = comparison.result == ComparisonResult.FALSE_ACCEPT_OBSERVED
-            if ok:
-                successes += 1
-            details.append(
-                {
-                    "attempt": i + 1,
-                    "result": comparison.result.value,
-                    "target_accepted": verdict.accepted,
-                    "oracle_valid": oracle.valid,
-                }
-            )
-        finally:
-            ws.cleanup()
+        one = _run_mutant_once(
+            mutations=muts,
+            attack=attack,
+            target_path=target_path,
+            baseline=baseline,
+            adapter=adapter,
+            allowlist=allowlist,
+        )
+        ok = one.get("comparison", {}).get("result") == ComparisonResult.FALSE_ACCEPT_OBSERVED.value
+        if ok:
+            successes += 1
+        details.append(
+            {
+                "attempt": i + 1,
+                "result": one.get("comparison", {}).get("result"),
+                "target_accepted": one.get("target_accepted"),
+                "oracle_valid": one.get("oracle_valid"),
+            }
+        )
     return {
         "attempts": attempts,
         "reproduced": successes,

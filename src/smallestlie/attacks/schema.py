@@ -11,6 +11,7 @@ import yaml
 ALLOWED_MUTATION_TYPES = {
     "replace_text",
     "structured_set",
+    "structured_delete",
     "delete_path",
     "rename_path",
     "duplicate_path",

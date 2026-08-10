@@ -1,7 +1,20 @@
-# Intentionally weak policy for naive_gate
 mode: open
 require_tests: false
 require_policy: false
 bind_evidence_revision: false
+bind_artifact_hash: false
 check_protected_path: false
 require_channel_agreement: false
+require_full_matrix: false
+require_full_execution: false
+require_canonical_identity: false
+# SEM-003 surface: field present but naive ignores missing after delete
+require_approval: false
+allowed_approvers:
+  - alice-release
+  - bob-anyone
+success_tokens:
+  - VERIFIED
+  - PASS
+  - FAIL
+  - OK

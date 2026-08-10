@@ -56,4 +56,11 @@ uv run smallestlie report outputs/<campaign-id>
 
 ## Status
 
-M0–M1 prototype: containment + deterministic single-attack kernel against synthetic `naive_gate` / `honest_gate` fixtures.
+M0–M3 prototype (synthetic fixtures only):
+
+- **M0** containment (auth, path guard, sandbox, ledger)
+- **M1** full canonical attack catalog (15 attacks)
+- **M2** O2/O3 fact-based oracles (execution, artifact, workflow, authority, semantics, …)
+- **M3** ddmin minimization, 3× replay confirmation, regression export
+
+Does **not** claim any repository is secure.

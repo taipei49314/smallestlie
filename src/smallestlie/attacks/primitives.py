@@ -66,6 +66,19 @@ def _apply_one(guard: PathGuard, step: dict[str, Any], *, index: int) -> dict[st
             "value": value,
         }
 
+    if mtype == "structured_delete":
+        path = guard.ensure_relative_inside(step["path"])
+        pointer = str(step["pointer"])
+        data = _load_structured(path)
+        _delete_pointer(data, pointer)
+        _dump_structured(path, data)
+        return {
+            "index": index,
+            "type": mtype,
+            "path": step["path"],
+            "pointer": pointer,
+        }
+
     if mtype == "delete_path":
         path = guard.ensure_relative_inside(step["path"])
         if path.is_dir():
@@ -166,3 +179,22 @@ def _set_pointer(data: Any, pointer: str, value: Any) -> None:
         cur[last] = value
     else:
         raise MutationError(f"cannot set pointer leaf {last}")
+
+
+def _delete_pointer(data: Any, pointer: str) -> None:
+    if not pointer.startswith("/"):
+        raise MutationError(f"pointer must start with /: {pointer}")
+    parts = [p for p in pointer.split("/")[1:] if p != ""]
+    if not parts:
+        raise MutationError("empty pointer")
+    cur = data
+    for part in parts[:-1]:
+        if isinstance(cur, dict) and part in cur:
+            cur = cur[part]
+        else:
+            raise MutationError(f"cannot traverse delete pointer at {part}")
+    last = parts[-1]
+    if isinstance(cur, dict) and last in cur:
+        del cur[last]
+    else:
+        raise MutationError(f"delete pointer leaf missing: {last}")

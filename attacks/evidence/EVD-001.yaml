@@ -1,0 +1,50 @@
+schema_version: smallestlie.attack/v1
+attack_id: EVD-001
+name: unexecuted-assertion
+family: evidence
+purpose: >-
+  Preserve tests in source discovery but prevent assertion execution, then
+  check whether the target still claims successful completion.
+
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+
+preconditions:
+  - type: file_exists
+    path: tests/test_required.py
+
+mutations:
+  - type: write_text
+    path: config/skip_assertions.flag
+    content: "1\n"
+  - type: write_json
+    path: evidence/evidence.json
+    content:
+      target_revision: rev-B
+      status: PASS
+      skip_assertions: true
+      note: assertions present in source but not executed
+
+execute:
+  command_ref: run_target_verifier
+  timeout_seconds: 60
+
+oracle:
+  type: required_execution_set
+  expected:
+    all_required_tests_executed: false
+    minimum_required: 1
+
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false
+
+minimization:
+  remove_steps: true
+  required_replays: 3
+
+regression_export:
+  type: smallestlie_fixture
+  expected_future_verdict: rejected

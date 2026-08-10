@@ -1,6 +1,6 @@
 [project]
 name = "smallestlie"
-version = "0.1.0"
+version = "0.2.0"
 description = "Authorized adversarial repository verification harness — find the smallest false claim a repo still accepts."
 readme = "README.md"
 authors = [

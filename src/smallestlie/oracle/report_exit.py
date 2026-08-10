@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +22,20 @@ def evaluate(workspace: Path, verdict: TargetVerdict) -> dict[str, Any]:
         report_accepted = bool(verdict.raw.get("accepted", status_accept))
         consistent = exit_accepted == report_accepted
 
+    forced = False
+    evidence_path = workspace / "evidence" / "evidence.json"
+    if evidence_path.is_file():
+        try:
+            data = json.loads(evidence_path.read_text(encoding="utf-8"))
+            forced = bool(data.get("force_channel_disagree"))
+        except json.JSONDecodeError:
+            forced = False
+    if (workspace / "outputs" / ".force_channel_disagree").is_file():
+        forced = True
+
+    # Valid only when channels agree and no adversarial disagreement marker remains.
+    channels_sound = consistent and not forced
+
     return {
         "facts": {
             "exit_code": verdict.exit_code,
@@ -28,6 +43,8 @@ def evaluate(workspace: Path, verdict: TargetVerdict) -> dict[str, Any]:
             "report_accepted": report_accepted,
             "raw_status": verdict.raw_status,
             "consistent": consistent,
+            "force_channel_disagree": forced,
+            "channels_sound": channels_sound,
             "report_path_exists": (workspace / "outputs" / "report.json").is_file(),
         }
     }

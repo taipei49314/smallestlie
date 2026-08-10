@@ -1,0 +1,47 @@
+schema_version: smallestlie.attack/v1
+attack_id: PATH-001
+name: rename-escape
+family: path
+purpose: >-
+  Rename a protected semantic file so policy no longer recognizes it,
+  while the rest of the fixture remains green-looking.
+
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+
+applies_when:
+  adapter_capabilities:
+    - protected_paths
+    - target_verdict
+
+preconditions:
+  - type: file_exists
+    path: protected/required_check.py
+
+mutations:
+  - type: rename_path
+    from: protected/required_check.py
+    to: protected/required_check.py.renamed
+
+execute:
+  command_ref: run_target_verifier
+  timeout_seconds: 60
+
+oracle:
+  type: protected_identity
+  expected:
+    protected_path_intact: false
+
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false
+
+minimization:
+  remove_steps: true
+  required_replays: 3
+
+regression_export:
+  type: target_fixture
+  expected_future_verdict: rejected

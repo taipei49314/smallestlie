@@ -1,0 +1,19 @@
+authorization:
+  mode: synthetic_fixture
+  owner: nelson
+  target_path: fixtures/naive_gate
+  disposable_clone_required: true
+  network: denied
+  expires_at: "2099-12-31T23:59:59+00:00"
+  allowed_attack_families:
+    - evidence
+    - execution
+    - semantic
+    - path
+    - freshness
+    - workflow
+    - authority
+    - composition
+    - config
+    - verifier
+    - projection

@@ -1,0 +1,7 @@
+mode: enforce
+require_tests: true
+require_policy: true
+bind_evidence_revision: true
+check_protected_path: true
+require_channel_agreement: true
+min_discovered_tests: 1

@@ -1,0 +1,10 @@
+name: canonical-m1
+seed_default: 49314
+description: >-
+  M1 minimum deterministic attack set for synthetic fixture gates.
+attacks:
+  - EXE-003
+  - EVD-002
+  - PROJ-005
+  - CFG-001
+  - PATH-001

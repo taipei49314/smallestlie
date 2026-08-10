@@ -1,0 +1,2 @@
+discovery:
+  pattern: "test_*.py"

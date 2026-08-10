@@ -1,0 +1,34 @@
+# Runtime
+outputs/
+*.pyc
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Local secrets / auth (never commit real secrets)
+authorization.local.yaml
+*.local.yaml
+
+# Handoff packages (generated)
+SMALLESTLIE_M0_M1_HANDOFF/
+
+# Temp workspaces
+.smallestlie-workspaces/
+tmp/
+*.tmp

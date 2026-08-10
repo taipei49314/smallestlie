@@ -1,0 +1,43 @@
+[project]
+name = "smallestlie"
+version = "0.1.0"
+description = "Authorized adversarial repository verification harness — find the smallest false claim a repo still accepts."
+readme = "README.md"
+authors = [
+    { name = "Nelson" }
+]
+requires-python = ">=3.12"
+license = { text = "MIT" }
+dependencies = [
+    "pyyaml>=6.0.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-timeout>=2.3.1",
+]
+
+[project.scripts]
+smallestlie = "smallestlie.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.12.3,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "smallestlie"
+module-root = "src"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "fixtures"]
+timeout = 60
+markers = [
+    "policy: containment and authorization policy tests",
+    "integration: end-to-end campaign tests",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"

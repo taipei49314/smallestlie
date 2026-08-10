@@ -1,0 +1,52 @@
+schema_version: smallestlie.attack/v1
+attack_id: EXE-003
+name: zero-tests-discovered-but-accepted
+family: execution
+purpose: >-
+  Determine whether the target treats zero discovered tests as successful
+  completion when at least one required test is declared.
+
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+
+applies_when:
+  adapter_capabilities:
+    - test_discovery
+    - target_verdict
+
+preconditions:
+  - type: file_exists
+    path: tests/test_required.py
+  - type: file_exists
+    path: config/discovery.yaml
+
+mutations:
+  - type: structured_set
+    path: config/discovery.yaml
+    pointer: /discovery/pattern
+    value: __matches_nothing__
+
+execute:
+  command_ref: run_target_verifier
+  timeout_seconds: 60
+
+oracle:
+  type: required_execution_set
+  expected:
+    all_required_tests_executed: false
+    minimum_required: 1
+
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false
+
+minimization:
+  remove_steps: true
+  minimize_changed_fields: true
+  required_replays: 3
+
+regression_export:
+  type: target_fixture
+  expected_future_verdict: rejected

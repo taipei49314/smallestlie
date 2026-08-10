@@ -1,0 +1,6 @@
+{
+  "target_revision": "rev-B",
+  "status": "PASS",
+  "producer": "naive_gate_fixture",
+  "note": "valid for current revision when untouched"
+}

@@ -1,0 +1,74 @@
+# Nightly automatic campaigns against known synthetic fixtures only.
+# schedule: 02:17 UTC daily (stable off-peak offset)
+name: smallestlie-nightly
+
+on:
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+
+jobs:
+  nightly-fixtures:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Setup Python
+        run: uv python install 3.12
+
+      - name: Sync
+        run: uv sync --extra dev
+
+      - name: Doctor
+        run: uv run smallestlie doctor
+
+      - name: Nightly fixture campaigns
+        id: nightly
+        run: |
+          set +e
+          uv run smallestlie nightly \
+            --budget-seconds 7000 \
+            --output outputs/nightly
+          code=$?
+          set -e
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          if [ -f outputs/nightly/*/batch-report.md ]; then
+            # latest batch report
+            report=$(ls -1dt outputs/nightly/*/batch-report.md | head -1)
+            echo "## Nightly fixtures" >> "$GITHUB_STEP_SUMMARY"
+            cat "$report" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          # 0 ok; 3 soft ok for schedule noise; 2/4/5 fail
+          if [ "$code" -eq 0 ] || [ "$code" -eq 3 ]; then exit 0; fi
+          exit "$code"
+
+      - name: Measure
+        if: always()
+        run: |
+          set +e
+          uv run smallestlie measure --output outputs/measurements
+          mcode=$?
+          set -e
+          if [ -f outputs/measurements/measurement-report.md ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            cat outputs/measurements/measurement-report.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "$mcode" -eq 2 ]; then exit 2; fi
+          exit 0
+
+      - name: Upload nightly artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smallestlie-nightly-${{ github.run_id }}
+          path: |
+            outputs/nightly/
+            outputs/measurements/
+          if-no-files-found: warn

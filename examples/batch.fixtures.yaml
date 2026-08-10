@@ -1,0 +1,37 @@
+# Example batch: all known synthetic fixtures (same as nightly core).
+# Run: uv run smallestlie campaign batch --config examples/batch.fixtures.yaml
+
+batch:
+  name: fixtures-local
+  seed: 49314
+  budget_seconds: 7200
+  output_root: outputs/batch
+  stop_on_required_fail: false
+  items:
+    - name: naive_full
+      target: fixtures/naive_gate
+      adapter: fixture_gate
+      catalog: catalogs/ci-offline-full.yaml
+      expect: fail_false_accept
+      required: true
+
+    - name: honest_no_vrf
+      target: fixtures/honest_gate
+      adapter: fixture_gate
+      catalog: catalogs/ci-offline-full-no-vrf.yaml
+      expect: pass_no_false_accept
+      required: true
+
+    - name: greenwash_naive
+      target: fixtures/greenwash_naive
+      adapter: greenwash
+      catalog: catalogs/greenwash-wave-a.yaml
+      expect: fail_false_accept
+      required: true
+
+    - name: greenwash_honest
+      target: fixtures/greenwash_honest
+      adapter: greenwash
+      catalog: catalogs/greenwash-wave-a.yaml
+      expect: pass_no_false_accept
+      required: true

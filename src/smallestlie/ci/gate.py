@@ -12,7 +12,11 @@ from smallestlie import __version__
 from smallestlie.attacks.catalog import load_catalog
 from smallestlie.campaign.runner import run_campaign
 from smallestlie.ci.baseline import compare_to_baseline, load_summary
-from smallestlie.ci.diff_select import load_changed_paths, select_attacks_for_diff
+from smallestlie.ci.diff_select import (
+    filter_catalog_file,
+    load_changed_paths,
+    select_attacks_for_diff,
+)
 from smallestlie.ci.status import CiProjection, project_campaign_status
 from smallestlie.ci.summary import stage_artifacts, write_ci_summary, write_github_step_summary
 from smallestlie.models import ComparisonResult
@@ -152,6 +156,15 @@ def run_ci_gate(
                 catalog.attack_ids,
                 fam_map,
                 changed_paths=changed,
+                attack_specs={
+                    a.attack_id: {
+                        "family": a.family,
+                        "parents": (a.raw or {}).get("parents")
+                        or (a.applies_when or {}).get("parent_attacks")
+                        or [],
+                    }
+                    for a in catalog.ordered()
+                },
             )
             if diff_meta is None:
                 diff_meta = selection
@@ -175,11 +188,10 @@ def run_ci_gate(
                 )
                 continue
             if selection["mode"] == "diff_filtered":
-                run_catalog = _write_filtered_catalog(
+                run_catalog = filter_catalog_file(
                     out_root / f"catalog-{prof.name}.yaml",
                     catalog,
                     selection["selected_attack_ids"],
-                    mode=catalog.plan_mode,
                 )
         except Exception as exc:
             projected = project_campaign_status(
@@ -443,28 +455,6 @@ def _all_fa_ids(profiles: list[dict[str, Any]]) -> list[str]:
             if aid and aid not in ids:
                 ids.append(str(aid))
     return ids
-
-
-def _write_filtered_catalog(
-    path: Path,
-    catalog: Any,
-    selected_ids: list[str],
-    *,
-    mode: str,
-) -> Path:
-    import yaml
-
-    path.parent.mkdir(parents=True, exist_ok=True)
-    body = {
-        "name": f"{catalog.name}-diff-filtered",
-        "seed_default": catalog.seed_default,
-        "mode": mode if mode in {"single", "pairwise", "mixed"} else "single",
-        "attacks": selected_ids,
-        "limits": catalog.composition_limits,
-        "composition_pairs": [list(p) for p in catalog.composition_pairs],
-    }
-    path.write_text(yaml.safe_dump(body, sort_keys=False), encoding="utf-8")
-    return path
 
 
 def _invalid(msg: str) -> dict[str, Any]:

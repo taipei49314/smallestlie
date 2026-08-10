@@ -62,41 +62,43 @@ uv run smallestlie report outputs/<campaign-id>
 
 ## Status
 
-**v0.6.0** — M0–M5 harness + meters + **Greenwash synthetic SUT campaigns**
+**v0.7.0** — automation: **nightly** + **campaign batch** + stronger **diff-select**
 
-| Milestone | Status |
+| Capability | Command |
 |---|---|
-| M0–M5 | done |
-| Measurement suite | done (`measure` / `blindspots`) |
-| Greenwash adapter | **live against synthetic SUT** (`greenwash_naive` / `greenwash_honest`) |
-| TomorrowCI / ClaimGate | design only (no third-party tree required for Greenwash path) |
+| Nightly known fixtures | `smallestlie nightly` (cron workflow) |
+| Multi-target batch | `smallestlie campaign batch --config …` |
+| Diff attack preview | `smallestlie select-attacks --path …` |
+| Greenwash SUT campaigns | `adapter greenwash` + `greenwash-wave-a` |
+
+See [docs/automation.md](docs/automation.md).
+
+### Automation (local / cron)
+
+```bash
+# nightly: all known fixtures
+uv run smallestlie nightly --budget-seconds 7200
+
+# batch: multi-target YAML
+uv run smallestlie campaign batch --config examples/batch.fixtures.yaml
+
+# diff-aware preview + campaign
+uv run smallestlie select-attacks --catalog catalogs/ci-offline-full.yaml --path package/junit/results.xml
+uv run smallestlie campaign run --target fixtures/naive_gate --catalog catalogs/ci-offline-full.yaml --diff-file changed.txt
+```
 
 ### Confidence loop
 
 ```bash
 uv run pytest -q
 uv run smallestlie ci-gate
-uv run smallestlie measure          # meters first
-uv run smallestlie blindspots       # retest queue
+uv run smallestlie measure
+uv run smallestlie blindspots
 ```
 
-### Greenwash-only campaigns (synthetic SUT)
+Docs: [automation.md](docs/automation.md) · [meters.md](docs/meters.md) · [GREENWASH_CAMPAIGN.md](docs/adapters/GREENWASH_CAMPAIGN.md)
 
-```bash
-uv run smallestlie campaign run \
-  --target fixtures/greenwash_naive --adapter greenwash \
-  --catalog catalogs/greenwash-wave-a.yaml --seed 49314
-
-uv run smallestlie campaign run \
-  --target fixtures/greenwash_honest --adapter greenwash \
-  --catalog catalogs/greenwash-wave-a.yaml --seed 49314
-```
-
-See [docs/adapters/GREENWASH_CAMPAIGN.md](docs/adapters/GREENWASH_CAMPAIGN.md).
-
-Trust behavior claims only when `measure` marks them trusted. See [docs/meters.md](docs/meters.md).
-
-Does **not** claim any repository is secure. Third-party Greenwash trees still need an authorization package; current campaigns use **synthetic fixtures only**.
+Does **not** claim any repository is secure. No remote scanning; real repos need authorization packages.
 
 ## Docs
 

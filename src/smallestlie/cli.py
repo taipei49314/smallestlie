@@ -10,8 +10,15 @@ from typing import Any
 
 from smallestlie import __version__
 from smallestlie.attacks.catalog import load_catalog
+from smallestlie.campaign.batch import load_batch_config, run_batch
+from smallestlie.campaign.nightly import run_nightly
 from smallestlie.campaign.runner import run_campaign
 from smallestlie.ci.baseline import compare_to_baseline, load_summary
+from smallestlie.ci.diff_select import (
+    filter_catalog_file,
+    load_changed_paths,
+    select_attacks_for_diff,
+)
 from smallestlie.ci.gate import CiGateConfig, run_ci_gate
 from smallestlie.ledger.verify import verify_ledger
 from smallestlie.meters.suite import run_measurement_suite
@@ -63,6 +70,19 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Override catalog plan mode (single|pairwise|mixed)",
     )
+    p_camp_run.add_argument(
+        "--diff-file",
+        default=None,
+        help="git diff --name-only file; filter catalog by trust-surface families",
+    )
+
+    p_batch = camp_sub.add_parser(
+        "batch",
+        help="Run campaigns for multiple authorized local targets from a batch YAML",
+    )
+    p_batch.add_argument("--config", required=True, help="Batch YAML config path")
+    p_batch.add_argument("--diff-file", default=None, help="Optional shared diff filter")
+    p_batch.add_argument("--budget-seconds", type=int, default=None)
 
     p_replay = sub.add_parser("replay", help="Replay a witness directory")
     p_replay.add_argument("witness_dir")
@@ -122,6 +142,23 @@ def main(argv: list[str] | None = None) -> int:
     p_bs.add_argument("--output", default="outputs/measurements")
     p_bs.add_argument("--refresh", action="store_true", help="Re-run measure first")
 
+    p_nightly = sub.add_parser(
+        "nightly",
+        help="Auto-campaign all known synthetic fixtures (for cron / schedule)",
+    )
+    p_nightly.add_argument("--budget-seconds", type=int, default=7200)
+    p_nightly.add_argument("--output", default="outputs/nightly")
+    p_nightly.add_argument("--seed", type=int, default=49314)
+
+    p_sel = sub.add_parser(
+        "select-attacks",
+        help="Preview diff-aware attack selection (no execution)",
+    )
+    p_sel.add_argument("--catalog", default="catalogs/canonical-m1.yaml")
+    p_sel.add_argument("--diff-file", default=None)
+    p_sel.add_argument("--diff-text", default=None)
+    p_sel.add_argument("--path", action="append", default=None, help="Changed path (repeatable)")
+
     args = parser.parse_args(argv)
     root = _project_root()
 
@@ -133,6 +170,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_catalog(args, root)
     if args.command == "campaign" and args.campaign_cmd == "run":
         return cmd_campaign_run(args, root)
+    if args.command == "campaign" and args.campaign_cmd == "batch":
+        return cmd_campaign_batch(args, root)
     if args.command == "replay":
         return cmd_replay(args, root)
     if args.command == "minimize":
@@ -151,6 +190,10 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_measure(args, root)
     if args.command == "blindspots":
         return cmd_blindspots(args, root)
+    if args.command == "nightly":
+        return cmd_nightly(args, root)
+    if args.command == "select-attacks":
+        return cmd_select_attacks(args, root)
     print(f"unknown command: {args.command}", file=sys.stderr)
     return int(ExitCode.INVALID_CONFIG)
 
@@ -239,9 +282,47 @@ def cmd_catalog(args: Any, root: Path) -> int:
 
 
 def cmd_campaign_run(args: Any, root: Path) -> int:
+    catalog_path: str | Path = args.catalog
+    diff_meta = None
+    if args.diff_file:
+        catalog_full = Path(args.catalog)
+        if not catalog_full.is_absolute():
+            catalog_full = root / catalog_full
+        catalog = load_catalog(catalog_full, attacks_root=root / "attacks")
+        changed = load_changed_paths(diff_file=args.diff_file)
+        fam_map = {a.attack_id: a.family for a in catalog.ordered()}
+        selection = select_attacks_for_diff(
+            catalog.attack_ids,
+            fam_map,
+            changed_paths=changed,
+            attack_specs={
+                a.attack_id: {
+                    "family": a.family,
+                    "parents": (a.raw or {}).get("parents")
+                    or (a.applies_when or {}).get("parent_attacks")
+                    or [],
+                }
+                for a in catalog.ordered()
+            },
+        )
+        diff_meta = selection
+        if selection["mode"] == "empty_after_diff":
+            print(json.dumps({"error": "diff selection empty", "diff": selection}, indent=2))
+            return 4
+        if selection["mode"] == "diff_filtered":
+            out = Path(args.output)
+            if not out.is_absolute():
+                out = root / out
+            out.mkdir(parents=True, exist_ok=True)
+            catalog_path = filter_catalog_file(
+                out / "catalog-diff-filtered.yaml",
+                catalog,
+                selection["selected_attack_ids"],
+            )
+
     summary = run_campaign(
         target=args.target,
-        catalog_path=args.catalog,
+        catalog_path=catalog_path,
         output_root=args.output,
         seed=args.seed,
         adapter_name=args.adapter,
@@ -250,7 +331,7 @@ def cmd_campaign_run(args: Any, root: Path) -> int:
         keep_workspaces=args.keep_workspaces,
         plan_mode=args.plan_mode,
     )
-    print(json.dumps({
+    payload = {
         "campaign_id": summary.get("campaign_id"),
         "status": summary.get("status"),
         "exit_code": summary.get("exit_code"),
@@ -258,8 +339,47 @@ def cmd_campaign_run(args: Any, root: Path) -> int:
         "campaign_dir": summary.get("campaign_dir"),
         "source_immutable": summary.get("source_immutable"),
         "ledger_ok": summary.get("ledger_ok"),
-    }, indent=2))
+    }
+    if diff_meta:
+        payload["diff_selection"] = {
+            "mode": diff_meta.get("mode"),
+            "mapped_families": diff_meta.get("mapped_families"),
+            "selected_count": len(diff_meta.get("selected_attack_ids") or []),
+            "excluded_count": len(diff_meta.get("excluded_attack_ids") or []),
+        }
+    print(json.dumps(payload, indent=2))
     return int(summary.get("exit_code", ExitCode.HARNESS_ERROR))
+
+
+def cmd_campaign_batch(args: Any, root: Path) -> int:
+    cfg = load_batch_config(args.config)
+    if args.budget_seconds is not None:
+        cfg.budget_seconds = args.budget_seconds
+    report = run_batch(project_root=root, config=cfg, diff_file=args.diff_file)
+    print(
+        json.dumps(
+            {
+                "batch_id": report.get("batch_id"),
+                "projection": report.get("projection"),
+                "exit_code": report.get("exit_code"),
+                "budget_exceeded": report.get("budget_exceeded"),
+                "elapsed_seconds": report.get("elapsed_seconds"),
+                "items": [
+                    {
+                        "name": i.get("name"),
+                        "ran": i.get("ran"),
+                        "expectation_met": i.get("expectation_met"),
+                        "false_accept_count": i.get("false_accept_count"),
+                        "campaign_status": i.get("campaign_status"),
+                    }
+                    for i in (report.get("items") or [])
+                ],
+                "report_json": report.get("report_json"),
+            },
+            indent=2,
+        )
+    )
+    return int(report.get("exit_code", 5))
 
 
 def cmd_replay(args: Any, root: Path) -> int:
@@ -507,6 +627,68 @@ def cmd_measure(args: Any, root: Path) -> int:
         )
     )
     return int(report.get("exit_code", 5))
+
+
+def cmd_nightly(args: Any, root: Path) -> int:
+    report = run_nightly(
+        project_root=root,
+        budget_seconds=args.budget_seconds,
+        output_root=args.output,
+        seed=args.seed,
+    )
+    print(
+        json.dumps(
+            {
+                "batch_id": report.get("batch_id"),
+                "projection": report.get("projection"),
+                "exit_code": report.get("exit_code"),
+                "elapsed_seconds": report.get("elapsed_seconds"),
+                "items": [
+                    {
+                        "name": i.get("name"),
+                        "ran": i.get("ran"),
+                        "expectation_met": i.get("expectation_met"),
+                        "false_accept_count": i.get("false_accept_count"),
+                    }
+                    for i in (report.get("items") or [])
+                ],
+                "report_json": report.get("report_json"),
+            },
+            indent=2,
+        )
+    )
+    return int(report.get("exit_code", 5))
+
+
+def cmd_select_attacks(args: Any, root: Path) -> int:
+    catalog_path = Path(args.catalog)
+    if not catalog_path.is_absolute():
+        catalog_path = root / catalog_path
+    catalog = load_catalog(catalog_path, attacks_root=root / "attacks")
+    changed = load_changed_paths(
+        diff_file=args.diff_file,
+        diff_text=args.diff_text,
+        paths=args.path,
+    )
+    fam_map = {a.attack_id: a.family for a in catalog.ordered()}
+    selection = select_attacks_for_diff(
+        catalog.attack_ids,
+        fam_map,
+        changed_paths=changed,
+        attack_specs={
+            a.attack_id: {
+                "family": a.family,
+                "parents": (a.raw or {}).get("parents")
+                or (a.applies_when or {}).get("parent_attacks")
+                or [],
+            }
+            for a in catalog.ordered()
+        },
+    )
+    print(json.dumps(selection, indent=2, sort_keys=True))
+    if selection.get("mode") == "empty_after_diff":
+        return 4
+    return 0
 
 
 def cmd_blindspots(args: Any, root: Path) -> int:

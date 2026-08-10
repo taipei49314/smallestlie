@@ -1,0 +1,22 @@
+name: ci-offline-full-no-vrf
+seed_default: 49314
+description: >-
+  Full M1 without VRF-001 — for honest_gate clean expectation in nightly
+  (VRF-001 mutates verifier and is expected to false-accept on honest).
+mode: single
+attacks:
+  - EVD-001
+  - EVD-002
+  - EVD-003
+  - EXE-001
+  - EXE-002
+  - EXE-003
+  - SEM-001
+  - SEM-003
+  - PATH-001
+  - PATH-002
+  - TIME-001
+  - WF-001
+  - AUTH-001
+  - CFG-001
+  - PROJ-005

@@ -1,0 +1,30 @@
+# Template: rotate campaigns across multiple OWNED local repos.
+# Each item needs its own authorization file (see docs/adapters/authorization-package.template.yaml).
+# Network remains denied unless you intentionally change policy (not recommended).
+#
+# uv run smallestlie campaign batch --config examples/batch.authorized-repos.local.yaml
+
+batch:
+  name: owned-repos
+  seed: 49314
+  budget_seconds: 10800
+  output_root: outputs/batch-owned
+  stop_on_required_fail: false
+  items:
+    - name: example-repo-a
+      target: "C:/Users/REPLACE/authorized/repos/repo-a"
+      adapter: fixture_gate   # or tomorrowci / greenwash when available
+      catalog: catalogs/ci-offline-full-no-vrf.yaml
+      authorization: "C:/Users/REPLACE/auth/repo-a.authorization.yaml"
+      expect: any
+      required: true
+      enabled: false          # set true after paths are real
+
+    - name: example-repo-b
+      target: "C:/Users/REPLACE/authorized/repos/repo-b"
+      adapter: fixture_gate
+      catalog: catalogs/ci-offline-full-no-vrf.yaml
+      authorization: "C:/Users/REPLACE/auth/repo-b.authorization.yaml"
+      expect: any
+      required: true
+      enabled: false

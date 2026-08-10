@@ -1,0 +1,45 @@
+# SmallestLie authorization package — REAL REPOSITORY
+# Copy, fill, and store outside the target source tree when possible.
+# A campaign without a valid authorization object must terminate as BLOCKED_BY_POLICY.
+
+schema_version: smallestlie.authorization/v1
+
+authorization:
+  mode: owned_local_repo
+  owner: nelson
+  # Absolute path to the owned repository root (not a URL).
+  target_path: "C:/Users/REPLACE/path/to/owned-repo"
+  disposable_clone_required: true
+  network: denied
+  # Wall-clock expiry (ISO-8601 with timezone).
+  expires_at: "2026-12-31T23:59:59+08:00"
+
+  # Optional: restrict target under these roots after canonicalization.
+  allowlisted_roots:
+    - "C:/Users/REPLACE/authorized-repos"
+
+  allowed_attack_families:
+    - evidence
+    - execution
+    - semantic
+    - path
+    - freshness
+    - workflow
+    - authority
+    - composition
+    - config
+    - verifier
+    - projection
+
+  # Adapter-specific constraints (validated by the adapter, not free-form shell).
+  adapter:
+    name: tomorrowci
+    version: "0.1.0-design"
+    mode: verify_offline   # verify_offline | scan_fixture (scan requires separate network grant)
+    pinned_revision: "REPLACE_WITH_GIT_SHA"
+    evidence_run_id: "REPLACE_WITH_RUN_ID"   # for verify_offline mode
+    binary_path: "target/release/tomorrowci.exe"  # relative to disposable clone, or absolute under allowlist
+
+  notes: >
+    Operator confirms ownership and that this path is not production multi-tenant
+    infrastructure. Mutations occur only in disposable clones.

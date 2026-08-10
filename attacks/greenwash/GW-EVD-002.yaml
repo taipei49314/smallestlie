@@ -1,0 +1,42 @@
+schema_version: smallestlie.attack/v1
+attack_id: GW-EVD-002
+name: greenwash-stale-subject-still-clean
+family: evidence
+purpose: >-
+  Point subject.revision at an older revision while current_revision advanced;
+  check if Greenwash still marks clean.
+
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+
+preconditions:
+  - type: file_exists
+    path: package/subject.json
+
+mutations:
+  - type: write_json
+    path: package/subject.json
+    content:
+      revision: rev-A
+      current_revision: rev-B
+      artifact_id: art-001
+      note: stale subject for current tree
+
+execute:
+  command_ref: run_greenwash_audit
+  timeout_seconds: 60
+
+oracle:
+  type: theater_presence
+  expected:
+    no_theater: false
+
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false
+
+minimization:
+  remove_steps: true
+  required_replays: 3

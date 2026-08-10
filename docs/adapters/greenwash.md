@@ -1,12 +1,14 @@
 # Adapter design: Greenwash
 
 **Document type:** Real-repository adapter design (M6 prep)  
-**Status:** `DESIGN_ONLY` — **no campaign execution authorized by this document**  
+**Status:** `SYNTHETIC_SUT_LIVE` — campaigns run against **shipped synthetic Greenwash only**  
 **Adapter id:** `greenwash`  
-**Design version:** `0.1.0-design`  
-**Local source tree:** **NOT OBSERVED** at design time  
-**Evidence base:** SmallestLie North Star (hostile counterpart family); VectorLock §4.3 claim-verification boundary (“你憑什麼宣稱這項工作完成？”); ecosystem anti-theater themes shared with ClaimGate/TomorrowCI  
-**SmallestLie baseline:** v0.2.0+
+**Design version:** `0.2.0-synthetic`  
+**Local third-party tree:** still **NOT OBSERVED**  
+**Synthetic SUT:** `fixtures/greenwash_naive`, `fixtures/greenwash_honest`  
+**Evidence base:** design assumptions + local SUT implementation  
+**Campaign log:** [GREENWASH_CAMPAIGN.md](./GREENWASH_CAMPAIGN.md)  
+**SmallestLie baseline:** v0.5.1+
 
 ---
 

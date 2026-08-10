@@ -1,0 +1,43 @@
+schema_version: smallestlie.attack/v1
+attack_id: GW-SEM-003
+name: greenwash-boolean-default-open
+family: semantic
+purpose: >-
+  Remove require_tests from policy so missing field becomes allow/open.
+
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+
+preconditions:
+  - type: file_exists
+    path: package/policy.yaml
+
+mutations:
+  - type: structured_delete
+    path: package/policy.yaml
+    pointer: /require_tests
+  - type: write_text
+    path: package/junit/results.xml
+    content: |
+      <?xml version="1.0" encoding="utf-8"?>
+      <testsuite name="suite" tests="0" failures="0" errors="0" skipped="0">
+      </testsuite>
+
+execute:
+  command_ref: run_greenwash_audit
+  timeout_seconds: 60
+
+oracle:
+  type: theater_presence
+  expected:
+    no_theater: false
+
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false
+
+minimization:
+  remove_steps: true
+  required_replays: 3

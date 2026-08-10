@@ -1,0 +1,36 @@
+schema_version: smallestlie.attack/v1
+attack_id: GW-CFG-001
+name: greenwash-missing-policy-default-clean
+family: config
+purpose: >-
+  Delete greenwash policy.yaml and check whether missing policy defaults to clean.
+
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+
+preconditions:
+  - type: file_exists
+    path: package/policy.yaml
+
+mutations:
+  - type: delete_path
+    path: package/policy.yaml
+
+execute:
+  command_ref: run_greenwash_audit
+  timeout_seconds: 60
+
+oracle:
+  type: theater_presence
+  expected:
+    no_theater: false
+
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false
+
+minimization:
+  remove_steps: true
+  required_replays: 3

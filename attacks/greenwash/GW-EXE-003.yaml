@@ -1,0 +1,41 @@
+schema_version: smallestlie.attack/v1
+attack_id: GW-EXE-003
+name: greenwash-zero-tests-still-clean
+family: execution
+purpose: >-
+  Empty junit / zero tests while CI summary stays green; check if Greenwash
+  still classifies the package as clean (false acceptance of non-theater).
+
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+
+preconditions:
+  - type: file_exists
+    path: package/junit/results.xml
+
+mutations:
+  - type: write_text
+    path: package/junit/results.xml
+    content: |
+      <?xml version="1.0" encoding="utf-8"?>
+      <testsuite name="suite" tests="0" failures="0" errors="0" skipped="0">
+      </testsuite>
+
+execute:
+  command_ref: run_greenwash_audit
+  timeout_seconds: 60
+
+oracle:
+  type: theater_presence
+  expected:
+    no_theater: false
+
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false
+
+minimization:
+  remove_steps: true
+  required_replays: 3

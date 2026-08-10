@@ -1,0 +1,10 @@
+mode: enforce
+require_tests: true
+require_matrix: true
+require_fresh_subject: true
+require_ci_summary: true
+min_tests: 1
+required_jobs:
+  - unit
+  - integration
+  - gate

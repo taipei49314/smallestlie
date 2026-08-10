@@ -1,0 +1,44 @@
+schema_version: smallestlie.attack/v1
+attack_id: GW-PATH-001
+name: greenwash-rename-ci-summary-escape
+family: path
+purpose: >-
+  Rename canonical ci-summary.json so policy/discovery no longer sees it while
+  a decoy leaf remains elsewhere.
+
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+
+preconditions:
+  - type: file_exists
+    path: package/ci-summary.json
+
+mutations:
+  - type: rename_path
+    from: package/ci-summary.json
+    to: package/ci-summary.json.renamed
+  - type: write_json
+    path: package/decoy/ci-summary.json
+    content:
+      status: success
+      jobs: []
+      note: decoy leaf only
+
+execute:
+  command_ref: run_greenwash_audit
+  timeout_seconds: 60
+
+oracle:
+  type: theater_presence
+  expected:
+    no_theater: false
+
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false
+
+minimization:
+  remove_steps: true
+  required_replays: 3

@@ -1,0 +1,14 @@
+name: greenwash-wave-a
+seed_default: 49314
+description: >-
+  Wave A adversarial catalog against synthetic Greenwash SUT only.
+  False accept = Greenwash classifies CLEAN while independent theater oracle says dirty.
+mode: single
+attacks:
+  - GW-EXE-003
+  - GW-EXE-002
+  - GW-EVD-002
+  - GW-CFG-001
+  - GW-PATH-001
+  - GW-PROJ-005
+  - GW-SEM-003

@@ -360,6 +360,8 @@ def _resolve_authorization(
         "path_blind_gate",
         "authority_blind_gate",
         "composition_blind_gate",
+        "greenwash_naive",
+        "greenwash_honest",
     }:
         return default_fixture_authorization(target_path)
     # Also auto if gate_policy or fixture marker present.

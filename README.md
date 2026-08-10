@@ -62,13 +62,14 @@ uv run smallestlie report outputs/<campaign-id>
 
 ## Status
 
-**v0.5.0** — M0–M5 harness + **measurement discipline** (meter → trust → blind spots)
+**v0.6.0** — M0–M5 harness + meters + **Greenwash synthetic SUT campaigns**
 
 | Milestone | Status |
 |---|---|
 | M0–M5 | done |
 | Measurement suite | done (`measure` / `blindspots`) |
-| Real adapters | design only (TomorrowCI / ClaimGate / Greenwash) |
+| Greenwash adapter | **live against synthetic SUT** (`greenwash_naive` / `greenwash_honest`) |
+| TomorrowCI / ClaimGate | design only (no third-party tree required for Greenwash path) |
 
 ### Confidence loop
 
@@ -79,9 +80,23 @@ uv run smallestlie measure          # meters first
 uv run smallestlie blindspots       # retest queue
 ```
 
+### Greenwash-only campaigns (synthetic SUT)
+
+```bash
+uv run smallestlie campaign run \
+  --target fixtures/greenwash_naive --adapter greenwash \
+  --catalog catalogs/greenwash-wave-a.yaml --seed 49314
+
+uv run smallestlie campaign run \
+  --target fixtures/greenwash_honest --adapter greenwash \
+  --catalog catalogs/greenwash-wave-a.yaml --seed 49314
+```
+
+See [docs/adapters/GREENWASH_CAMPAIGN.md](docs/adapters/GREENWASH_CAMPAIGN.md).
+
 Trust behavior claims only when `measure` marks them trusted. See [docs/meters.md](docs/meters.md).
 
-Does **not** claim any repository is secure. Real targets require a signed authorization package.
+Does **not** claim any repository is secure. Third-party Greenwash trees still need an authorization package; current campaigns use **synthetic fixtures only**.
 
 ## Docs
 

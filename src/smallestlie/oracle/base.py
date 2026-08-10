@@ -17,6 +17,7 @@ from smallestlie.oracle import (
     report_exit,
     revision_binding,
     semantic_policy,
+    theater,
     verifier_rules,
     workflow,
 )
@@ -95,6 +96,10 @@ def evaluate_oracle(
     vrf = verifier_rules.evaluate(workspace)
     plugin_results["verifier_rules"] = vrf
     facts.update({f"verifier.{k}": v for k, v in vrf["facts"].items()})
+
+    th = theater.evaluate(workspace)
+    plugin_results["theater"] = th
+    facts.update({f"theater.{k}": v for k, v in th["facts"].items()})
 
     if target_verdict is not None:
         re = report_exit.evaluate(workspace, target_verdict)
@@ -211,6 +216,16 @@ def evaluate_oracle(
         if not valid:
             reasons.append("verifier_required_rules_missing_or_disabled")
         evidence.append("oracle/verifier-rules.json")
+
+    elif otype == "theater_presence":
+        # valid = clean world (no theater). Theater present => invalid.
+        valid = bool(th["facts"].get("no_theater", False))
+        if not valid:
+            reasons.extend(
+                [f"theater:{r}" for r in (th["facts"].get("theater_reasons") or [])]
+                or ["theater_present"]
+            )
+        evidence.append("oracle/theater.json")
 
     elif otype == "composite":
         valids: list[bool | None] = []

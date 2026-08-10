@@ -1,0 +1,9 @@
+{
+  "status": "success",
+  "jobs": [
+    {"name": "unit", "status": "pass"},
+    {"name": "integration", "status": "pass"},
+    {"name": "gate", "status": "pass"}
+  ],
+  "coverage_claimed": true
+}

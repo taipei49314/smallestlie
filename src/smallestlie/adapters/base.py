@@ -37,9 +37,11 @@ class Adapter(ABC):
 
 def get_adapter(name: str) -> Adapter:
     from smallestlie.adapters.fixture_gate import FixtureGateAdapter
+    from smallestlie.adapters.greenwash import GreenwashAdapter
 
     adapters = {
         "fixture_gate": FixtureGateAdapter,
+        "greenwash": GreenwashAdapter,
     }
     if name not in adapters:
         raise KeyError(f"unknown adapter: {name}; available={sorted(adapters)}")

@@ -1,0 +1,47 @@
+schema_version: smallestlie.attack/v1
+attack_id: GW-EXE-002
+name: greenwash-skipped-job-still-clean
+family: execution
+purpose: >-
+  Mark a required job as skipped while aggregate CI stays success; check if
+  Greenwash still reports clean.
+
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+
+preconditions:
+  - type: file_exists
+    path: package/ci-summary.json
+
+mutations:
+  - type: write_json
+    path: package/ci-summary.json
+    content:
+      status: success
+      jobs:
+        - name: unit
+          status: pass
+        - name: integration
+          status: skipped
+        - name: gate
+          status: pass
+      coverage_claimed: true
+
+execute:
+  command_ref: run_greenwash_audit
+  timeout_seconds: 60
+
+oracle:
+  type: theater_presence
+  expected:
+    no_theater: false
+
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false
+
+minimization:
+  remove_steps: true
+  required_replays: 3

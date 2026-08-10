@@ -168,12 +168,12 @@ def run_ci_gate(
             )
             if diff_meta is None:
                 diff_meta = selection
-            if selection["mode"] == "empty_after_diff":
+            if selection["mode"] in {"empty_after_diff", "unknown_diff"}:
                 projected = project_campaign_status(
                     campaign_status=None,
                     exit_code=None,
                     ran=False,
-                    skipped_reason="diff selection empty — refusing to pass",
+                    skipped_reason=f"diff selection blocked: {selection['mode']}",
                 )
                 profile_results.append(
                     {
@@ -360,17 +360,21 @@ def run_ci_gate(
 
 
 def _expectation_met(expect: str, summary: dict[str, Any]) -> bool:
+    """BLOCKED/HARNESS_ERROR never met; missing ledger/immutable never met."""
     status = str(summary.get("status") or "")
+    if status in {"BLOCKED", "HARNESS_ERROR"}:
+        return False
+    if summary.get("exit_code") in {4, 5}:
+        return False
+    if summary.get("ledger_ok") is not True:
+        return False
+    if summary.get("source_immutable") is not True:
+        return False
     fa = int(summary.get("false_accept_count") or 0)
     if expect == "fail_false_accept":
-        return status == "FAIL_FALSE_ACCEPT_OBSERVED" or fa > 0
+        return status == "FAIL_FALSE_ACCEPT_OBSERVED" and fa > 0
     if expect == "pass_no_false_accept":
-        return (
-            status in {"PASS_NO_FALSE_ACCEPT_OBSERVED", "PASS_WITH_WARNINGS"}
-            and fa == 0
-            and bool(summary.get("source_immutable", True))
-            and bool(summary.get("ledger_ok", True))
-        )
+        return status in {"PASS_NO_FALSE_ACCEPT_OBSERVED", "PASS_WITH_WARNINGS"} and fa == 0
     return False
 
 

@@ -161,10 +161,6 @@ def select_attacks_for_diff(
     - empty selection remains fail-closed (not a pass)
     """
     always = set(always_include or [])
-    if include_smoke and changed_paths:
-        for aid in attack_ids:
-            if any(aid.startswith(p) or aid == p for p in DEFAULT_ALWAYS_INCLUDE_PREFIXES):
-                always.add(aid)
 
     if not changed_paths:
         return {
@@ -180,6 +176,25 @@ def select_attacks_for_diff(
 
     mapped_info = families_for_paths(changed_paths)
     mapped: set[str] = set(mapped_info["families"])
+    # Unknown diff: paths present but none map to a trust surface.
+    # Fail closed — do NOT smoke-green unknown paths.
+    if not mapped and all(not v for v in (mapped_info.get("per_path") or {}).values()):
+        return {
+            "mode": "unknown_diff",
+            "changed_paths": changed_paths,
+            "mapped_families": [],
+            "selected_attack_ids": [],
+            "excluded_attack_ids": list(attack_ids),
+            "always_include": [],
+            "path_map": mapped_info["per_path"],
+            "reason": "unknown diff paths map to no trust surface; blocked (no smoke fallback)",
+        }
+
+    if include_smoke:
+        for aid in attack_ids:
+            if any(aid.startswith(p) or aid == p for p in DEFAULT_ALWAYS_INCLUDE_PREFIXES):
+                always.add(aid)
+
     if not mapped and default_families:
         mapped = set(default_families)
 

@@ -54,8 +54,19 @@ def evaluate(workspace: Path) -> dict[str, Any]:
             reasons.append(f"required_job_skipped:{name}")
 
     junit = package / "junit" / "results.xml"
-    junit_text = junit.read_text(encoding="utf-8") if junit.is_file() else ""
-    testcases = junit_text.count("<testcase")
+    testcases = 0
+    if junit.is_file():
+        junit_text = junit.read_text(encoding="utf-8")
+        # Malformed junit must not count as valid execution evidence.
+        has_suite = "<testsuite" in junit_text or "<testsuites" in junit_text
+        if not has_suite:
+            reasons.append("malformed_junit")
+            testcases = 0
+        else:
+            # Count only opening tags that look like real elements (not bare mentions).
+            testcases = len(
+                __import__("re").findall(r"<testcase\b", junit_text, flags=__import__("re").I)
+            )
     if require_tests and testcases < min_tests:
         reasons.append("zero_or_insufficient_tests")
 

@@ -135,8 +135,12 @@ jobs:
           if [ -f outputs/measurements/measurement-report.md ]; then
             cat outputs/measurements/measurement-report.md >> "$GITHUB_STEP_SUMMARY"
           fi
-          # Hard measure fail only
-          if [ "$mcode" -eq 2 ]; then exit 2; fi
+          # Integrity: only 0 (ok) or 3 (soft warnings) are acceptable measure exits.
+          # Any other code (including unexpected) fails CI.
+          if [ "$mcode" -ne 0 ] && [ "$mcode" -ne 3 ]; then
+            echo "unexpected measure exit: $mcode"
+            exit "$mcode"
+          fi
           # High blind spots fail (blindspots exit 2)
           if [ "$bcode" -eq 2 ]; then exit 2; fi
           exit 0

@@ -116,7 +116,7 @@ def main(argv: list[str] | None = None) -> int:
     p_ci.add_argument(
         "--full",
         action="store_true",
-        help="Use catalogs/ci-offline-full.yaml instead of fast subset",
+        help="Use full M1 catalog for naive; honest uses full-no-vrf (VRF contract)",
     )
 
     p_bc = sub.add_parser("baseline-compare", help="Compare two campaign/ci summaries")
@@ -306,8 +306,13 @@ def cmd_campaign_run(args: Any, root: Path) -> int:
             },
         )
         diff_meta = selection
-        if selection["mode"] == "empty_after_diff":
-            print(json.dumps({"error": "diff selection empty", "diff": selection}, indent=2))
+        if selection["mode"] in {"empty_after_diff", "unknown_diff"}:
+            print(
+                json.dumps(
+                    {"error": f"diff selection blocked: {selection['mode']}", "diff": selection},
+                    indent=2,
+                )
+            )
             return 4
         if selection["mode"] == "diff_filtered":
             out = Path(args.output)
@@ -539,19 +544,26 @@ def cmd_inspect(args: Any, root: Path) -> int:
 def cmd_ci_gate(args: Any, root: Path) -> int:
     from smallestlie.ci.gate import CiProfile
 
-    catalog = "catalogs/ci-offline-full.yaml" if args.full else "catalogs/ci-offline-fast.yaml"
+    # Full mode: naive gets VRF (FA expected on verifier sabotage); honest must
+    # use no-VRF catalog so clean expectation remains sound.
+    if args.full:
+        naive_catalog = "catalogs/ci-offline-full.yaml"
+        honest_catalog = "catalogs/ci-offline-full-no-vrf.yaml"
+    else:
+        naive_catalog = "catalogs/ci-offline-fast.yaml"
+        honest_catalog = "catalogs/ci-offline-fast.yaml"
     profiles = [
         CiProfile(
             name="naive_expect_false_accept",
             target="fixtures/naive_gate",
-            catalog=catalog,
+            catalog=naive_catalog,
             expect="fail_false_accept",
             seed=args.seed,
         ),
         CiProfile(
             name="honest_expect_clean",
             target="fixtures/honest_gate",
-            catalog=catalog,
+            catalog=honest_catalog,
             expect="pass_no_false_accept",
             seed=args.seed,
         ),

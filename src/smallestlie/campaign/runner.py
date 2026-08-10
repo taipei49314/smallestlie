@@ -71,13 +71,21 @@ def run_campaign(
     if not catalog_p.is_absolute():
         catalog_p = (project_root / catalog_p).resolve()
 
-    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    campaign_id = f"CMP-{ts}"
+    # Collision-proof: second + microseconds + short uuid (same-second campaigns
+    # must never share an evidence directory).
+    import uuid
+
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%f")
+    campaign_id = f"CMP-{ts}-{uuid.uuid4().hex[:8]}"
     campaign_dir = Path(output_root)
     if not campaign_dir.is_absolute():
         campaign_dir = (project_root / campaign_dir).resolve()
     campaign_dir = campaign_dir / campaign_id
-    campaign_dir.mkdir(parents=True, exist_ok=True)
+    if campaign_dir.exists():
+        # Extremely unlikely; still fail closed rather than merge evidence.
+        campaign_id = f"CMP-{ts}-{uuid.uuid4().hex}"
+        campaign_dir = campaign_dir.parent / campaign_id
+    campaign_dir.mkdir(parents=True, exist_ok=False)
     runs_dir = campaign_dir / "runs"
     runs_dir.mkdir(exist_ok=True)
     witnesses_dir = campaign_dir / "witnesses"
@@ -89,10 +97,12 @@ def run_campaign(
     try:
         auth = _resolve_authorization(target_path, authorization_path)
         auth_target = validate_authorization(auth)
-        # Bind to requested target.
+        # Strict bind: authorization.target_path must resolve to the campaign target.
         if auth_target.resolve() != target_path.resolve():
-            # Allow auth that points at same path via different spelling after resolve.
-            pass
+            raise AuthorizationError(
+                "authorization target mismatch: "
+                f"auth={auth_target.resolve()} campaign={target_path.resolve()}"
+            )
         auth_digest = auth.digest()
         (campaign_dir / "authorization.json").write_text(
             json.dumps(auth.to_dict(), indent=2, sort_keys=True) + "\n",
@@ -698,6 +708,7 @@ def _execute_run(
 
 
 def _check_preconditions(target: Path, attack: AttackSpec) -> dict[str, Any]:
+    """Fail closed: unsupported preconditions block execution (no mutant run)."""
     reasons: list[str] = []
     for pre in attack.preconditions:
         ptype = pre.get("type")
@@ -706,16 +717,22 @@ def _check_preconditions(target: Path, attack: AttackSpec) -> dict[str, Any]:
             if not (target / rel).exists():
                 reasons.append(f"missing file: {rel}")
         elif ptype == "oracle_declares_required_test_count":
-            # Soft check: required_tests.yaml or tests dir.
             tests = target / "tests"
             if not tests.is_dir() or not any(tests.iterdir()):
                 reasons.append("no tests directory content for required count")
-        # Unknown precondition types fail closed as inapplicable.
         elif ptype:
-            # Accept unknown as soft pass for M1 simplicity? Fail closed:
+            # Unsupported types: hard block — never execute the attack.
             reasons.append(f"unsupported precondition type: {ptype}")
-    # Filter: only hard-fail on file_exists and known failures.
-    hard = [r for r in reasons if r.startswith("missing file")]
+        else:
+            reasons.append("precondition missing type")
+    hard = [
+        r
+        for r in reasons
+        if r.startswith("missing file")
+        or r.startswith("unsupported precondition")
+        or r.startswith("precondition missing")
+        or r.startswith("no tests directory")
+    ]
     return {"ok": len(hard) == 0, "reasons": reasons}
 
 

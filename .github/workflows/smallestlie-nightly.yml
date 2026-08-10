@@ -60,7 +60,11 @@ jobs:
             echo "" >> "$GITHUB_STEP_SUMMARY"
             cat outputs/measurements/measurement-report.md >> "$GITHUB_STEP_SUMMARY"
           fi
-          if [ "$mcode" -eq 2 ]; then exit 2; fi
+          # Integrity: unexpected measure exit codes fail the job.
+          if [ "$mcode" -ne 0 ] && [ "$mcode" -ne 3 ]; then
+            echo "unexpected measure exit: $mcode"
+            exit "$mcode"
+          fi
           exit 0
 
       - name: Upload nightly artifacts

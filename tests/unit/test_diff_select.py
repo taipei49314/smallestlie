@@ -20,6 +20,19 @@ def test_empty_diff_is_full_catalog() -> None:
     assert r["selected_attack_ids"] == ["EXE-003", "AUTH-001"]
 
 
+def test_unknown_paths_block_without_smoke() -> None:
+    from smallestlie.ci.diff_select import select_attacks_for_diff
+
+    r = select_attacks_for_diff(
+        ["EXE-003", "CFG-001", "PROJ-005"],
+        {"EXE-003": "execution", "CFG-001": "config", "PROJ-005": "projection"},
+        changed_paths=["zzz/not/a/trust/surface.bin"],
+        include_smoke=True,
+    )
+    assert r["mode"] == "unknown_diff"
+    assert r["selected_attack_ids"] == []
+
+
 def test_diff_filters_families_with_smoke() -> None:
     r = select_attacks_for_diff(
         ["EXE-003", "AUTH-001", "PATH-001", "EVD-002"],

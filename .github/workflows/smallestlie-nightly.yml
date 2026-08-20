@@ -7,18 +7,23 @@ on:
     - cron: "17 2 * * *"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   nightly-fixtures:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
-          version: "latest"
+          version: "0.12.4"
 
       - name: Setup Python
         run: uv python install 3.12
@@ -39,9 +44,13 @@ jobs:
           code=$?
           set -e
           echo "exit_code=$code" >> "$GITHUB_OUTPUT"
-          if [ -f outputs/nightly/*/batch-report.md ]; then
-            # latest batch report
-            report=$(ls -1dt outputs/nightly/*/batch-report.md | head -1)
+          report=""
+          for candidate in outputs/nightly/*/batch-report.md; do
+            if [ -f "$candidate" ] && { [ -z "$report" ] || [ "$candidate" -nt "$report" ]; }; then
+              report="$candidate"
+            fi
+          done
+          if [ -n "$report" ]; then
             echo "## Nightly fixtures" >> "$GITHUB_STEP_SUMMARY"
             cat "$report" >> "$GITHUB_STEP_SUMMARY"
           fi
@@ -69,7 +78,7 @@ jobs:
 
       - name: Upload nightly artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: smallestlie-nightly-${{ github.run_id }}
           path: |

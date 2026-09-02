@@ -211,7 +211,7 @@ class TestParseVerdict:
     PAYLOAD = json.dumps(
         {
             "checkwash_findings_version": 1,
-            "run": {"base": "HEAD~1", "head": "HEAD", "checkwash_version": "0.2.9"},
+            "run": {"base": "HEAD~1", "head": "HEAD", "checkwash_version": "0.2.11"},
             "findings": [],
             "summary": {"critical": 0, "high": 0, "warn": 0, "info": 0},
             "verdict": "pass",
@@ -223,7 +223,7 @@ class TestParseVerdict:
         v = CheckwashAdapter().parse_verdict(Path("."), _execution(0, self.PAYLOAD))
         assert v.accepted is True
         assert v.raw_status == "pass"
-        assert v.raw["checkwash_version"] == "0.2.9"
+        assert v.raw["checkwash_version"] == "0.2.11"
 
     def test_exit1_block_is_rejected(self) -> None:
         payload = self.PAYLOAD.replace('"pass"', '"block"')

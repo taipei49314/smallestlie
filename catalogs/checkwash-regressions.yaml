@@ -1,7 +1,7 @@
 name: checkwash-regressions
 seed_default: 49314
 description: >-
-  Remaining observed false acceptances against the current pin (v0.2.9).
+  Remaining observed false acceptances against the current pin (v0.2.11).
   CW-W0-03 and CW-W1-TWIN closed in v0.2.9; CW-W1-2HOP is the SPEC
   two-hop residual and must stay FA until that residual closes.
 mode: single

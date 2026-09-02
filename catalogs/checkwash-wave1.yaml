@@ -1,7 +1,7 @@
 name: checkwash-wave1
 seed_default: 49314
 description: >-
-  Wave 1 against the REAL checkwash engine (current pin v0.2.9, vendored pyz).
+  Wave 1 against the REAL checkwash engine (current pin v0.2.11, vendored pyz).
   Beyond-taxonomy probes: published FAILURES.md holes, a SPEC two-hop
   residual, and one candidate-new twin-oracle. Theater-by-construction.
   Authorization: estate T-14; D-1..D-4 still bind. Language rule applies.

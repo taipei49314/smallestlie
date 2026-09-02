@@ -85,7 +85,7 @@ def default_nightly_batch() -> BatchConfig:
                 required=True,
             ),
             BatchItem(
-                # Real engine (v0.2.9 pinned). Wave0 is fully rejected on this
+                # Real engine (v0.2.11 pinned). Wave0 is fully rejected on this
                 # pin. A future pin that starts accepting any wave0 seed goes
                 # red on purpose — re-pin and update together, consciously.
                 name="checkwash_real",

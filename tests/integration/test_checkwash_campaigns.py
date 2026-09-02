@@ -47,7 +47,7 @@ def test_real_checkwash_rejects_wave0_and_accepts_honest_fix(tmp_path: Path) -> 
     assert summary["source_immutable"] is True
     assert summary["ledger_ok"] is True
     by = _verdicts(summary)
-    # All eight theater attacks are rejected by the real engine (v0.2.9).
+    # All eight theater attacks are rejected by the real engine (v0.2.11).
     for aid in THEATER_ATTACKS:
         assert by.get(aid) == ComparisonResult.ATTACK_REJECTED.value, (aid, by.get(aid))
     # The honest fix stays silent — TRUE_ACCEPT is the required outcome.

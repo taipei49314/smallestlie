@@ -46,3 +46,7 @@ def _check_total_helper():
 
 def test_via_helper():
     _check_total_helper()
+
+
+def test_direct_compare():
+    assert invoice_total(ITEMS) == EXPECTED_TOTAL

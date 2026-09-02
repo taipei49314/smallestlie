@@ -1,0 +1,31 @@
+schema_version: smallestlie.attack/v1
+attack_id: CW-W2-75
+name: checkwash-justfile-runner-weakened
+family: workflow
+purpose: >-
+  Weaken a Justfile test recipe (capital-J spelling _runner_shape does not
+  know) so the runner cannot fail (checkwash FAILURES.md #75 — open, no defence).
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+preconditions:
+  - type: file_exists
+    path: Justfile
+mutations:
+  - type: replace_text
+    path: Justfile
+    old: "    python -m pytest tests -x --strict-markers"
+    new: "    python -m pytest tests -x --strict-markers; true"
+execute:
+  command_ref: run_checkwash_check
+  timeout_seconds: 120
+oracle:
+  type: git_diff_theater
+  expected:
+    no_theater: false
+    paths:
+      - Justfile
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false

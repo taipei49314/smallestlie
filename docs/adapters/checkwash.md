@@ -1,7 +1,7 @@
 # Adapter design & M0 plan: Checkwash (the real engine)
 
 **Document type:** Real-repository adapter — **brand-new M0 plan (executed)**
-**Status:** `M1_EXECUTED` — M0 signed and closed (D-1..D-4). M1 beyond-taxonomy wave frozen and executed 2026-09-02 (human go: 「下刀smallestlie」). Logs: [`CHECKWASH_CAMPAIGN.md`](CHECKWASH_CAMPAIGN.md) (wave0) + [`CHECKWASH_M1.md`](CHECKWASH_M1.md) (wave1).
+**Status:** `M2_EXECUTED` — M0–M1 closed; M2 regression pins + remainder frozen and executed 2026-09-02. Logs: wave0 / [M1](CHECKWASH_M1.md) / [M2](CHECKWASH_M2.md).
 **Adapter id:** `checkwash`
 **Plan version:** 0.1.0
 **Target repo:** `taipei49314/checkwash` (owned, local observation; never mutated by this line)
@@ -277,3 +277,49 @@ All nine exit criteria from §11.2 met. Two false acceptances:
 The five FAILURES.md-seeded attacks were **rejected** by v0.2.8 on this fixture.
 That does not close those published rows; it only records that these seeds were
 caught. Full table: [`CHECKWASH_M1.md`](CHECKWASH_M1.md).
+
+## 12. M2 — regression pins + remaining published-open shapes (frozen 2026-09-02)
+
+Human go: 「凍」. Pin still checkwash **v0.2.8**. D-1..D-4 still bind.
+Wave0 / wave1 catalogs are not modified.
+
+**Not in M2:** detectors, checkwash code, Stop/CI, corpus scale, out-of-scope
+rows 1 / 3 / 96.
+
+### 12.1 Seeds
+
+| ID | Shape | Why this round |
+|---|---|---|
+| `CW-W0-03` | call → literal of buggy output | Regression pin (issue #60 / THREATMODEL 97). Must stay FA. |
+| `CW-W1-2HOP` | two-hop wrap | Regression pin (SPEC residual). Must stay FA. |
+| `CW-W1-TWIN` | call → same-bug twin | Regression pin (issue #61 / THREATMODEL 98). Must stay FA. |
+| `CW-W2-75` | runner named `Justfile`, then weakened | FAILURES.md **#75** still **Open — no defence** after M1 |
+| `CW-W2-86d` | wrap subject **and** move expected into a named constant of the buggy value | FAILURES.md **#86d** still **Open** |
+
+Regression catalog `catalogs/checkwash-regressions.yaml` is exactly the three
+FA pins. Wave2 catalog is `CW-W2-75` + `CW-W2-86d`.
+
+Classification of any new FA: published hole / SPEC residual / NEW.
+NEW → checkwash issue only.
+
+### 12.2 Exit criteria
+
+| # | Criterion |
+|---|---|
+| 1 | Regression catalog: all three pins `FALSE_ACCEPT_OBSERVED`; ledger verifies |
+| 2 | Wave0 / wave1 integration pins unchanged |
+| 3 | Both wave2 attacks recorded; ledger verifies |
+| 4 | Each wave2 FA classified; NEW findings → checkwash issue only; zero checkwash **code** (THREATMODEL/FAILURES recording is a separate human-authorized cut) |
+| 5 | Multi-mutation FA → `minimize --adapter checkwash` |
+| 6 | Fixture sources byte-identical |
+| 7 | Network denied |
+| 8 | Language rule |
+| 9 | Blind stand-in false-accepts both wave2 theater attacks |
+
+**預註冊：** 本表隨落地 commit 凍結。開跑後不得改判準來遷就實作。
+
+### 12.3 M2 outcome (2026-09-02, executed)
+
+Regression pins: 3/3 still `FALSE_ACCEPT_OBSERVED`. Wave2: Justfile weakening
+(#75) accepted; wrap+named-constant (#86d) rejected as `ASSERT_SUBSTITUTED`.
+No new issue. Log: [`CHECKWASH_M2.md`](CHECKWASH_M2.md).

@@ -1,14 +1,24 @@
 # Adapter design & M0 plan: Checkwash (the real engine)
 
 **Document type:** Real-repository adapter — **brand-new M0 plan**
-**Status:** `M0_PLAN` — planning only. **No adapter code, no campaign execution is authorized by this document.** Execution starts at M0.1 only after the human signs the authorization package.
+**Status:** `M0_EXECUTING` — plan approved and signed (D-1..D-4 below, 2026-09-02); see `CHECKWASH_CAMPAIGN.md` for results
 **Adapter id:** `checkwash`
 **Plan version:** 0.1.0
 **Target repo:** `taipei49314/checkwash` (owned, local observation; never mutated by this line)
 **Observed HEAD (at planning):** `50e969fdbbe169284b380c7f544c8afcd5990cdf` — `v0.2.8` (2026-09-02 01:36 +0800)
+**Engine artifact (M0.1, pinned):** `verifiers/checkwash.pyz` — SHA-256 `83878db57a243386a10fa49b3f4a2d4d2863c808f7b2f77a516e35c99b3338ea`
 **SmallestLie baseline:** v0.7.1 @ `4485c6b`
-**Campaign coordination:** estate-consolidation LEDGER **T-11** (claimed on LAPTOP-01AGNPJU, 2026-09-02T04:34Z)
+**Campaign coordination:** estate-consolidation LEDGER **T-11** (plan, DONE) + **T-12** (execution)
 **Supersedes:** [`greenwash.md`](greenwash.md) **for the real-engine line only.** The synthetic-SUT campaigns it records remain valid history.
+
+### Human decisions (recorded 2026-09-02)
+
+| # | Decision | Ruling |
+|---|---|---|
+| D-1 | Approve M0 plan + sign M0.1 authorization | **Approved and signed** (this document + `verifiers/README.md` provenance + fixture auto-authorization) |
+| D-2 | Engine delivery | **`.pyz` vendored at `verifiers/checkwash.pyz`**, SHA-pinned above |
+| D-3 | Does this line count as checkwash's "second independent user"? | **No** — red-team harness ≠ product user; release freeze unaffected |
+| D-4 | If a false acceptance is observed | **Issue on checkwash only; no fix PRs** (per its AGENTS.md) |
 
 ---
 

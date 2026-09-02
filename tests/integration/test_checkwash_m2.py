@@ -10,7 +10,7 @@ from smallestlie.campaign.runner import run_campaign
 from smallestlie.models import ComparisonResult
 
 ROOT = Path(__file__).resolve().parents[2]
-REGRESSION = ["CW-W1-2HOP"]  # remaining open residual after v0.2.9; still open on v0.2.11
+REGRESSION = ["CW-W1-2HOP"]  # remaining open residual after v0.2.9; still open on v0.2.12
 
 
 def _verdicts(summary: dict) -> dict[str, str]:

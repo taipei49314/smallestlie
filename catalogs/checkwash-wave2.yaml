@@ -2,7 +2,7 @@ name: checkwash-wave2
 seed_default: 49314
 description: >-
   M2 beyond-taxonomy remainder: FAILURES.md #75 (Justfile) and #86d
-  (wrap + named buggy constant). Current pin v0.2.11. Language rule applies.
+  (wrap + named buggy constant). Current pin v0.2.12. Language rule applies.
 mode: single
 composition_limits:
   max_depth: 1

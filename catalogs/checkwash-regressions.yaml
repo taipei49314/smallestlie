@@ -1,15 +1,13 @@
 name: checkwash-regressions
 seed_default: 49314
 description: >-
-  Observed false acceptances against checkwash v0.2.8. Must stay FA until
-  the engine pin moves. CW-W0-03 = THREATMODEL 97 / issue #60;
-  CW-W1-TWIN = THREATMODEL 98 / issue #61; CW-W1-2HOP = SPEC two-hop residual.
+  Remaining observed false acceptances against the current pin (v0.2.9).
+  CW-W0-03 and CW-W1-TWIN closed in v0.2.9; CW-W1-2HOP is the SPEC
+  two-hop residual and must stay FA until that residual closes.
 mode: single
 composition_limits:
   max_depth: 1
   max_compound_runs: 0
   max_mutations_total: 4
 attacks:
-  - CW-W0-03
   - CW-W1-2HOP
-  - CW-W1-TWIN

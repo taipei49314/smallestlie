@@ -85,15 +85,14 @@ def default_nightly_batch() -> BatchConfig:
                 required=True,
             ),
             BatchItem(
-                # Real engine (v0.2.8 pinned). Honest expectation today: it
-                # accepts CW-W0-03. If a future pinned version rejects all of
-                # wave0, this item goes red on purpose — re-pin and update the
-                # expectation together, consciously.
+                # Real engine (v0.2.9 pinned). Wave0 is fully rejected on this
+                # pin. A future pin that starts accepting any wave0 seed goes
+                # red on purpose — re-pin and update together, consciously.
                 name="checkwash_real",
                 target="fixtures/checkwash_target",
                 catalog="catalogs/checkwash-wave0.yaml",
                 adapter="checkwash",
-                expect="fail_false_accept",
+                expect="pass_no_false_accept",
                 required=True,
             ),
             BatchItem(

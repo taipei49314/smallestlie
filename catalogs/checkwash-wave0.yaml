@@ -1,7 +1,7 @@
 name: checkwash-wave0
 seed_default: 49314
 description: >-
-  Wave 0 against the REAL checkwash engine (v0.2.8, vendored pyz at
+  Wave 0 against the REAL checkwash engine (current pin v0.2.9, vendored pyz at
   verifiers/checkwash.pyz, sha256-pinned; re-verified per run). Attacks are
   seeded 1:1 from checkwash's published taxonomy (SPEC §4 frozen rule IDs)
   and are theater-by-construction. CW-W0-CTL is the honest-fix control and

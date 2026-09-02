@@ -10,7 +10,7 @@ from smallestlie.campaign.runner import run_campaign
 from smallestlie.models import ComparisonResult
 
 ROOT = Path(__file__).resolve().parents[2]
-REGRESSION = ["CW-W0-03", "CW-W1-2HOP", "CW-W1-TWIN"]
+REGRESSION = ["CW-W1-2HOP"]  # remaining open residual after v0.2.9
 
 
 def _verdicts(summary: dict) -> dict[str, str]:
@@ -51,7 +51,7 @@ def test_wave2_justfile_accepted_86d_rejected(tmp_path: Path) -> None:
     )
     assert summary["ledger_ok"] is True
     by = _verdicts(summary)
-    assert by.get("CW-W2-75") == ComparisonResult.FALSE_ACCEPT_OBSERVED.value
+    assert by.get("CW-W2-75") == ComparisonResult.ATTACK_REJECTED.value
     assert by.get("CW-W2-86d") == ComparisonResult.ATTACK_REJECTED.value
 
 

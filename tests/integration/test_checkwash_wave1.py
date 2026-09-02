@@ -18,8 +18,9 @@ REJECTED = [
     "CW-W1-86a",
     "CW-W1-93",
     "CW-W1-91H",
+    "CW-W1-TWIN",  # FA on v0.2.8 (issue #61); rejected since v0.2.9
 ]
-FALSE_ACCEPTED = ["CW-W1-2HOP", "CW-W1-TWIN"]
+FALSE_ACCEPTED = ["CW-W1-2HOP"]  # SPEC two-hop residual; still open
 
 
 def _verdicts(summary: dict) -> dict[str, str]:

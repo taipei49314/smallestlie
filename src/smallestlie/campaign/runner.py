@@ -11,7 +11,7 @@ from typing import Any
 import yaml
 
 from smallestlie import __version__
-from smallestlie.adapters.base import get_adapter
+from smallestlie.adapters.base import EnginePinError, get_adapter
 from smallestlie.attacks.catalog import catalog_snapshot, load_catalog
 from smallestlie.attacks.composition import CompositionLimits
 from smallestlie.attacks.planner import interaction_report, plan_campaign
@@ -372,6 +372,8 @@ def _resolve_authorization(
         "composition_blind_gate",
         "greenwash_naive",
         "greenwash_honest",
+        "checkwash_target",
+        "checkwash_blind",
     }:
         return default_fixture_authorization(target_path)
     # Also auto if gate_policy or fixture marker present.
@@ -434,6 +436,12 @@ def _execute_run(
         )
         workspace.assert_not_source()
 
+        # Adapter hook: materialize workspace shape git cannot express in a
+        # copied tree (e.g. the git range a diff-based SUT reads).
+        prep = adapter.prepare_workspace(workspace.workspace_path)
+        if prep:
+            ledger.append(ev.EVENT_MUTANT_CREATED, {"run_id": run_id, "prepared": prep})
+
         applied = apply_mutations(
             workspace.workspace_path,
             attack.mutations,
@@ -447,6 +455,10 @@ def _execute_run(
             ev.EVENT_MUTATION_APPLIED,
             {"run_id": run_id, "steps": applied, "attack_id": attack.attack_id},
         )
+
+        # Adapter hook: finalize the mutated workspace before execution
+        # (e.g. commit the mutant so HEAD~1..HEAD exists).
+        adapter.before_execute(workspace.workspace_path)
 
         command_ref = str(attack.execute["command_ref"])
         try:
@@ -688,6 +700,16 @@ def _execute_run(
         }
         _write_run_comparison(run_dir, result)
         return result
+    except EnginePinError as exc:
+        ledger.append(ev.EVENT_BLOCKED, {"run_id": run_id, "error": str(exc)})
+        result = {
+            "run_id": run_id,
+            "attack_id": attack.attack_id,
+            "comparison": {"result": ComparisonResult.BLOCKED_BY_POLICY.value},
+            "error": f"engine pin: {exc}",
+        }
+        _write_run_comparison(run_dir, result)
+        return result
     except Exception as exc:  # harness error
         ledger.append(ev.EVENT_HARNESS_ERROR, {"run_id": run_id, "error": str(exc)})
         result = {
@@ -747,7 +769,9 @@ def _run_mutant_once(
 ) -> dict[str, Any]:
     ws = DisposableWorkspace.create(target_path)
     try:
+        adapter.prepare_workspace(ws.workspace_path)
         applied = apply_mutations(ws.workspace_path, mutations, source_path=target_path)
+        adapter.before_execute(ws.workspace_path)
         spec = allowlist.resolve(str(attack.execute["command_ref"]))
         executor = SandboxExecutor(ws.workspace_path)
         execution = executor.run(

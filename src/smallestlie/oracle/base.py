@@ -11,6 +11,7 @@ from smallestlie.oracle import (
     authority,
     discovery,
     execution_trace,
+    git_diff,
     path_canonical,
     policy_presence,
     protected_identity,
@@ -226,6 +227,59 @@ def evaluate_oracle(
                 or ["theater_present"]
             )
         evidence.append("oracle/theater.json")
+
+    elif otype == "git_diff_theater":
+        # Diff-based SUTs (checkwash line): the workspace's own git history is
+        # the fact source; the attack's declaration supplies the hypothesis.
+        #   theater declared  (no_theater=false): valid=False iff the declared
+        #     paths actually changed in HEAD~1..HEAD — the lie materialized.
+        #   honest declared   (no_theater=true):  valid=True iff the diff
+        #     touches expected paths and no forbidden (oracle-surface) path.
+        # A crashed engine (raw_status=engine_error) can neither defend nor
+        # certify — INCONCLUSIVE, never ATTACK_REJECTED.
+        gd = git_diff.evaluate(workspace)
+        plugin_results["git_diff"] = gd
+        facts.update({f"git_diff.{k}": v for k, v in gd["facts"].items()})
+        evidence.append("oracle/git-diff.json")
+
+        def _norm(items: Any) -> set[str]:
+            return {str(p).replace("\\", "/") for p in (items or [])}
+
+        if target_verdict is not None and target_verdict.raw_status == "engine_error":
+            valid = None
+            reasons.append("engine_error_cannot_adjudicate")
+        elif not gd["facts"].get("git_repo", False) or not gd["facts"].get(
+            "diff_present", False
+        ):
+            valid = None
+            reasons.append("git_diff_missing")
+        else:
+            changed = set(gd["facts"].get("changed_files") or [])
+            paths = _norm(expected.get("paths"))
+            forbidden = _norm(expected.get("forbidden"))
+            if not bool(expected.get("no_theater", True)):
+                landed = changed & paths
+                if landed:
+                    valid = False
+                    reasons.append(
+                        "declared_theater_materialized:" + ",".join(sorted(landed))
+                    )
+                else:
+                    valid = None
+                    reasons.append("declared_theater_not_observed_in_diff")
+            else:
+                weakened = changed & forbidden
+                touched_expected = bool(changed & paths) if paths else bool(changed)
+                if weakened:
+                    valid = False
+                    reasons.append(
+                        "oracle_surface_touched:" + ",".join(sorted(weakened))
+                    )
+                elif touched_expected:
+                    valid = True
+                else:
+                    valid = None
+                    reasons.append("expected_change_not_observed")
 
     elif otype == "composite":
         valids: list[bool | None] = []

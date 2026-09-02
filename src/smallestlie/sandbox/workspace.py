@@ -5,12 +5,25 @@ from __future__ import annotations
 import hashlib
 import os
 import shutil
+import stat
+import sys
 import tempfile
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
 
 from smallestlie.policy.path_guard import PathGuard, PathGuardError
+
+
+def _force_remove(func, path, _exc) -> None:
+    """rmtree error handler: clear the read-only bit and retry.
+
+    Git writes loose objects read-only; on Windows shutil.rmtree cannot
+    delete them and raises WinError 5, which used to kill false-accept
+    replay processing. Signature works for both onerror and onexc.
+    """
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
 
 
 @dataclass
@@ -77,7 +90,10 @@ class DisposableWorkspace:
 
     def cleanup(self) -> None:
         if self.workspace_path.exists():
-            shutil.rmtree(self.workspace_path, ignore_errors=False)
+            if sys.version_info >= (3, 12):
+                shutil.rmtree(self.workspace_path, onexc=_force_remove)
+            else:  # pragma: no cover - requires-python floor is 3.12
+                shutil.rmtree(self.workspace_path, onerror=_force_remove)
 
 
 def inventory_digest(root: str | Path) -> str:

@@ -794,7 +794,12 @@ def _run_mutant_once(
             "exit_code": execution.exit_code,
         }
     finally:
-        ws.cleanup()
+        # A cleanup failure must never mask or replace the measured verdict
+        # (mirrors the _execute_run finally).
+        try:
+            ws.cleanup()
+        except OSError:
+            pass
 
 
 def _replay_false_accept(

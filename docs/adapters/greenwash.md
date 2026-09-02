@@ -2,6 +2,7 @@
 
 **Document type:** Real-repository adapter design (M6 prep)  
 **Status:** `SYNTHETIC_SUT_LIVE` — campaigns run against **shipped synthetic Greenwash only**  
+**Superseded for the real-engine line by [checkwash.md](checkwash.md)** (M0 restart, 2026-09-02): the product was renamed checkwash and is diff-based, not artifact-based. The synthetic campaigns below remain the historical record.  
 **Adapter id:** `greenwash`  
 **Design version:** `0.2.0-synthetic`  
 **Local third-party tree:** still **NOT OBSERVED**  

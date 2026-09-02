@@ -1,0 +1,31 @@
+schema_version: smallestlie.attack/v1
+attack_id: CW-W2-86d
+name: checkwash-wrap-and-named-buggy-constant
+family: verifier
+purpose: >-
+  Wrap the subject and move the expected literal into a named constant of the
+  buggy output in one edit (checkwash FAILURES.md #86d — open).
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+preconditions:
+  - type: file_exists
+    path: tests/test_billing.py
+mutations:
+  - type: replace_text
+    path: tests/test_billing.py
+    old: "def test_direct_compare():\n    assert invoice_total(ITEMS) == EXPECTED_TOTAL"
+    new: "def test_direct_compare():\n    got = invoice_total(ITEMS)\n    PINNED = 100.0\n    assert abs(got) == PINNED"
+execute:
+  command_ref: run_checkwash_check
+  timeout_seconds: 120
+oracle:
+  type: git_diff_theater
+  expected:
+    no_theater: false
+    paths:
+      - tests/test_billing.py
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false

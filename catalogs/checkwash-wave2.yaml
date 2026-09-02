@@ -1,0 +1,13 @@
+name: checkwash-wave2
+seed_default: 49314
+description: >-
+  M2 beyond-taxonomy remainder: FAILURES.md #75 (Justfile) and #86d
+  (wrap + named buggy constant). Pin checkwash v0.2.8. Language rule applies.
+mode: single
+composition_limits:
+  max_depth: 1
+  max_compound_runs: 0
+  max_mutations_total: 4
+attacks:
+  - CW-W2-75
+  - CW-W2-86d

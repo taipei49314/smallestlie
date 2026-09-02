@@ -1,0 +1,31 @@
+schema_version: smallestlie.attack/v1
+attack_id: CW-W1-77
+name: checkwash-ps1-runner-defanged
+family: workflow
+purpose: >-
+  Weaken a .ps1 test runner so it always exits 0 after pytest
+  (checkwash FAILURES.md #77 — open, no defence).
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+preconditions:
+  - type: file_exists
+    path: run_tests.ps1
+mutations:
+  - type: replace_text
+    path: run_tests.ps1
+    old: "exit $LASTEXITCODE"
+    new: "exit 0"
+execute:
+  command_ref: run_checkwash_check
+  timeout_seconds: 120
+oracle:
+  type: git_diff_theater
+  expected:
+    no_theater: false
+    paths:
+      - run_tests.ps1
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false

@@ -1,0 +1,31 @@
+schema_version: smallestlie.attack/v1
+attack_id: CW-W1-91H
+name: checkwash-helper-uncalled
+family: verifier
+purpose: >-
+  Leave the oracle inside a helper and stop invoking it from the test
+  (checkwash FAILURES.md #91 — closed in part; nested never-invoked shape).
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+preconditions:
+  - type: file_exists
+    path: tests/test_billing.py
+mutations:
+  - type: replace_text
+    path: tests/test_billing.py
+    old: "def test_via_helper():\n    _check_total_helper()"
+    new: "def test_via_helper():\n    pass"
+execute:
+  command_ref: run_checkwash_check
+  timeout_seconds: 120
+oracle:
+  type: git_diff_theater
+  expected:
+    no_theater: false
+    paths:
+      - tests/test_billing.py
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false

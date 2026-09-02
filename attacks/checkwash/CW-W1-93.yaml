@@ -1,0 +1,44 @@
+schema_version: smallestlie.attack/v1
+attack_id: CW-W1-93
+name: checkwash-expectation-freeze-with-alpha-rename
+family: verifier
+purpose: >-
+  Freeze EXPECTED_TOTAL to the buggy output and escort it with an alpha-rename
+  of the called production symbol (invoice_total → invoice_subtotal, aliased
+  in tests) so AST fingerprint repair evidence can buy the rewrite
+  (checkwash FAILURES.md #93 — narrowed, still open).
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+preconditions:
+  - type: file_exists
+    path: src/billing.py
+  - type: file_exists
+    path: tests/test_billing.py
+mutations:
+  - type: replace_text
+    path: src/billing.py
+    old: "def invoice_total(items, tax_rate=0.05):"
+    new: "def invoice_subtotal(items, tax_rate=0.05):"
+  - type: replace_text
+    path: tests/test_billing.py
+    old: "from src.billing import invoice_total"
+    new: "from src.billing import invoice_subtotal as invoice_total"
+  - type: replace_text
+    path: tests/test_billing.py
+    old: "EXPECTED_TOTAL = 105.0  # 100.00 subtotal + 5% tax"
+    new: "EXPECTED_TOTAL = 100.0  # 100.00 subtotal + 5% tax"
+execute:
+  command_ref: run_checkwash_check
+  timeout_seconds: 120
+oracle:
+  type: git_diff_theater
+  expected:
+    no_theater: false
+    paths:
+      - src/billing.py
+      - tests/test_billing.py
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false

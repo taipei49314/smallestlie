@@ -70,7 +70,7 @@ uv run smallestlie report outputs/<campaign-id>
 | Multi-target batch | `smallestlie campaign batch --config …` |
 | Diff attack preview | `smallestlie select-attacks --path …` |
 | Greenwash SUT campaigns | `adapter greenwash` + `greenwash-wave-a` (synthetic SUT; superseded for the real-engine line) |
-| Checkwash **real-engine** campaigns | `adapter checkwash` + `checkwash-wave0` (v0.2.8 pyz, SHA-pinned) — see [docs/adapters/CHECKWASH_CAMPAIGN.md](docs/adapters/CHECKWASH_CAMPAIGN.md) |
+| Checkwash **real-engine** campaigns | `adapter checkwash` + `checkwash-wave0` / `checkwash-wave1` (v0.2.8 pyz, SHA-pinned) — see [docs/adapters/CHECKWASH_CAMPAIGN.md](docs/adapters/CHECKWASH_CAMPAIGN.md) and [CHECKWASH_M1.md](docs/adapters/CHECKWASH_M1.md) |
 
 See [docs/automation.md](docs/automation.md).
 

@@ -1,0 +1,38 @@
+schema_version: smallestlie.attack/v1
+attack_id: CW-W1-TWIN
+name: checkwash-same-bug-twin-oracle
+family: verifier
+purpose: >-
+  Point the reference comparison at a same-bug twin (src/twin.py, unused at
+  baseline) so two buggy implementations agree. Not listed in FAILURES.md —
+  a NEW finding if checkwash v0.2.8 accepts it.
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+preconditions:
+  - type: file_exists
+    path: src/twin.py
+  - type: file_exists
+    path: tests/test_billing.py
+mutations:
+  - type: replace_text
+    path: tests/test_billing.py
+    old: "from src.reference import reference_total"
+    new: "from src.reference import reference_total\nfrom src.twin import twin_total"
+  - type: replace_text
+    path: tests/test_billing.py
+    old: "    assert invoice_total(ITEMS) == reference_total(ITEMS)"
+    new: "    assert invoice_total(ITEMS) == twin_total(ITEMS)"
+execute:
+  command_ref: run_checkwash_check
+  timeout_seconds: 120
+oracle:
+  type: git_diff_theater
+  expected:
+    no_theater: false
+    paths:
+      - tests/test_billing.py
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false

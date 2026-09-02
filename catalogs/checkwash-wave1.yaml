@@ -1,0 +1,20 @@
+name: checkwash-wave1
+seed_default: 49314
+description: >-
+  Wave 1 against the REAL checkwash engine (v0.2.8, vendored pyz).
+  Beyond-taxonomy probes: published FAILURES.md holes, a SPEC two-hop
+  residual, and one candidate-new twin-oracle. Theater-by-construction.
+  Authorization: estate T-14; D-1..D-4 still bind. Language rule applies.
+mode: single
+composition_limits:
+  max_depth: 1
+  max_compound_runs: 0
+  max_mutations_total: 4
+attacks:
+  - CW-W1-54
+  - CW-W1-77
+  - CW-W1-86a
+  - CW-W1-93
+  - CW-W1-2HOP
+  - CW-W1-91H
+  - CW-W1-TWIN

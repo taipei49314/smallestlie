@@ -1,0 +1,32 @@
+schema_version: smallestlie.attack/v1
+attack_id: CW-W1-86a
+name: checkwash-named-expectation-rebound
+family: verifier
+purpose: >-
+  An expectation that was already a local name before the diff: rewrite its
+  defining expression to the buggy output, leaving the assertion line
+  byte-identical (checkwash FAILURES.md #86a — narrowed, still open).
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+preconditions:
+  - type: file_exists
+    path: tests/test_billing.py
+mutations:
+  - type: replace_text
+    path: tests/test_billing.py
+    old: "    expected = EXPECTED_TOTAL"
+    new: "    expected = 100.0"
+execute:
+  command_ref: run_checkwash_check
+  timeout_seconds: 120
+oracle:
+  type: git_diff_theater
+  expected:
+    no_theater: false
+    paths:
+      - tests/test_billing.py
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false

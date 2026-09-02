@@ -25,3 +25,24 @@ def test_total_matches_reference():
 
 def test_total_within_tolerance():
     assert abs(invoice_total(ITEMS) - reference_total(ITEMS)) <= 1e-9
+
+
+def test_named_local_expectation():
+    expected = EXPECTED_TOTAL
+    assert invoice_total(ITEMS) == expected
+
+
+def test_skip_guarded_oracle():
+    import sys
+
+    if sys.version_info < (3, 0):
+        pytest.skip("never on py3")
+    assert invoice_total(ITEMS) == EXPECTED_TOTAL
+
+
+def _check_total_helper():
+    assert invoice_total(ITEMS) == EXPECTED_TOTAL
+
+
+def test_via_helper():
+    _check_total_helper()

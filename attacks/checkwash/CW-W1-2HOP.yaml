@@ -1,0 +1,31 @@
+schema_version: smallestlie.attack/v1
+attack_id: CW-W1-2HOP
+name: checkwash-two-hop-subject-wrap
+family: verifier
+purpose: >-
+  Wrap the asserted subject through two local bindings plus abs(), a stated
+  residual of SUBJECT_NORMALIZED (checkwash SPEC: two hops are not collected).
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+preconditions:
+  - type: file_exists
+    path: tests/test_billing.py
+mutations:
+  - type: replace_text
+    path: tests/test_billing.py
+    old: "def test_total_exact_value():\n    assert invoice_total(ITEMS) == EXPECTED_TOTAL"
+    new: "def test_total_exact_value():\n    got = invoice_total(ITEMS)\n    step = got\n    assert abs(step) == EXPECTED_TOTAL"
+execute:
+  command_ref: run_checkwash_check
+  timeout_seconds: 120
+oracle:
+  type: git_diff_theater
+  expected:
+    no_theater: false
+    paths:
+      - tests/test_billing.py
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false

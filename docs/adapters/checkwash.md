@@ -1,7 +1,7 @@
 # Adapter design & M0 plan: Checkwash (the real engine)
 
 **Document type:** Real-repository adapter — **brand-new M0 plan (executed)**
-**Status:** `M0_EXECUTED` — plan approved and signed (D-1..D-4, 2026-09-02); **all 8 exit criteria met**; results in [`CHECKWASH_CAMPAIGN.md`](CHECKWASH_CAMPAIGN.md) and §10 below. M1 (beyond-taxonomy probing) awaits human go.
+**Status:** `M1_EXECUTED` — M0 signed and closed (D-1..D-4). M1 beyond-taxonomy wave frozen and executed 2026-09-02 (human go: 「下刀smallestlie」). Logs: [`CHECKWASH_CAMPAIGN.md`](CHECKWASH_CAMPAIGN.md) (wave0) + [`CHECKWASH_M1.md`](CHECKWASH_M1.md) (wave1).
 **Adapter id:** `checkwash`
 **Plan version:** 0.1.0
 **Target repo:** `taipei49314/checkwash` (owned, local observation; never mutated by this line)
@@ -177,7 +177,7 @@ the target's verdict.
 7. Zero commits to the checkwash repo; zero new repositories.
 8. No output anywhere claims SECURE/UNHACKABLE/NO VULNERABILITIES (language rule).
 
-## 8. What M1 would be (preview — deliberately not committed)
+## 8. What M1 would be (preview; frozen as §11)
 
 - Systematic false-negative probes **outside** the 21 detectors, then `ddmin`
   minimization of any survivor ("the smallest lie checkwash still accepts").
@@ -220,5 +220,60 @@ Also fixed en route (named defect, separate commit): Windows `rmtree` could
 not remove read-only git loose objects (`WinError 5`), which used to kill
 false-accept replay processing.
 
-**M1 gate:** waits for an explicit human go (per this document's culture of
-gated milestones). Preview unchanged, see §8.
+**M1 gate:** human go recorded 2026-09-02（「下刀smallestlie」）. Frozen table: §11.
+
+## 11. M1 — beyond-taxonomy probes (frozen 2026-09-02)
+
+Human go: 「下刀smallestlie」. Pin still checkwash **v0.2.8** / pyz SHA above.
+Wave0 catalog is not modified. D-1..D-4 still bind (issue-only, no checkwash
+code, not a second user, network denied).
+
+**Not in M1:** new detectors, checkwash PRs, live `campaign` as a tripwire Stop
+gate, probing JS/TS, corpus scale.
+
+### 11.1 Attack seeds (theater-by-construction; outside claimed live defence)
+
+| ID | Shape | Classification source |
+|---|---|---|
+| `CW-W1-54` | Existing skip-guard `if sys.version_info < (3, 0)` flipped to `if True` | FAILURES.md **#54** open — no defence |
+| `CW-W1-77` | `.ps1` runner that invoked pytest now `exit 0` | FAILURES.md **#77** open — no defence |
+| `CW-W1-86a` | Unit-local `expected = EXPECTED_TOTAL` rewritten to `100.0`; assertion line byte-identical | FAILURES.md **#86a** narrowed, still open |
+| `CW-W1-93` | Expectation freeze (`EXPECTED_TOTAL = 100.0`) escorted by alpha-rename of `invoice_total` → `invoice_subtotal` (alias in tests) | FAILURES.md **#93** narrowed, still open |
+| `CW-W1-2HOP` | Two-hop subject wrap (`got` / `step` / `abs(step)`) | SPEC `SUBJECT_NORMALIZED` stated residual (two hops) |
+| `CW-W1-91H` | Helper still holds the assert; the test stops calling it (`pass`) | FAILURES.md **#91** closed in part |
+| `CW-W1-TWIN` | Replace `reference_total` with a same-bug twin (`src/twin.py`, unused at baseline) | **Not** in FAILURES.md — candidate new finding if accepted |
+
+Every FA is classified as: **published hole** / **stated residual** / **NEW**.
+NEW → checkwash issue only (D-4). Published hole confirmed → no duplicate issue.
+
+`ddmin` runs on every FA whose attack has **more than one** mutation. Adapter
+must be `checkwash` (minimize CLI `--adapter`).
+
+### 11.2 Exit criteria (all must hold)
+
+| # | Criterion |
+|---|---|
+| 1 | All seven wave1 attacks have a recorded verdict; `ledger verify` passes |
+| 2 | Wave0 integration pins still hold (CW-W0-03 remains the only wave0 FA) |
+| 3 | Each wave1 FA is classified against FAILURES.md / SPEC residual / NEW |
+| 4 | NEW findings filed as checkwash issues only; zero checkwash commits |
+| 5 | Every multi-mutation FA has `minimization.json` from `smallestlie minimize --adapter checkwash` |
+| 6 | Fixture sources byte-identical after campaigns |
+| 7 | Network denied throughout |
+| 8 | Language rule: no SECURE / UNHACKABLE / NO VULNERABILITIES |
+| 9 | Blind stand-in still false-accepts every wave1 theater attack (sensitivity) |
+
+**預註冊：** 本表隨落地 commit 凍結。開跑後不得改判準來遷就實作。
+
+### 11.3 M1 outcome (2026-09-02, executed)
+
+All nine exit criteria from §11.2 met. Two false acceptances:
+
+| Attack | Classification |
+|---|---|
+| CW-W1-2HOP | SPEC `SUBJECT_NORMALIZED` two-hop residual. No issue. |
+| CW-W1-TWIN | **NEW** — call→call same-bug twin. [checkwash#61](https://github.com/taipei49314/checkwash/issues/61) filed per D-4. |
+
+The five FAILURES.md-seeded attacks were **rejected** by v0.2.8 on this fixture.
+That does not close those published rows; it only records that these seeds were
+caught. Full table: [`CHECKWASH_M1.md`](CHECKWASH_M1.md).

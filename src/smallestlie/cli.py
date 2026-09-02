@@ -92,6 +92,7 @@ def main(argv: list[str] | None = None) -> int:
     p_min = sub.add_parser("minimize", help="Re-minimize mutations for a run directory")
     p_min.add_argument("run_dir", help="Path to campaign runs/<run-id>")
     p_min.add_argument("--target", required=True)
+    p_min.add_argument("--adapter", default="fixture_gate")
     p_min.add_argument("--attempts", type=int, default=3)
 
     p_ledger = sub.add_parser("ledger", help="Ledger operations")
@@ -466,7 +467,7 @@ def cmd_minimize(args: Any, root: Path) -> int:
     target = Path(args.target)
     if not target.is_absolute():
         target = (root / target).resolve()
-    adapter = get_adapter("fixture_gate")
+    adapter = get_adapter(getattr(args, "adapter", None) or "fixture_gate")
     auth = default_fixture_authorization(target)
     baseline = capture_baseline(
         target,

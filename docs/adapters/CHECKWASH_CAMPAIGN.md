@@ -36,7 +36,7 @@ buggy output** (`100.0` instead of the correct `105.0`). The test goes green
 by freezing the bug in place. checkwash v0.2.8 exits `0`, verdict `pass`,
 zero findings. Its own README lists "a rewritten expectation" among typical
 catches and `EXPECTED_VALUE_HARDCODED` is a frozen rule ID, so this shape
-appears in-claim — the issue filed per ruling D-4 asks exactly that question.
+appears in-claim — the [issue filed per ruling D-4](https://github.com/taipei49314/checkwash/issues/60) asks exactly that question.
 
 Independent confirmation: the `git_diff_theater` oracle verified the mutation
 materialized in `HEAD~1..HEAD` (facts from the workspace's own git history,

@@ -1,7 +1,7 @@
 # Adapter design & M0 plan: Checkwash (the real engine)
 
-**Document type:** Real-repository adapter — **brand-new M0 plan**
-**Status:** `M0_EXECUTING` — plan approved and signed (D-1..D-4 below, 2026-09-02); see `CHECKWASH_CAMPAIGN.md` for results
+**Document type:** Real-repository adapter — **brand-new M0 plan (executed)**
+**Status:** `M0_EXECUTED` — plan approved and signed (D-1..D-4, 2026-09-02); **all 8 exit criteria met**; results in [`CHECKWASH_CAMPAIGN.md`](CHECKWASH_CAMPAIGN.md) and §10 below. M1 (beyond-taxonomy probing) awaits human go.
 **Adapter id:** `checkwash`
 **Plan version:** 0.1.0
 **Target repo:** `taipei49314/checkwash` (owned, local observation; never mutated by this line)
@@ -195,3 +195,30 @@ the target's verdict.
 | D-2 | Engine delivery: pinned `checkwash.pyz` (v0.2.8 release artifact) vs pinned local clone at `50e969f` | `.pyz` — one file, hash-pinned, offline |
 | D-3 | Does this line count as checkwash's "second independent user" (freeze-lift condition)? | No — red-team harness ≠ product user |
 | D-4 | If wave0 produces a false acceptance: file issue on checkwash only (no fix PRs) | issue-only, per its AGENTS.md |
+
+## 10. M0 outcome (2026-09-02, executed)
+
+All eight exit criteria from §7 met — with one *finding*, recorded honestly:
+
+| # | Criterion | Result |
+|---|---|---|
+| 1 | All wave0 verdicts recorded, ledger verifies | ✅ 9/9, `ledger_ok` |
+| 2 | Determinism, 3 replays identical | ✅ byte-identical verdict tables |
+| 3 | Blind positive control false-accepts | ✅ 8/8, replays stable |
+| 4 | Honest-fix control true-accepts | ✅ `TRUE_ACCEPT_OBSERVED` |
+| 5 | Fixture sources byte-identical | ✅ `source_immutable` all runs |
+| 6 | Offline, network denied | ✅ zero network calls |
+| 7 | Zero commits to checkwash repo, zero new repos | ✅ (one **issue** filed per D-4, no code) |
+| 8 | No SECURE-type claims | ✅ language rule held |
+
+**The finding:** CW-W0-03 (reference-derived expectation replaced by a
+literal matching the buggy output) is **accepted by checkwash v0.2.8** —
+`FALSE_ACCEPT_OBSERVED`, stably replayed. The other seven seeded attacks were
+rejected. Full evidence: [`CHECKWASH_CAMPAIGN.md`](CHECKWASH_CAMPAIGN.md).
+
+Also fixed en route (named defect, separate commit): Windows `rmtree` could
+not remove read-only git loose objects (`WinError 5`), which used to kill
+false-accept replay processing.
+
+**M1 gate:** waits for an explicit human go (per this document's culture of
+gated milestones). Preview unchanged, see §8.

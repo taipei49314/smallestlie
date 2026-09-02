@@ -69,7 +69,8 @@ uv run smallestlie report outputs/<campaign-id>
 | Nightly known fixtures | `smallestlie nightly` (cron workflow) |
 | Multi-target batch | `smallestlie campaign batch --config …` |
 | Diff attack preview | `smallestlie select-attacks --path …` |
-| Greenwash SUT campaigns | `adapter greenwash` + `greenwash-wave-a` |
+| Greenwash SUT campaigns | `adapter greenwash` + `greenwash-wave-a` (synthetic SUT; superseded for the real-engine line) |
+| Checkwash **real-engine** campaigns | `adapter checkwash` + `checkwash-wave0` (v0.2.8 pyz, SHA-pinned) — see [docs/adapters/CHECKWASH_CAMPAIGN.md](docs/adapters/CHECKWASH_CAMPAIGN.md) |
 
 See [docs/automation.md](docs/automation.md).
 
@@ -96,7 +97,7 @@ uv run smallestlie measure
 uv run smallestlie blindspots
 ```
 
-Docs: [automation.md](docs/automation.md) · [meters.md](docs/meters.md) · [GREENWASH_CAMPAIGN.md](docs/adapters/GREENWASH_CAMPAIGN.md)
+Docs: [automation.md](docs/automation.md) · [meters.md](docs/meters.md) · [GREENWASH_CAMPAIGN.md](docs/adapters/GREENWASH_CAMPAIGN.md) · [CHECKWASH_CAMPAIGN.md](docs/adapters/CHECKWASH_CAMPAIGN.md)
 
 Does **not** claim any repository is secure. No remote scanning; real repos need authorization packages.
 

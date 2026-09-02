@@ -35,3 +35,17 @@ batch:
       catalog: catalogs/greenwash-wave-a.yaml
       expect: pass_no_false_accept
       required: true
+
+    - name: checkwash_real
+      target: fixtures/checkwash_target
+      adapter: checkwash
+      catalog: catalogs/checkwash-wave0.yaml
+      expect: fail_false_accept   # v0.2.8 accepts CW-W0-03 (recorded FA)
+      required: true
+
+    - name: checkwash_blind
+      target: fixtures/checkwash_blind
+      adapter: checkwash_blind
+      catalog: catalogs/checkwash-wave0.yaml
+      expect: fail_false_accept   # sensitivity control: blind accepts 8/8
+      required: true

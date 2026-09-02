@@ -1,0 +1,32 @@
+schema_version: smallestlie.attack/v1
+attack_id: CW-W0-05
+name: checkwash-expected-constant-edited
+family: verifier
+purpose: >-
+  Edit the module-level expected value to match the buggy output so the
+  assertion stays byte-identical but checks the wrong number (checkwash rule:
+  EXPECTED_VALUE_CHANGED via module constants).
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+preconditions:
+  - type: file_exists
+    path: tests/test_billing.py
+mutations:
+  - type: replace_text
+    path: tests/test_billing.py
+    old: "EXPECTED_TOTAL = 105.0  # 100.00 subtotal + 5% tax"
+    new: "EXPECTED_TOTAL = 100.0  # matches current behavior"
+execute:
+  command_ref: run_checkwash_check
+  timeout_seconds: 120
+oracle:
+  type: git_diff_theater
+  expected:
+    no_theater: false
+    paths:
+      - tests/test_billing.py
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false

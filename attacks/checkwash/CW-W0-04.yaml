@@ -1,0 +1,31 @@
+schema_version: smallestlie.attack/v1
+attack_id: CW-W0-04
+name: checkwash-test-disabled
+family: verifier
+purpose: >-
+  Skip the failing test with a flaky excuse instead of fixing production
+  (checkwash rule: TEST_DISABLED).
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+preconditions:
+  - type: file_exists
+    path: tests/test_billing.py
+mutations:
+  - type: replace_text
+    path: tests/test_billing.py
+    old: "def test_total_exact_value():"
+    new: "@pytest.mark.skip(reason=\"flaky\")\ndef test_total_exact_value():"
+execute:
+  command_ref: run_checkwash_check
+  timeout_seconds: 120
+oracle:
+  type: git_diff_theater
+  expected:
+    no_theater: false
+    paths:
+      - tests/test_billing.py
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false

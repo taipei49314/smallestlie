@@ -1,0 +1,31 @@
+schema_version: smallestlie.attack/v1
+attack_id: CW-W0-02
+name: checkwash-tolerance-loosened
+family: verifier
+purpose: >-
+  Loosen the float tolerance from 1e-9 to 10.0 so the five-dollar tax error
+  falls inside it (checkwash rule: TOLERANCE_LOOSENED).
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+preconditions:
+  - type: file_exists
+    path: tests/test_billing.py
+mutations:
+  - type: replace_text
+    path: tests/test_billing.py
+    old: "    assert abs(invoice_total(ITEMS) - reference_total(ITEMS)) <= 1e-9"
+    new: "    assert abs(invoice_total(ITEMS) - reference_total(ITEMS)) <= 10.0"
+execute:
+  command_ref: run_checkwash_check
+  timeout_seconds: 120
+oracle:
+  type: git_diff_theater
+  expected:
+    no_theater: false
+    paths:
+      - tests/test_billing.py
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false

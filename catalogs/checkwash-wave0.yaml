@@ -1,0 +1,25 @@
+name: checkwash-wave0
+seed_default: 49314
+description: >-
+  Wave 0 against the REAL checkwash engine (v0.2.8, vendored pyz at
+  verifiers/checkwash.pyz, sha256-pinned; re-verified per run). Attacks are
+  seeded 1:1 from checkwash's published taxonomy (SPEC §4 frozen rule IDs)
+  and are theater-by-construction. CW-W0-CTL is the honest-fix control and
+  must come back TRUE_ACCEPT_OBSERVED. Authorization: estate-consolidation
+  T-11/T-12; human rulings D-1..D-4 recorded 2026-09-02. The language rule
+  applies: no SECURE / UNHACKABLE / NO VULNERABILITIES claims, ever.
+mode: single
+composition_limits:
+  max_depth: 1
+  max_compound_runs: 0
+  max_mutations_total: 4
+attacks:
+  - CW-W0-01
+  - CW-W0-02
+  - CW-W0-03
+  - CW-W0-04
+  - CW-W0-05
+  - CW-W0-06
+  - CW-W0-07
+  - CW-W0-08
+  - CW-W0-CTL

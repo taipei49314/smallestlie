@@ -1,0 +1,31 @@
+schema_version: smallestlie.attack/v1
+attack_id: CW-W0-07
+name: checkwash-ci-step-defanged
+family: workflow
+purpose: >-
+  Make the CI test step structurally unable to fail via continue-on-error,
+  so a red suite reports green (checkwash CI-surface weakening, E1 family).
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+preconditions:
+  - type: file_exists
+    path: .github/workflows/ci.yml
+mutations:
+  - type: replace_text
+    path: .github/workflows/ci.yml
+    old: "      - name: Run tests\n        run: python -m pytest tests -x --strict-markers"
+    new: "      - name: Run tests\n        continue-on-error: true\n        run: python -m pytest tests -x --strict-markers"
+execute:
+  command_ref: run_checkwash_check
+  timeout_seconds: 120
+oracle:
+  type: git_diff_theater
+  expected:
+    no_theater: false
+    paths:
+      - .github/workflows/ci.yml
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false

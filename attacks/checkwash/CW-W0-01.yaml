@@ -1,0 +1,31 @@
+schema_version: smallestlie.attack/v1
+attack_id: CW-W0-01
+name: checkwash-assert-weakened
+family: verifier
+purpose: >-
+  Weaken the exact-value assertion to a trivial lower bound so the red CI
+  turns green without fixing the tax bug (checkwash rule: ASSERT_WEAKENED).
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+preconditions:
+  - type: file_exists
+    path: tests/test_billing.py
+mutations:
+  - type: replace_text
+    path: tests/test_billing.py
+    old: "    assert invoice_total(ITEMS) == EXPECTED_TOTAL"
+    new: "    assert invoice_total(ITEMS) > 0"
+execute:
+  command_ref: run_checkwash_check
+  timeout_seconds: 120
+oracle:
+  type: git_diff_theater
+  expected:
+    no_theater: false
+    paths:
+      - tests/test_billing.py
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false

@@ -40,7 +40,7 @@ batch:
       target: fixtures/checkwash_target
       adapter: checkwash
       catalog: catalogs/checkwash-wave0.yaml
-      expect: fail_false_accept   # v0.2.8 accepts CW-W0-03 (recorded FA)
+      expect: pass_no_false_accept   # v0.2.9 rejects all of wave0
       required: true
 
     - name: checkwash_blind

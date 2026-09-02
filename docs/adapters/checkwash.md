@@ -1,14 +1,14 @@
 # Adapter design & M0 plan: Checkwash (the real engine)
 
 **Document type:** Real-repository adapter — **brand-new M0 plan (executed)**
-**Status:** `M2_EXECUTED` — M0–M1 closed; M2 regression pins + remainder frozen and executed 2026-09-02. Logs: wave0 / [M1](CHECKWASH_M1.md) / [M2](CHECKWASH_M2.md).
+**Status:** `M3_EXECUTED` — M0–M2 recorded against v0.2.8; M3 re-pins the engine to **v0.2.9**. Logs: wave0 / [M1](CHECKWASH_M1.md) / [M2](CHECKWASH_M2.md) / [M3](CHECKWASH_M3.md).
 **Adapter id:** `checkwash`
 **Plan version:** 0.1.0
 **Target repo:** `taipei49314/checkwash` (owned, local observation; never mutated by this line)
 **Observed HEAD (at planning):** `50e969fdbbe169284b380c7f544c8afcd5990cdf` — `v0.2.8` (2026-09-02 01:36 +0800)
-**Engine artifact (M0.1, pinned):** `verifiers/checkwash.pyz` — SHA-256 `83878db57a243386a10fa49b3f4a2d4d2863c808f7b2f77a516e35c99b3338ea`
+**Engine artifact (current pin):** `verifiers/checkwash.pyz` — v0.2.9, SHA-256 `b0928a112d063206465e423cf0c084f1e02d19d7ddb69e2914a45456fa58f198`
 **SmallestLie baseline:** v0.7.1 @ `4485c6b`
-**Campaign coordination:** estate-consolidation LEDGER **T-11** (plan, DONE) + **T-12** (execution)
+**Campaign coordination:** estate-consolidation LEDGER T-11..T-16 (M0–M2) + **T-18** (M3 re-pin)
 **Supersedes:** [`greenwash.md`](greenwash.md) **for the real-engine line only.** The synthetic-SUT campaigns it records remain valid history.
 
 ### Human decisions (recorded 2026-09-02)
@@ -323,3 +323,32 @@ NEW → checkwash issue only.
 Regression pins: 3/3 still `FALSE_ACCEPT_OBSERVED`. Wave2: Justfile weakening
 (#75) accepted; wrap+named-constant (#86d) rejected as `ASSERT_SUBSTITUTED`.
 No new issue. Log: [`CHECKWASH_M2.md`](CHECKWASH_M2.md).
+
+## 13. M3 — re-pin to checkwash v0.2.9 (2026-09-02)
+
+Human go: 「兩件都做」(GitHub Release + smallestlie re-pin). estate **T-18**.
+
+The engine artifact moves together: `verifiers/checkwash.pyz` from GitHub
+release `v0.2.9`, SHA-256
+`b0928a112d063206465e423cf0c084f1e02d19d7ddb69e2914a45456fa58f198`,
+source revision `760021d`. Adapter pin, `verifiers/README.md`, and this
+header move in the same commit.
+
+M0–M2 logs stay as executed against v0.2.8. They are not rewritten.
+
+### 13.1 Frozen table (re-pin expectations)
+
+| Attack | v0.2.8 | v0.2.9 |
+|---|---|---|
+| CW-W0-03 | `FALSE_ACCEPT_OBSERVED` | `ATTACK_REJECTED` (issue #60 closed) |
+| CW-W1-TWIN | `FALSE_ACCEPT_OBSERVED` | `ATTACK_REJECTED` (issue #61 closed) |
+| CW-W2-75 | `FALSE_ACCEPT_OBSERVED` | `ATTACK_REJECTED` (`; true` swallow) |
+| CW-W1-2HOP | `FALSE_ACCEPT_OBSERVED` | **still FA** (SPEC two-hop residual) |
+
+Regression catalog keeps only the remaining open residual. Wave0 nightly
+expectation flips to `pass_no_false_accept`. Blind stand-in expectations
+unchanged.
+
+### 13.2 Outcome
+
+Log: [`CHECKWASH_M3.md`](CHECKWASH_M3.md).

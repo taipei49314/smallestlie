@@ -10,14 +10,13 @@ at preflight and refuses to run on mismatch.
 | Field | Value |
 |---|---|
 | Product | [checkwash](https://github.com/taipei49314/checkwash) (owned repo; consumed read-only) |
-| Version | v0.2.8 |
-| Source revision | `50e969fdbbe169284b380c7f544c8afcd5990cdf` (observed HEAD, 2026-09-02) |
-| Artifact | release asset `checkwash.pyz` from tag `v0.2.8` |
-| SHA-256 | `83878db57a243386a10fa49b3f4a2d4d2863c808f7b2f77a516e35c99b3338ea` |
+| Version | v0.2.9 |
+| Source revision | `760021d56b13af1332a5cb8eedd7ba20a9bfce47` (annotated tag `v0.2.9`) |
+| Artifact | release asset `checkwash.pyz` from tag `v0.2.9` |
+| SHA-256 | `b0928a112d063206465e423cf0c084f1e02d19d7ddb69e2914a45456fa58f198` |
 | License | Apache-2.0 (redistribution with notice permitted) |
-| Pinned by | estate-consolidation T-11/T-12; human approval D-1..D-4, 2026-09-02 |
+| Pinned by | estate-consolidation T-18; human 「兩件都做」, 2026-09-02 |
 
-The checkwash repository itself is never modified by this harness (M0 exit
-criterion #7; release freeze respected). Re-pinning is a conscious, human-visible
-step: update this table, the pin in `adapters/checkwash.py`, and
-`docs/adapters/checkwash.md` §1 together.
+The checkwash repository itself is never mutated by this harness. Re-pinning is
+a conscious, human-visible step: update this table, the pin in
+`adapters/checkwash.py`, and `docs/adapters/checkwash.md` together.

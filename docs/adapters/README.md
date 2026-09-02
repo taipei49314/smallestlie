@@ -18,7 +18,7 @@ This directory holds **design packages** for connecting SmallestLie to Nelson-ow
 | 1 | **TomorrowCI** (verify / evidence authority) | **Design only** — [tomorrowci.md](./tomorrowci.md) |
 | 2 | **ClaimGate** (claim authorization semantics) | **Design only** — [claimgate.md](./claimgate.md) · *no local tree* |
 | 3 | **Greenwash** (anti-theater / green credibility) | **Synthetic SUT live** — [greenwash.md](./greenwash.md) · [campaign log](./GREENWASH_CAMPAIGN.md) |
-| 3b | **Checkwash** (real engine v0.2.11) | **M0–M4 live** — [checkwash.md](./checkwash.md) · [wave0](./CHECKWASH_CAMPAIGN.md) · [M1](./CHECKWASH_M1.md) · [M2](./CHECKWASH_M2.md) · [M3](./CHECKWASH_M3.md) · [M4](./CHECKWASH_M4.md) |
+| 3b | **Checkwash** (real engine v0.2.12) | **M0–M5 live** — [checkwash.md](./checkwash.md) · [wave0](./CHECKWASH_CAMPAIGN.md) · [M1](./CHECKWASH_M1.md) · [M2](./CHECKWASH_M2.md) · [M3](./CHECKWASH_M3.md) · [M4](./CHECKWASH_M4.md) · [M5](./CHECKWASH_M5.md) |
 | 4 | RepoPassport | Planned |
 | 5 | TraceCapsule | Planned |
 | 6 | Larger evidence systems | Deferred |

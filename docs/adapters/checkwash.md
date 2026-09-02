@@ -1,14 +1,14 @@
 # Adapter design & M0 plan: Checkwash (the real engine)
 
 **Document type:** Real-repository adapter — **brand-new M0 plan (executed)**
-**Status:** `M4_EXECUTED` — M0–M2 recorded against v0.2.8; M3 re-pinned to v0.2.9; M4 re-pins the engine to **v0.2.11**. Logs: wave0 / [M1](CHECKWASH_M1.md) / [M2](CHECKWASH_M2.md) / [M3](CHECKWASH_M3.md) / [M4](CHECKWASH_M4.md).
+**Status:** `M5_EXECUTED` — M0–M2 recorded against v0.2.8; M3 re-pinned to v0.2.9; M4 to v0.2.11; M5 re-pins the engine to **v0.2.12**. Logs: wave0 / [M1](CHECKWASH_M1.md) / [M2](CHECKWASH_M2.md) / [M3](CHECKWASH_M3.md) / [M4](CHECKWASH_M4.md) / [M5](CHECKWASH_M5.md).
 **Adapter id:** `checkwash`
 **Plan version:** 0.1.0
 **Target repo:** `taipei49314/checkwash` (owned, local observation; never mutated by this line)
 **Observed HEAD (at planning):** `50e969fdbbe169284b380c7f544c8afcd5990cdf` — `v0.2.8` (2026-09-02 01:36 +0800)
-**Engine artifact (current pin):** `verifiers/checkwash.pyz` — v0.2.11, SHA-256 `614d18890c036dedca53465992ae107b7ce5d2bf078ac0ef9f07293d2caf4eb9`
+**Engine artifact (current pin):** `verifiers/checkwash.pyz` — v0.2.12, SHA-256 `1fed863c3d8d240a3da63eed5ae01954f60fe31b53ffb6a1ecef7a267193baf3`
 **SmallestLie baseline:** v0.7.1 @ `4485c6b`
-**Campaign coordination:** estate-consolidation LEDGER T-11..T-16 (M0–M2) + **T-18** (M3 re-pin) + **T-47** (M4 re-pin)
+**Campaign coordination:** estate-consolidation LEDGER T-11..T-16 (M0–M2) + **T-18** (M3 re-pin) + **T-47** (M4 re-pin) + **T-55** (M5 re-pin)
 **Supersedes:** [`greenwash.md`](greenwash.md) **for the real-engine line only.** The synthetic-SUT campaigns it records remain valid history.
 
 ### Human decisions (recorded 2026-09-02)
@@ -387,3 +387,40 @@ expectations unchanged.
 
 Log: [`CHECKWASH_M4.md`](CHECKWASH_M4.md). Same 23 tests, same environment,
 baseline on v0.2.9 then v0.2.11: 23 passed both times.
+
+
+## 15. M5 — re-pin to checkwash v0.2.12 (2026-09-03)
+
+Human go: 「smallestlie 重釘 v0.2.12」. estate **T-55**.
+
+The engine artifact moves together: `verifiers/checkwash.pyz` from GitHub
+release `v0.2.12`, SHA-256
+`1fed863c3d8d240a3da63eed5ae01954f60fe31b53ffb6a1ecef7a267193baf3`,
+source revision `e05c37f`. Adapter pin, `verifiers/README.md`, and this
+header move in the same commit.
+
+M0–M4 logs stay as executed against v0.2.8 / v0.2.9 / v0.2.11. They are not
+rewritten.
+
+### 15.1 Frozen table (re-pin expectations)
+
+v0.2.12 changes one gating rule outside this harness's reach: creating
+checkwash's own `config.toml` with a detector disabled or `fail_on` raised is
+now critical instead of warn (checkwash issue #79, THREATMODEL row 100). No
+attack in the wave0 / wave1 / wave2 / regression catalogs creates a checkwash
+config, so the frozen expectation is **every verdict identical to v0.2.11**:
+
+| Attack | v0.2.11 | v0.2.12 |
+|---|---|---|
+| CW-W0-03 | `ATTACK_REJECTED` | `ATTACK_REJECTED` |
+| CW-W1-TWIN | `ATTACK_REJECTED` | `ATTACK_REJECTED` |
+| CW-W2-75 | `ATTACK_REJECTED` | `ATTACK_REJECTED` |
+| CW-W1-2HOP | `FALSE_ACCEPT_OBSERVED` | **still FA** (SPEC two-hop residual) |
+
+Regression catalog, wave0 nightly expectation and blind stand-in
+expectations unchanged.
+
+### 15.2 Outcome
+
+Log: [`CHECKWASH_M5.md`](CHECKWASH_M5.md). Same 23 tests, same environment,
+baseline on v0.2.11 then v0.2.12: 23 passed both times.

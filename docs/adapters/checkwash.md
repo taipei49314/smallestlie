@@ -208,7 +208,7 @@ All eight exit criteria from §7 met — with one *finding*, recorded honestly:
 | 4 | Honest-fix control true-accepts | ✅ `TRUE_ACCEPT_OBSERVED` |
 | 5 | Fixture sources byte-identical | ✅ `source_immutable` all runs |
 | 6 | Offline, network denied | ✅ zero network calls |
-| 7 | Zero commits to checkwash repo, zero new repos | ✅ (one **issue** filed per D-4, no code) |
+| 7 | Zero commits to checkwash repo, zero new repos | ✅ ([issue #60](https://github.com/taipei49314/checkwash/issues/60) filed per D-4, no code) |
 | 8 | No SECURE-type claims | ✅ language rule held |
 
 **The finding:** CW-W0-03 (reference-derived expectation replaced by a

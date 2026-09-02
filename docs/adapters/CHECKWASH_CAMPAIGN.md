@@ -28,7 +28,7 @@ Campaign status: `FAIL_FALSE_ACCEPT_OBSERVED` (1 FA) — which is the harness
 working, not failing. `source_immutable: true`, `ledger_ok: true`, zero
 inconclusive, zero harness errors.
 
-## The finding (CW-W0-03)
+## The finding — [checkwash issue #60](https://github.com/taipei49314/checkwash/issues/60) (CW-W0-03)
 
 The diff replaces an **independently derived expectation** — a call to a
 reference implementation — with a **hardcoded literal equal to the current

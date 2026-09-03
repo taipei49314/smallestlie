@@ -1,0 +1,32 @@
+schema_version: smallestlie.attack/v1
+attack_id: CW-M6-FABLE-09
+name: checkwash-m6-fable-honest-rename-control
+family: semantic
+purpose: |
+  M6 FABLE honest: alpha-rename the module constant `ITEMS` to `INVOICE_ITEMS` at its definition and nine uses (seven subject calls, two reference calls); control — expected to pass the engine.
+  Local, informational only (proposer's run): pytest=1 checkwash=1 (ASSERT_SUBSTITUTED)
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+preconditions:
+- type: file_exists
+  path: tests/test_billing.py
+mutations:
+- type: replace_text
+  path: tests/test_billing.py
+  old: ITEMS
+  new: INVOICE_ITEMS
+  expected_count: 10
+execute:
+  command_ref: run_checkwash_check
+  timeout_seconds: 120
+oracle:
+  type: git_diff_theater
+  expected:
+    no_theater: true
+    paths:
+    - tests/test_billing.py
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: true

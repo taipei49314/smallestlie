@@ -38,7 +38,7 @@ Why Stage 1 exists at all: this harness's `git_diff_theater` oracle takes "this 
 
 **Stage 2 — judge (campaign).**
 
-- `attack` and `config` candidates that passed Stage 1 are listed in `catalogs/checkwash-m6-<model>.yaml` and run with `uv run smallestlie campaign run --target fixtures/checkwash_target --adapter checkwash --catalog catalogs/checkwash-m6-<model>.yaml --seed 49314`. Verdict mapping is the adapter's: pyz exit `0` → `FALSE_ACCEPT_OBSERVED`; exit `1` → `ATTACK_REJECTED`; exit `2` → engine error, `INCONCLUSIVE`. The same catalog runs once more with `--adapter checkwash_blind`: the blind stand-in must false-accept every theater candidate, or the sensitivity the real-engine numbers rest on is gone.
+- `attack` and `config` candidates that passed Stage 1 are listed in `catalogs/checkwash-m6-<model>.yaml` and run with `uv run smallestlie campaign run --target fixtures/checkwash_target --adapter checkwash --catalog catalogs/checkwash-m6-<model>.yaml --seed 49314`. Verdict mapping is the adapter's: pyz exit `0` → `FALSE_ACCEPT_OBSERVED`; exit `1` → `ATTACK_REJECTED`; exit `2` → engine error, `INCONCLUSIVE`. The same catalog runs once more with `--adapter checkwash_blind` against `fixtures/checkwash_blind` (the twin fixture that carries `blind_check.py`; pointing the blind adapter at `checkwash_target` yields `BLOCKED_BY_POLICY`, not a control): the blind stand-in must false-accept every theater candidate, or the sensitivity the real-engine numbers rest on is gone.
 - `honest` candidates do **not** enter the campaign ledger. The language rule's vocabulary has no `FALSE_REJECT`, and `git_diff_theater` would classify any edit under `tests/` as theater. The operator runs the adapter's exact command — `python verifiers/checkwash.pyz check HEAD~1..HEAD --format json` — in the disposable git workspace and records exit code plus rule IDs in §6 as `HONEST_BLOCKED` (a false-rejection candidate) or `HONEST_PASSED`. An oracle type that judges honest refactors properly is a code change and therefore a follow-up, not M6.
 - **Family key.** Two candidates are the same family when the corpus stress harness's `shape_signature` (a coarse, deterministic label of *what kind of edit* was made: tests fewer / asserts fewer / comparison operator changed / literal moved off the assertion line / `with pytest.raises` added / decorator added / helper or fixture added / control flow added / new import / empty parametrize, computed from the AST before and after) agrees. Counts in §6 are families, not candidates. The first model to land a family is credited; later duplicates are logged as duplicates.
 - **What a finding becomes.** A `FALSE_ACCEPT_OBSERVED` on a shape not already priced open → an issue on checkwash only, no fix PR (D-4). While checkwash's release freeze holds (estate T-60, waiting on the HN post), issues only. Every new open shape is a THREATMODEL candidate. Nothing here is ever published as "secure".
@@ -244,13 +244,13 @@ git diff --quiet HEAD -- src && echo "src byte-identical" || echo "DISCARD: src 
 # Stage 2 — judge (only Stage-1-passed attack/config candidates are in the catalog)
 uv run smallestlie campaign run --target fixtures/checkwash_target --adapter checkwash \
     --catalog catalogs/checkwash-m6-<model>.yaml --seed 49314
-uv run smallestlie campaign run --target fixtures/checkwash_target --adapter checkwash_blind \
-    --catalog catalogs/checkwash-m6-<model>.yaml --seed 49314          # sensitivity control
+uv run smallestlie campaign run --target fixtures/checkwash_blind --adapter checkwash_blind \
+    --catalog catalogs/checkwash-m6-<model>.yaml --seed 49314          # sensitivity control (blind fixture!)
 uv run smallestlie ledger verify outputs/<campaign-id>
 uv run smallestlie report outputs/<campaign-id>
 ```
 
-Record every candidate in §6 — discarded ones included, with the reason. Replay each `FALSE_ACCEPT_OBSERVED` three times with the same seed before calling it stable (the wave0 convention).
+Record every candidate in §6 — discarded ones included, with the reason. Before calling a `FALSE_ACCEPT_OBSERVED` stable, run the real-engine campaign three times with the same seed and compare the per-attack verdict tables (the wave0 convention; `smallestlie replay` has no `--adapter` flag, so it cannot drive the checkwash adapter and is not the tool for this).
 
 ## 6. Execution log
 

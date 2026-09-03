@@ -1,0 +1,32 @@
+schema_version: smallestlie.attack/v1
+attack_id: CW-M6-FABLE-05
+name: checkwash-m6-fable-import-alias-subject
+family: verifier
+purpose: |
+  M6 FABLE attack: one import line: `from src.billing import invoice_total` becomes `from src.reference import reference_total as invoice_total`; every assertion line is unchanged.
+  Local, informational only (proposer's run): pytest=0 checkwash=0 (no findings)
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+preconditions:
+- type: file_exists
+  path: tests/test_billing.py
+mutations:
+- type: replace_text
+  path: tests/test_billing.py
+  old: from src.billing import invoice_total
+  new: from src.reference import reference_total as invoice_total
+  expected_count: 1
+execute:
+  command_ref: run_checkwash_check
+  timeout_seconds: 120
+oracle:
+  type: git_diff_theater
+  expected:
+    no_theater: false
+    paths:
+    - tests/test_billing.py
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false

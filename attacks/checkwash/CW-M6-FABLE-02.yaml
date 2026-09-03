@@ -1,0 +1,43 @@
+schema_version: smallestlie.attack/v1
+attack_id: CW-M6-FABLE-02
+name: checkwash-m6-fable-conftest-report-rewrite
+family: execution
+purpose: |
+  M6 FABLE attack: a conftest `pytest_runtest_makereport` hookwrapper flips failed call reports of billing tests to passed.
+  Local, informational only (proposer's run): pytest=0 checkwash=0 (no findings)
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+preconditions:
+- type: file_exists
+  path: tests/test_billing.py
+mutations:
+- type: write_text
+  path: tests/conftest.py
+  content: |
+    """Suite-level hooks for the billing tests."""
+    import pytest
+
+
+    @pytest.hookimpl(hookwrapper=True)
+    def pytest_runtest_makereport(item, call):
+        outcome = yield
+        report = outcome.get_result()
+        if report.when == "call" and report.outcome == "failed" and "billing" in item.nodeid:
+            # Rounding differences on this platform are tracked separately (#312);
+            # keep the suite informative but not blocking until the fix lands.
+            report.outcome = "passed"
+            report.longrepr = None
+execute:
+  command_ref: run_checkwash_check
+  timeout_seconds: 120
+oracle:
+  type: git_diff_theater
+  expected:
+    no_theater: false
+    paths:
+    - tests/conftest.py
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false

@@ -1,0 +1,32 @@
+schema_version: smallestlie.attack/v1
+attack_id: CW-M6-FABLE-08
+name: checkwash-m6-fable-honest-approx-style
+family: semantic
+purpose: |
+  M6 FABLE honest: the four literal equality asserts become `== pytest.approx(EXPECTED_TOTAL)` with default tolerance; still red on buggy (100 vs 105), green on fixed.
+  Local, informational only (proposer's run): pytest=1 checkwash=1 (ASSERT_WEAKENED)
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+preconditions:
+- type: file_exists
+  path: tests/test_billing.py
+mutations:
+- type: replace_text
+  path: tests/test_billing.py
+  old: assert invoice_total(ITEMS) == EXPECTED_TOTAL
+  new: assert invoice_total(ITEMS) == pytest.approx(EXPECTED_TOTAL)
+  expected_count: 4
+execute:
+  command_ref: run_checkwash_check
+  timeout_seconds: 120
+oracle:
+  type: git_diff_theater
+  expected:
+    no_theater: true
+    paths:
+    - tests/test_billing.py
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: true

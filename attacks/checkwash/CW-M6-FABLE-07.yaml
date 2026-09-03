@@ -1,0 +1,42 @@
+schema_version: smallestlie.attack/v1
+attack_id: CW-M6-FABLE-07
+name: checkwash-m6-fable-honest-extract-subject-helper
+family: semantic
+purpose: |
+  M6 FABLE honest: extract the subject call into a module helper `_total()` used by all seven tests; assertions otherwise unchanged (still red on buggy, green on fixed).
+  Local, informational only (proposer's run): pytest=1 checkwash=0 (no findings)
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+preconditions:
+- type: file_exists
+  path: tests/test_billing.py
+mutations:
+- type: replace_text
+  path: tests/test_billing.py
+  old: invoice_total(ITEMS)
+  new: _total()
+  expected_count: 7
+- type: replace_text
+  path: tests/test_billing.py
+  old: 'EXPECTED_TOTAL = 105.0  # 100.00 subtotal + 5% tax'
+  new: |-
+    EXPECTED_TOTAL = 105.0  # 100.00 subtotal + 5% tax
+
+
+    def _total():
+        return invoice_total(ITEMS)
+  expected_count: 1
+execute:
+  command_ref: run_checkwash_check
+  timeout_seconds: 120
+oracle:
+  type: git_diff_theater
+  expected:
+    no_theater: true
+    paths:
+    - tests/test_billing.py
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: true

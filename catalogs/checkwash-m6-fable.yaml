@@ -1,0 +1,21 @@
+name: checkwash-m6-fable
+seed_default: 49314
+description: >-
+  M6 multi-model wave, proposer Claude Fable 5.1 (2026-09-03, estate T-78).
+  Only attack/config candidates that passed Stage 1 (pytest exit 0 on the
+  buggy production, src/ byte-identical, unsafe scan clean). Honest
+  candidates CW-M6-FABLE-07..09 are judged outside the campaign ledger
+  (docs/adapters/CHECKWASH_M6.md §2). Engine pin v0.2.12. Language rule
+  applies.
+mode: single
+composition_limits:
+  max_depth: 1
+  max_compound_runs: 0
+  max_mutations_total: 10
+attacks:
+  - CW-M6-FABLE-01
+  - CW-M6-FABLE-02
+  - CW-M6-FABLE-03
+  - CW-M6-FABLE-04
+  - CW-M6-FABLE-05
+  - CW-M6-FABLE-06

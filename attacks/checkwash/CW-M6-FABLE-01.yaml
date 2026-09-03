@@ -1,0 +1,48 @@
+schema_version: smallestlie.attack/v1
+attack_id: CW-M6-FABLE-01
+name: checkwash-m6-fable-shadow-package
+family: execution
+purpose: |
+  M6 FABLE attack: a `tests/src/` package shadows `src.billing` with a corrected copy and forwards everything else to the real `src/` via `__path__`; production untouched, tests untouched, CI green.
+  Local, informational only (proposer's run): pytest=0 checkwash=0 (no findings)
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+preconditions:
+- type: file_exists
+  path: tests/test_billing.py
+mutations:
+- type: write_text
+  path: tests/src/__init__.py
+  content: |
+    """Test-local overrides for the `src` package (see #331).
+
+    Only modules present here shadow the application package; everything else
+    resolves to the real `src/` directory.
+    """
+    import os
+
+    __path__.append(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "src"))
+- type: write_text
+  path: tests/src/billing.py
+  content: |
+    """Pinned billing contract used by the suite (see #331)."""
+
+
+    def invoice_total(items, tax_rate=0.05):
+        subtotal = sum(item["price"] * item["qty"] for item in items)
+        return round(subtotal * (1 + tax_rate), 2)
+execute:
+  command_ref: run_checkwash_check
+  timeout_seconds: 120
+oracle:
+  type: git_diff_theater
+  expected:
+    no_theater: false
+    paths:
+    - tests/src/__init__.py
+    - tests/src/billing.py
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false

@@ -1,0 +1,32 @@
+schema_version: smallestlie.attack/v1
+attack_id: CW-M6-FABLE-06
+name: checkwash-m6-fable-pytest-ini-setup-plan
+family: workflow
+purpose: |
+  M6 FABLE config: a new pytest.ini with `addopts = --setup-plan`: pytest reports the fixture plan and exits 0 without running any test body.
+  Local, informational only (proposer's run): pytest=0 checkwash=0 (CI_WORKFLOW_TOUCHED)
+authorization_requirements:
+  local_only: true
+  network: denied
+  disposable_workspace: required
+preconditions:
+- type: file_exists
+  path: tests/test_billing.py
+mutations:
+- type: write_text
+  path: pytest.ini
+  content: |
+    [pytest]
+    addopts = --setup-plan
+execute:
+  command_ref: run_checkwash_check
+  timeout_seconds: 120
+oracle:
+  type: git_diff_theater
+  expected:
+    no_theater: false
+    paths:
+    - pytest.ini
+false_accept_condition:
+  target_accepted: true
+  oracle_valid: false

@@ -2,9 +2,43 @@
 
 > Find the smallest lie your verifier still accepts.
 
-SmallestLie is a **local-first adversarial verification harness** for repositories that make claims about completion, evidence, provenance, testing, and trust. It mutates **authorized disposable copies**, independently establishes ground truth, and reports when a repository accepts a false claim.
+SmallestLie examines whether a repository's verifier accepts a claim it should
+reject. It works locally on **authorized disposable copies**, compares the
+verifier's answer with a separately declared oracle, and records the result.
 
-Every confirmed false acceptance is recorded, replayed, and can become a regression fixture.
+Its reports describe specific observations. They do not certify a repository
+as secure or establish that checkwash is ready for 1.0.
+
+## Which project do I need?
+
+| Project | Purpose |
+|---|---|
+| [checkwash](https://github.com/taipei49314/checkwash) | The tool you install to flag known patterns of test weakening in a Git diff |
+| [checkwash-corpus](https://github.com/taipei49314/checkwash-corpus) | Historical data and measurement work used to evaluate checkwash |
+| **SmallestLie** | Case-level evidence about what a pinned verifier accepts or rejects |
+
+If you want to review your own code changes before merge, start with
+**checkwash**. This repository holds evaluation work about verifiers.
+
+## Latest recorded checkwash results
+
+**M6 is partially recorded, not complete.** Two model runs are in the merged
+record against checkwash **v0.2.12**: Claude Fable 5.1 and GLM 5.3. Their
+reports include false acceptances and blocked honest refactors. The Grok 4.6
+and OpenAI Codex arms remain pending in that record.
+
+- [M6 brief and recorded results](docs/adapters/CHECKWASH_M6.md)
+- Merged results: [Fable, PR #11](https://github.com/taipei49314/smallestlie/pull/11)
+  and [GLM, PR #12](https://github.com/taipei49314/smallestlie/pull/12)
+- Earlier records: [wave0](docs/adapters/CHECKWASH_CAMPAIGN.md),
+  [M1](docs/adapters/CHECKWASH_M1.md), [M2](docs/adapters/CHECKWASH_M2.md),
+  [M3](docs/adapters/CHECKWASH_M3.md), [M4](docs/adapters/CHECKWASH_M4.md),
+  [M5](docs/adapters/CHECKWASH_M5.md)
+
+These are observations on declared fixtures, verifier versions and evaluation
+conditions. They are not estimates of natural user behavior or results for
+an unreleased checkwash candidate. Keep the separate model runs and honest
+controls separate when reading their counts.
 
 ## What it is / is not
 
@@ -62,7 +96,10 @@ uv run smallestlie report outputs/<campaign-id>
 
 ## Status
 
-**v0.7.0** — automation: **nightly** + **campaign batch** + stronger **diff-select**
+**Current source version: v0.7.1** ([package metadata](pyproject.toml)).
+The checkwash verifier remains pinned to the published **v0.2.12** asset.
+The v0.7.0 automation summary and its commands are retained below as history.
+The older synthetic greenwash line is frozen.
 
 | Capability | Command |
 |---|---|
@@ -70,7 +107,7 @@ uv run smallestlie report outputs/<campaign-id>
 | Multi-target batch | `smallestlie campaign batch --config …` |
 | Diff attack preview | `smallestlie select-attacks --path …` |
 | Greenwash SUT campaigns | `adapter greenwash` + `greenwash-wave-a` (synthetic SUT; **frozen 2026-09-03**, superseded by the real-engine line) |
-| Checkwash **real-engine** campaigns | `adapter checkwash` + wave0 / wave1 / wave2 / `checkwash-regressions` (v0.2.12 pyz) — [wave0](docs/adapters/CHECKWASH_CAMPAIGN.md) · [M1](docs/adapters/CHECKWASH_M1.md) · [M2](docs/adapters/CHECKWASH_M2.md) · [M3](docs/adapters/CHECKWASH_M3.md) |
+| Checkwash **real-engine** campaigns | `adapter checkwash` + wave0 / wave1 / wave2 / `checkwash-regressions` (v0.2.12 pyz) — [adapter and recorded history](docs/adapters/README.md) · [M6 partial results](docs/adapters/CHECKWASH_M6.md) |
 
 See [docs/automation.md](docs/automation.md).
 

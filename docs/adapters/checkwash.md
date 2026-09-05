@@ -6,10 +6,15 @@
 **Plan version:** 0.1.0
 **Target repo:** `taipei49314/checkwash` (owned, local observation; never mutated by this line)
 **Observed HEAD (at planning):** `50e969fdbbe169284b380c7f544c8afcd5990cdf` — `v0.2.8` (2026-09-02 01:36 +0800)
-**Engine artifact (current pin):** `verifiers/checkwash.pyz` — v0.2.12, SHA-256 `1fed863c3d8d240a3da63eed5ae01954f60fe31b53ffb6a1ecef7a267193baf3`
+**Engine artifact (current pin):** `verifiers/checkwash.pyz` — v0.2.13, SHA-256 `6ba5660f0be7e164ddf3d306b7837662af52b97e296fbb3ee7e8bf0872a2f854`
 **SmallestLie baseline:** v0.7.1 @ `4485c6b`
 **Campaign coordination:** estate-consolidation LEDGER T-11..T-16 (M0–M2) + **T-18** (M3 re-pin) + **T-47** (M4 re-pin) + **T-55** (M5 re-pin)
 **Supersedes:** [`greenwash.md`](greenwash.md) **for the real-engine line only.** The synthetic-SUT campaigns it records remain valid history.
+
+**Current pin maintenance (2026-09-06):** the owner-authorized v0.2.13
+documentation/metadata release is now vendored (estate T154). This does not
+rerun M0–M6 or relabel their results; the dated records below retain their
+original engine versions. [Release](https://github.com/taipei49314/checkwash/releases/tag/v0.2.13).
 
 ### Human decisions (recorded 2026-09-02)
 

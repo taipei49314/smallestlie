@@ -97,7 +97,9 @@ uv run smallestlie report outputs/<campaign-id>
 ## Status
 
 **Current source version: v0.7.1** ([package metadata](pyproject.toml)).
-The checkwash verifier remains pinned to the published **v0.2.12** asset.
+The checkwash verifier is pinned to the published **v0.2.13** asset.
+This maintenance update does not rerun or relabel M0–M6; the recorded results
+above retain their original engine versions, including M6's v0.2.12 pin.
 The v0.7.0 automation summary and its commands are retained below as history.
 The older synthetic greenwash line is frozen.
 
@@ -107,7 +109,7 @@ The older synthetic greenwash line is frozen.
 | Multi-target batch | `smallestlie campaign batch --config …` |
 | Diff attack preview | `smallestlie select-attacks --path …` |
 | Greenwash SUT campaigns | `adapter greenwash` + `greenwash-wave-a` (synthetic SUT; **frozen 2026-09-03**, superseded by the real-engine line) |
-| Checkwash **real-engine** campaigns | `adapter checkwash` + wave0 / wave1 / wave2 / `checkwash-regressions` (v0.2.12 pyz) — [adapter and recorded history](docs/adapters/README.md) · [M6 partial results](docs/adapters/CHECKWASH_M6.md) |
+| Checkwash **real-engine** campaigns | `adapter checkwash` + wave0 / wave1 / wave2 / `checkwash-regressions` (current pin: v0.2.13 pyz; recorded runs keep their original pins) — [adapter and recorded history](docs/adapters/README.md) · [M6 partial results](docs/adapters/CHECKWASH_M6.md) |
 
 See [docs/automation.md](docs/automation.md).
 

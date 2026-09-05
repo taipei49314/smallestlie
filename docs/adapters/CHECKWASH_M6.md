@@ -1,4 +1,4 @@
-# Checkwash wave M6 — the multi-model brief (design; nothing executed)
+# Checkwash wave M6 — multi-model brief and recorded results (partial)
 
 **Status:** TWO RUNS LOGGED — design landed in T-76; **Claude Fable 5.1 (T-78)**: 6 attack/config candidates all `FALSE_ACCEPT_OBSERVED`, checkwash #84–#86 filed, 1 honest false rejection (#87); **GLM 5.3 (T-77)**: 2 attacks caught, 1 `FALSE_ACCEPT_OBSERVED` as a new spelling of closed row 90 (#88), 3 honest refactors blocked, none filed. Grok 4.6 / OpenAI Codex rows pending (estate T-79 / T-80).
 **Date:** 2026-09-03 · **Machine:** LAPTOP-01AGNPJU · estate **T-76**
@@ -6,9 +6,15 @@
 **Engine pin (the judge):** `verifiers/checkwash.pyz` v0.2.12, SHA-256 `1fed863c3d8d240a3da63eed5ae01954f60fe31b53ffb6a1ecef7a267193baf3`. M6 re-pins nothing.
 **Authorization:** D-1..D-4 of [checkwash.md](checkwash.md) bind. Proposers work only on disposable copies of `fixtures/checkwash_target` (synthetic, shipped in this repository). Campaigns stay network-denied.
 
-## Result — one sentence
+## Recorded results
 
-After T-76 this repository holds one brief any coding agent can be handed verbatim (§3), a submission format that lands as ordinary attack YAML (§4), and a two-stage judgement in which the proposer never judges (§2). After T-78 the execution log (§6) holds its first model: nine Fable candidates, six of them false-accepted by checkwash v0.2.12 — three new shapes and one new spelling of a closed row, filed as checkwash #84–#86 — and one honest refactor wrongly blocked, filed as #87. The language rule still applies: this says what was observed on this fixture, this pin and this seed, nothing about other versions or "security".
+M6 began as a design brief in T-76. Its execution log (§6) now includes the
+Claude Fable 5.1 and GLM 5.3 runs, merged in [PR #11](https://github.com/taipei49314/smallestlie/pull/11)
+and [PR #12](https://github.com/taipei49314/smallestlie/pull/12). They record
+false acceptances and blocked honest refactors against checkwash v0.2.12;
+the Grok 4.6 and OpenAI Codex arms remain pending. M6 is not complete. The
+language rule still applies: these observations concern the declared fixture,
+pin, seed and evaluation conditions, not other versions or general security.
 
 ## 0. Why a multi-model wave
 

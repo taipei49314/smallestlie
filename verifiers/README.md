@@ -10,12 +10,12 @@ at preflight and refuses to run on mismatch.
 | Field | Value |
 |---|---|
 | Product | [checkwash](https://github.com/taipei49314/checkwash) (owned repo; consumed read-only) |
-| Version | v0.3.1 |
-| Source revision | `3a4cfcd5733d35915b87794c355af2df07ca24f7` (annotated tag `v0.3.1`) |
-| Artifact | release asset `checkwash.pyz` from tag `v0.3.1` |
-| SHA-256 | `8fd7181effe05e9ef14532aafc646289caa64a71d16c269bb948dd9520a648f7` |
+| Version | v0.3.2 |
+| Source revision | `4ad6e31019dd40e69f46f3f0ac24d37bbdad31ac` (annotated tag `v0.3.2`) |
+| Artifact | release asset `checkwash.pyz` from tag `v0.3.2` |
+| SHA-256 | `b503d29fc916691136a2a63e0a762844e22930c57fc51e211c2ebdb4b34e8816` |
 | License | Apache-2.0 (redistribution with notice permitted) |
-| Pinned by | estate-consolidation T-208; release_slot.py publish (deterministic), 2026-09-07 |
+| Pinned by | estate-consolidation T-218; release_slot.py publish (deterministic), 2026-09-07 |
 
 The checkwash repository itself is never mutated by this harness. Re-pinning is
 a conscious, human-visible step: update this table, the pin in

@@ -1,14 +1,14 @@
 # Adapter design & M0 plan: Checkwash (the real engine)
 
 **Document type:** Real-repository adapter — **brand-new M0 plan (executed)**
-**Status:** `M7_EXECUTED` — M0–M2 recorded against v0.2.8; M3 re-pinned to v0.2.9; M4 to v0.2.11; M5 re-pins the engine to **v0.2.12**. Logs: wave0 / [M1](CHECKWASH_M1.md) / [M2](CHECKWASH_M2.md) / [M3](CHECKWASH_M3.md) / [M4](CHECKWASH_M4.md) / [M5](CHECKWASH_M5.md).
+**Status:** `M8_EXECUTED` — M0–M2 recorded against v0.2.8; M3 re-pinned to v0.2.9; M4 to v0.2.11; M5 re-pins the engine to **v0.2.12**. Logs: wave0 / [M1](CHECKWASH_M1.md) / [M2](CHECKWASH_M2.md) / [M3](CHECKWASH_M3.md) / [M4](CHECKWASH_M4.md) / [M5](CHECKWASH_M5.md).
 **Adapter id:** `checkwash`
 **Plan version:** 0.1.0
 **Target repo:** `taipei49314/checkwash` (owned, local observation; never mutated by this line)
 **Observed HEAD (at planning):** `50e969fdbbe169284b380c7f544c8afcd5990cdf` — `v0.2.8` (2026-09-02 01:36 +0800)
-**Engine artifact (current pin):** `verifiers/checkwash.pyz` — v0.3.1, SHA-256 `8fd7181effe05e9ef14532aafc646289caa64a71d16c269bb948dd9520a648f7`
+**Engine artifact (current pin):** `verifiers/checkwash.pyz` — v0.3.2, SHA-256 `b503d29fc916691136a2a63e0a762844e22930c57fc51e211c2ebdb4b34e8816`
 **SmallestLie baseline:** v0.7.1 @ `4485c6b`
-**Campaign coordination:** estate-consolidation LEDGER T-11..T-16 (M0–M2) + **T-18** (M3 re-pin) + **T-47** (M4 re-pin) + **T-55** (M5 re-pin) + **T-199** (M6 re-pin) + **T-208** (M7 re-pin)
+**Campaign coordination:** estate-consolidation LEDGER T-11..T-16 (M0–M2) + **T-18** (M3 re-pin) + **T-47** (M4 re-pin) + **T-55** (M5 re-pin) + **T-199** (M6 re-pin) + **T-208** (M7 re-pin) + **T-218** (M8 re-pin)
 **Supersedes:** [`greenwash.md`](greenwash.md) **for the real-engine line only.** The synthetic-SUT campaigns it records remain valid history.
 
 **Current pin maintenance (2026-09-06):** the owner-authorized v0.2.13
@@ -449,5 +449,16 @@ Estate **T-208** (release_slot.py publish, executor deterministic). Artifact: re
 
 Campaign re-run: **pending**. Run the wave batch against this pin and record the
 per-attack verdict deltas versus v0.3.0 in `CHECKWASH_M7.md` before calling the
+re-pin verified. `test_checkwash_pin_consistency` and `test_checkwash_adapter` are the
+only gates this PR carries.
+
+## 18. M8 — re-pin to checkwash v0.3.2 (2026-09-07)
+
+Estate **T-218** (release_slot.py publish, executor deterministic). Artifact: release asset
+`checkwash.pyz` from tag `v0.3.2` (4ad6e31019dd40e69f46f3f0ac24d37bbdad31ac), SHA-256 `b503d29fc916691136a2a63e0a762844e22930c57fc51e211c2ebdb4b34e8816`. Previous pin v0.3.1
+(`8fd7181effe0…`).
+
+Campaign re-run: **pending**. Run the wave batch against this pin and record the
+per-attack verdict deltas versus v0.3.1 in `CHECKWASH_M8.md` before calling the
 re-pin verified. `test_checkwash_pin_consistency` and `test_checkwash_adapter` are the
 only gates this PR carries.

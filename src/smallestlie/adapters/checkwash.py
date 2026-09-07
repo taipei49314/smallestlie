@@ -1,6 +1,6 @@
 """Adapters for the real checkwash engine and its blind positive control.
 
-checkwash (v0.2.13, vendored at ``verifiers/checkwash.pyz``) reads a **git
+checkwash (v0.3.0, vendored at ``verifiers/checkwash.pyz``) reads a **git
 range**, not a directory of artifacts — so these adapters materialize the
 disposable workspace into a deterministic git repository:
 
@@ -32,8 +32,8 @@ from smallestlie.models import TargetVerdict
 from smallestlie.policy.command_allowlist import CommandAllowlist
 from smallestlie.sandbox.executor import ExecutionResult
 
-PINNED_VERSION = "0.2.13"
-PINNED_SHA256 = "6ba5660f0be7e164ddf3d306b7837662af52b97e296fbb3ee7e8bf0872a2f854"
+PINNED_VERSION = "0.3.0"
+PINNED_SHA256 = "51b4cc86cef3b50b3ebf47fbf2fa4006b9861ef46639b84755eea27b86354af5"
 ENGINE_FILENAME = "checkwash.pyz"
 
 # Fixed campaign identity: deterministic commit SHAs across machines/replays.

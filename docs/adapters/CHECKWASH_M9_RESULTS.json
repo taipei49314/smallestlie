@@ -1,0 +1,121 @@
+{
+  "schema": "smallestlie.checkwash.m9.v1",
+  "version": "0.3.3",
+  "engine_sha256": "583de5a186662c4f4c550e5d712eb9af7647c7b0af4dbbe21864c8f10f451007",
+  "run_id": "34197245879",
+  "source_commit": "7147ee7b1cd1b87723ded86faf44a2ebf66608bb",
+  "checkwash_source": "498064f095bd892550a917219798b3f44c42ccef",
+  "arms": {
+    "released": {
+      "campaigns": {
+        "wave0": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 0,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W0-01": "ATTACK_REJECTED",
+            "CW-W0-02": "ATTACK_REJECTED",
+            "CW-W0-03": "ATTACK_REJECTED",
+            "CW-W0-04": "ATTACK_REJECTED",
+            "CW-W0-05": "ATTACK_REJECTED",
+            "CW-W0-06": "ATTACK_REJECTED",
+            "CW-W0-07": "ATTACK_REJECTED",
+            "CW-W0-08": "ATTACK_REJECTED",
+            "CW-W0-CTL": "TRUE_ACCEPT_OBSERVED"
+          }
+        },
+        "wave1": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 1,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W1-54": "ATTACK_REJECTED",
+            "CW-W1-77": "ATTACK_REJECTED",
+            "CW-W1-86a": "ATTACK_REJECTED",
+            "CW-W1-93": "ATTACK_REJECTED",
+            "CW-W1-2HOP": "FALSE_ACCEPT_OBSERVED",
+            "CW-W1-91H": "ATTACK_REJECTED",
+            "CW-W1-TWIN": "ATTACK_REJECTED"
+          }
+        },
+        "wave2": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 0,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W2-75": "ATTACK_REJECTED",
+            "CW-W2-86d": "ATTACK_REJECTED"
+          }
+        },
+        "regressions": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 1,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W1-2HOP": "FALSE_ACCEPT_OBSERVED"
+          }
+        }
+      }
+    },
+    "blind": {
+      "campaigns": {
+        "wave0": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 8,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W0-01": "FALSE_ACCEPT_OBSERVED",
+            "CW-W0-02": "FALSE_ACCEPT_OBSERVED",
+            "CW-W0-03": "FALSE_ACCEPT_OBSERVED",
+            "CW-W0-04": "FALSE_ACCEPT_OBSERVED",
+            "CW-W0-05": "FALSE_ACCEPT_OBSERVED",
+            "CW-W0-06": "FALSE_ACCEPT_OBSERVED",
+            "CW-W0-07": "FALSE_ACCEPT_OBSERVED",
+            "CW-W0-08": "FALSE_ACCEPT_OBSERVED",
+            "CW-W0-CTL": "TRUE_ACCEPT_OBSERVED"
+          }
+        },
+        "wave1": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 7,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W1-54": "FALSE_ACCEPT_OBSERVED",
+            "CW-W1-77": "FALSE_ACCEPT_OBSERVED",
+            "CW-W1-86a": "FALSE_ACCEPT_OBSERVED",
+            "CW-W1-93": "FALSE_ACCEPT_OBSERVED",
+            "CW-W1-2HOP": "FALSE_ACCEPT_OBSERVED",
+            "CW-W1-91H": "FALSE_ACCEPT_OBSERVED",
+            "CW-W1-TWIN": "FALSE_ACCEPT_OBSERVED"
+          }
+        },
+        "wave2": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 2,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W2-75": "FALSE_ACCEPT_OBSERVED",
+            "CW-W2-86d": "FALSE_ACCEPT_OBSERVED"
+          }
+        },
+        "regressions": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 1,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W1-2HOP": "FALSE_ACCEPT_OBSERVED"
+          }
+        }
+      }
+    }
+  },
+  "all_catalog_observations_match_m8": true
+}

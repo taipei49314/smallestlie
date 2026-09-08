@@ -20,7 +20,7 @@ a design package does not by itself establish that an evaluation ran.
 | 1 | **TomorrowCI** (verify / evidence authority) | **Design only** — [tomorrowci.md](./tomorrowci.md) |
 | 2 | **ClaimGate** (claim authorization semantics) | **Design only** — [claimgate.md](./claimgate.md) · *no local tree* |
 | 3 | **Greenwash** (anti-theater / green credibility) | **Historical synthetic SUT; frozen 2026-09-03** — [greenwash.md](./greenwash.md) · [campaign log](./GREENWASH_CAMPAIGN.md) |
-| 3b | **Checkwash** (current pin v0.2.13) | **M0–M5 recorded; M6 partial**, under their original engine pins; no v0.2.13 rerun — [checkwash.md](./checkwash.md) · [wave0](./CHECKWASH_CAMPAIGN.md) · [M1](./CHECKWASH_M1.md) · [M2](./CHECKWASH_M2.md) · [M3](./CHECKWASH_M3.md) · [M4](./CHECKWASH_M4.md) · [M5](./CHECKWASH_M5.md) · [M6 brief and results](./CHECKWASH_M6.md) (Fable and GLM runs logged; Grok and Codex pending) |
+| 3b | **Checkwash** (current published pin v0.3.3) | Current fixed-catalog verification: [M9](./CHECKWASH_M9.md); completed v0.3.2: [M8](./CHECKWASH_M8.md). Historical model-generated M6 partial results against v0.2.12 remain [separate](./CHECKWASH_M6.md). [Pin and history](./checkwash.md). |
 | 4 | RepoPassport | Planned |
 | 5 | TraceCapsule | Planned |
 | 6 | Larger evidence systems | Deferred |

@@ -1,10 +1,12 @@
 # Collaboration protocol (humans and coding agents)
 
-## checkwash pin follows the release slot (estate T-57 D-4, 2026-09-03)
+## checkwash pin follows an authorized published release
 
 - The vendored engine `verifiers/checkwash.pyz` is re-pinned **only** in the
-  cadence PR that follows a checkwash release slot (weekly; the slot is defined
-  in the estate PLAN). Never between slots, never to a dev build, never to
+  PR that follows an explicitly authorized checkwash release under the
+  current estate PLAN. The automatic weekly slot was canceled by T-197;
+  T-229 authorizes v0.3.3 and its pin handoff once, then refreezes.
+  Never between authorized releases, never to a dev build, never to
   anything that is not a published release asset.
 - A re-pin moves four things together: the artifact, `PINNED_VERSION` and
   `PINNED_SHA256` in `src/smallestlie/adapters/checkwash.py`, the table in

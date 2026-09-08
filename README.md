@@ -20,7 +20,13 @@ as secure or establish that checkwash is ready for 1.0.
 If you want to review your own code changes before merge, start with
 **checkwash**. This repository holds evaluation work about verifiers.
 
-## Latest recorded checkwash results
+## Current pin and recorded checkwash results
+
+The current published engine pin is **v0.3.3**. Its own fixed-catalog
+verification status is in [M9](docs/adapters/CHECKWASH_M9.md); the completed
+v0.3.2 fixed-catalog record is [M8](docs/adapters/CHECKWASH_M8.md).
+
+### Historical model-arm results
 
 **M6 is partially recorded, not complete.** Two model runs are in the merged
 record against checkwash **v0.2.12**: Claude Fable 5.1 and GLM 5.3. Their
@@ -109,7 +115,7 @@ The older synthetic greenwash line is frozen.
 | Multi-target batch | `smallestlie campaign batch --config …` |
 | Diff attack preview | `smallestlie select-attacks --path …` |
 | Greenwash SUT campaigns | `adapter greenwash` + `greenwash-wave-a` (synthetic SUT; **frozen 2026-09-03**, superseded by the real-engine line) |
-| Checkwash **real-engine** campaigns | `adapter checkwash` + wave0 / wave1 / wave2 / `checkwash-regressions` (current pin: v0.2.13 pyz; recorded runs keep their original pins) — [adapter and recorded history](docs/adapters/README.md) · [M6 partial results](docs/adapters/CHECKWASH_M6.md) |
+| Checkwash **real-engine** campaigns | `adapter checkwash` + wave0 / wave1 / wave2 / `checkwash-regressions` (current pin: v0.3.3 pyz; recorded runs keep their original pins) — [adapter and recorded history](docs/adapters/README.md) · [M6 partial results](docs/adapters/CHECKWASH_M6.md) |
 
 See [docs/automation.md](docs/automation.md).
 

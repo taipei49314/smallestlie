@@ -1,22 +1,22 @@
 # Adapter design & M0 plan: Checkwash (the real engine)
 
 **Document type:** Real-repository adapter — **brand-new M0 plan (executed)**
-**Status:** `M8_EXECUTED` — M0–M2 recorded against v0.2.8; M3 re-pinned to v0.2.9; M4 to v0.2.11; M5 re-pins the engine to **v0.2.12**. Logs: wave0 / [M1](CHECKWASH_M1.md) / [M2](CHECKWASH_M2.md) / [M3](CHECKWASH_M3.md) / [M4](CHECKWASH_M4.md) / [M5](CHECKWASH_M5.md).
+**Status:** `M9_EXECUTED` — M0–M2 recorded against v0.2.8; M3 re-pinned to v0.2.9; M4 to v0.2.11; M5 re-pins the engine to **v0.2.12**. Logs: wave0 / [M1](CHECKWASH_M1.md) / [M2](CHECKWASH_M2.md) / [M3](CHECKWASH_M3.md) / [M4](CHECKWASH_M4.md) / [M5](CHECKWASH_M5.md).
 **Adapter id:** `checkwash`
 **Plan version:** 0.1.0
 **Target repo:** `taipei49314/checkwash` (owned, local observation; never mutated by this line)
 **Observed HEAD (at planning):** `50e969fdbbe169284b380c7f544c8afcd5990cdf` — `v0.2.8` (2026-09-02 01:36 +0800)
-**Engine artifact (current pin):** `verifiers/checkwash.pyz` — v0.3.2, SHA-256 `b503d29fc916691136a2a63e0a762844e22930c57fc51e211c2ebdb4b34e8816`
+**Engine artifact (current pin):** `verifiers/checkwash.pyz` — v0.3.3, SHA-256 `583de5a186662c4f4c550e5d712eb9af7647c7b0af4dbbe21864c8f10f451007`
 **SmallestLie baseline:** v0.7.1 @ `4485c6b`
-**Campaign coordination:** estate-consolidation LEDGER T-11..T-16 (M0–M2) + **T-18** (M3 re-pin) + **T-47** (M4 re-pin) + **T-55** (M5 re-pin) + **T-199** (M6 re-pin) + **T-208** (M7 re-pin) + **T-218** (M8 re-pin)
+**Campaign coordination:** estate-consolidation LEDGER T-11..T-16 (M0–M2) + **T-18** (M3 re-pin) + **T-47** (M4 re-pin) + **T-55** (M5 re-pin) + **T-199** (M6 re-pin) + **T-208** (M7 re-pin) + **T-218** (M8 re-pin) + **T-229** (M9 re-pin)
 **Supersedes:** [`greenwash.md`](greenwash.md) **for the real-engine line only.** The synthetic-SUT campaigns it records remain valid history.
 
-**Current pin maintenance (2026-09-08):** v0.3.2 remains vendored (estate
-T-218). Its [M8 campaign re-run](CHECKWASH_M8.md) is now recorded from the
-estate pool (T-228), against the last campaign-qualified pin v0.2.12 and a
-separately identified experimental candidate. Every fixed-catalog verdict
-matches. M6/M7 are not retrospectively marked executed; the dated historical
-records retain their original versions and execution status.
+**Current pin maintenance (2026-09-08):** v0.3.3 is vendored from the
+published asset (T-229). [M9](CHECKWASH_M9.md) records its own campaign status.
+The v0.3.2 [M8 campaign](CHECKWASH_M8.md) remains completed evidence for its
+old pin. Historical model-generated M6 partial results against v0.2.12 are
+separate from the unexecuted v0.3.0/M6 and v0.3.1/M7 release-pin wave reruns.
+Those records are not relabeled as v0.3.3 measurements.
 
 ### Human decisions (recorded 2026-09-02)
 
@@ -464,3 +464,12 @@ Campaign re-run: **pending**. Run the wave batch against this pin and record the
 per-attack verdict deltas versus v0.3.1 in `CHECKWASH_M8.md` before calling the
 re-pin verified. `test_checkwash_pin_consistency` and `test_checkwash_adapter` are the
 only gates this PR carries.
+
+## 19. M9 — re-pin to checkwash v0.3.3 (2026-09-08)
+
+Estate T-229. Published artifact from annotated tag `v0.3.3`, source
+`498064f095bd892550a917219798b3f44c42ccef`, SHA-256 `583de5a186662c4f4c550e5d712eb9af7647c7b0af4dbbe21864c8f10f451007`.
+Previous pin v0.3.2 remains described by the completed M8 record. The older
+M8 paragraph's pending status describes its creation; the later execution
+is recorded in [M8](CHECKWASH_M8.md). [M9](CHECKWASH_M9.md) carries this pin's
+new verification status and does not backfill M6/M7 release-pin reruns.

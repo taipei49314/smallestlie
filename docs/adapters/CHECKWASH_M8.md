@@ -7,8 +7,9 @@ Campaign re-run: **EXECUTED 2026-09-08 on estate pool**, T-228, run
 
 The current v0.3.2 asset was compared against **v0.2.12**, the last pin with a
 completed campaign record (M5), and the reviewed Checkwash candidate source
-`242c920869a6c441f45b32f44b59445e59f898d4`. M6 and M7 remain unexecuted;
-this does not invent a v0.3.1 campaign or backfill either log.
+`242c920869a6c441f45b32f44b59445e59f898d4`. The v0.3.0/M6 and v0.3.1/M7 release-pin wave reruns remain unexecuted;
+this does not invent a v0.3.1 campaign or backfill either log. These are
+separate from the model-generated M6 partial results against v0.2.12.
 
 | Fixed catalog | v0.2.12 | v0.3.2 | Candidate |
 |---|---|---|---|

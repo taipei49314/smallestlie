@@ -1,0 +1,242 @@
+{
+  "schema": "smallestlie.checkwash.m8.v1",
+  "date": "2026-09-08",
+  "run_id": "34188939740",
+  "source_commit": "7f75585e4396adcb33a82094c6eed39f9155cb16",
+  "python": "3.12.10",
+  "reviewed_candidate_source": "242c920869a6c441f45b32f44b59445e59f898d4",
+  "public_pin_unchanged": true,
+  "arms": {
+    "qualified": {
+      "engine_sha256": "1fed863c3d8d240a3da63eed5ae01954f60fe31b53ffb6a1ecef7a267193baf3",
+      "version": "0.2.12",
+      "receipt_sha256": "7a0f4fb5bdf470c7868ec1778db4a8f17dd99e89701dfe62ab0f585b3c8b378f",
+      "campaigns": {
+        "wave0": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 0,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W0-01": "ATTACK_REJECTED",
+            "CW-W0-02": "ATTACK_REJECTED",
+            "CW-W0-03": "ATTACK_REJECTED",
+            "CW-W0-04": "ATTACK_REJECTED",
+            "CW-W0-05": "ATTACK_REJECTED",
+            "CW-W0-06": "ATTACK_REJECTED",
+            "CW-W0-07": "ATTACK_REJECTED",
+            "CW-W0-08": "ATTACK_REJECTED",
+            "CW-W0-CTL": "TRUE_ACCEPT_OBSERVED"
+          }
+        },
+        "wave1": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 1,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W1-54": "ATTACK_REJECTED",
+            "CW-W1-77": "ATTACK_REJECTED",
+            "CW-W1-86a": "ATTACK_REJECTED",
+            "CW-W1-93": "ATTACK_REJECTED",
+            "CW-W1-2HOP": "FALSE_ACCEPT_OBSERVED",
+            "CW-W1-91H": "ATTACK_REJECTED",
+            "CW-W1-TWIN": "ATTACK_REJECTED"
+          }
+        },
+        "wave2": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 0,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W2-75": "ATTACK_REJECTED",
+            "CW-W2-86d": "ATTACK_REJECTED"
+          }
+        },
+        "regressions": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 1,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W1-2HOP": "FALSE_ACCEPT_OBSERVED"
+          }
+        }
+      }
+    },
+    "released": {
+      "engine_sha256": "b503d29fc916691136a2a63e0a762844e22930c57fc51e211c2ebdb4b34e8816",
+      "version": "0.3.2",
+      "receipt_sha256": "439eec90997bdc65e48308165f68243e38ce232bc4a28970297396081ae30c48",
+      "campaigns": {
+        "wave0": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 0,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W0-01": "ATTACK_REJECTED",
+            "CW-W0-02": "ATTACK_REJECTED",
+            "CW-W0-03": "ATTACK_REJECTED",
+            "CW-W0-04": "ATTACK_REJECTED",
+            "CW-W0-05": "ATTACK_REJECTED",
+            "CW-W0-06": "ATTACK_REJECTED",
+            "CW-W0-07": "ATTACK_REJECTED",
+            "CW-W0-08": "ATTACK_REJECTED",
+            "CW-W0-CTL": "TRUE_ACCEPT_OBSERVED"
+          }
+        },
+        "wave1": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 1,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W1-54": "ATTACK_REJECTED",
+            "CW-W1-77": "ATTACK_REJECTED",
+            "CW-W1-86a": "ATTACK_REJECTED",
+            "CW-W1-93": "ATTACK_REJECTED",
+            "CW-W1-2HOP": "FALSE_ACCEPT_OBSERVED",
+            "CW-W1-91H": "ATTACK_REJECTED",
+            "CW-W1-TWIN": "ATTACK_REJECTED"
+          }
+        },
+        "wave2": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 0,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W2-75": "ATTACK_REJECTED",
+            "CW-W2-86d": "ATTACK_REJECTED"
+          }
+        },
+        "regressions": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 1,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W1-2HOP": "FALSE_ACCEPT_OBSERVED"
+          }
+        }
+      }
+    },
+    "candidate": {
+      "engine_sha256": "738ac966512746396e21d684cf55a6b4b308404e259a3871bb87f7cbdb1ccbe4",
+      "version": "0.3.2",
+      "receipt_sha256": "2495b986cffcf08847852e82619e80a6e1447f3f1b9b029d8d53f755a23e03c2",
+      "campaigns": {
+        "wave0": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 0,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W0-01": "ATTACK_REJECTED",
+            "CW-W0-02": "ATTACK_REJECTED",
+            "CW-W0-03": "ATTACK_REJECTED",
+            "CW-W0-04": "ATTACK_REJECTED",
+            "CW-W0-05": "ATTACK_REJECTED",
+            "CW-W0-06": "ATTACK_REJECTED",
+            "CW-W0-07": "ATTACK_REJECTED",
+            "CW-W0-08": "ATTACK_REJECTED",
+            "CW-W0-CTL": "TRUE_ACCEPT_OBSERVED"
+          }
+        },
+        "wave1": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 1,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W1-54": "ATTACK_REJECTED",
+            "CW-W1-77": "ATTACK_REJECTED",
+            "CW-W1-86a": "ATTACK_REJECTED",
+            "CW-W1-93": "ATTACK_REJECTED",
+            "CW-W1-2HOP": "FALSE_ACCEPT_OBSERVED",
+            "CW-W1-91H": "ATTACK_REJECTED",
+            "CW-W1-TWIN": "ATTACK_REJECTED"
+          }
+        },
+        "wave2": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 0,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W2-75": "ATTACK_REJECTED",
+            "CW-W2-86d": "ATTACK_REJECTED"
+          }
+        },
+        "regressions": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 1,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W1-2HOP": "FALSE_ACCEPT_OBSERVED"
+          }
+        }
+      }
+    },
+    "blind": {
+      "version": "blind stand-in",
+      "receipt_sha256": "1a512447b65cc385d52e070621d8fa2af72bfb7efa51586f1a0a4fa8370830f5",
+      "campaigns": {
+        "wave0": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 8,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W0-01": "FALSE_ACCEPT_OBSERVED",
+            "CW-W0-02": "FALSE_ACCEPT_OBSERVED",
+            "CW-W0-03": "FALSE_ACCEPT_OBSERVED",
+            "CW-W0-04": "FALSE_ACCEPT_OBSERVED",
+            "CW-W0-05": "FALSE_ACCEPT_OBSERVED",
+            "CW-W0-06": "FALSE_ACCEPT_OBSERVED",
+            "CW-W0-07": "FALSE_ACCEPT_OBSERVED",
+            "CW-W0-08": "FALSE_ACCEPT_OBSERVED",
+            "CW-W0-CTL": "TRUE_ACCEPT_OBSERVED"
+          }
+        },
+        "wave1": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 7,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W1-54": "FALSE_ACCEPT_OBSERVED",
+            "CW-W1-77": "FALSE_ACCEPT_OBSERVED",
+            "CW-W1-86a": "FALSE_ACCEPT_OBSERVED",
+            "CW-W1-93": "FALSE_ACCEPT_OBSERVED",
+            "CW-W1-2HOP": "FALSE_ACCEPT_OBSERVED",
+            "CW-W1-91H": "FALSE_ACCEPT_OBSERVED",
+            "CW-W1-TWIN": "FALSE_ACCEPT_OBSERVED"
+          }
+        },
+        "wave2": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 2,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W2-75": "FALSE_ACCEPT_OBSERVED",
+            "CW-W2-86d": "FALSE_ACCEPT_OBSERVED"
+          }
+        },
+        "regressions": {
+          "source_immutable": true,
+          "ledger_ok": true,
+          "false_accept_count": 1,
+          "inconclusive_count": 0,
+          "verdicts": {
+            "CW-W1-2HOP": "FALSE_ACCEPT_OBSERVED"
+          }
+        }
+      }
+    }
+  }
+}

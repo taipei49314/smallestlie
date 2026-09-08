@@ -11,10 +11,12 @@
 **Campaign coordination:** estate-consolidation LEDGER T-11..T-16 (M0–M2) + **T-18** (M3 re-pin) + **T-47** (M4 re-pin) + **T-55** (M5 re-pin) + **T-199** (M6 re-pin) + **T-208** (M7 re-pin) + **T-218** (M8 re-pin)
 **Supersedes:** [`greenwash.md`](greenwash.md) **for the real-engine line only.** The synthetic-SUT campaigns it records remain valid history.
 
-**Current pin maintenance (2026-09-06):** the owner-authorized v0.2.13
-documentation/metadata release is now vendored (estate T154). This does not
-rerun M0–M6 or relabel their results; the dated records below retain their
-original engine versions. [Release](https://github.com/taipei49314/checkwash/releases/tag/v0.2.13).
+**Current pin maintenance (2026-09-08):** v0.3.2 remains vendored (estate
+T-218). Its [M8 campaign re-run](CHECKWASH_M8.md) is now recorded from the
+estate pool (T-228), against the last campaign-qualified pin v0.2.12 and a
+separately identified experimental candidate. Every fixed-catalog verdict
+matches. M6/M7 are not retrospectively marked executed; the dated historical
+records retain their original versions and execution status.
 
 ### Human decisions (recorded 2026-09-02)
 

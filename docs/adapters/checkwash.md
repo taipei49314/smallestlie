@@ -1,7 +1,7 @@
 # Adapter design & M0 plan: Checkwash (the real engine)
 
 **Document type:** Real-repository adapter — **brand-new M0 plan (executed)**
-**Status:** `M9_EXECUTED` — M0–M2 recorded against v0.2.8; M3 re-pinned to v0.2.9; M4 to v0.2.11; M5 re-pins the engine to **v0.2.12**. Logs: wave0 / [M1](CHECKWASH_M1.md) / [M2](CHECKWASH_M2.md) / [M3](CHECKWASH_M3.md) / [M4](CHECKWASH_M4.md) / [M5](CHECKWASH_M5.md).
+**Status:** `M9_EXECUTED` — M0–M2 recorded against v0.2.8; M3 re-pinned to v0.2.9; M4 to v0.2.11; M5 to v0.2.12. Later pins: v0.2.13 (maintenance pin, no campaign); M6 v0.3.0 and M7 v0.3.1 (release-pin reruns not executed); M8 v0.3.2 (executed); M9 **v0.3.3** (current pin, executed). Logs: wave0 / [M1](CHECKWASH_M1.md) / [M2](CHECKWASH_M2.md) / [M3](CHECKWASH_M3.md) / [M4](CHECKWASH_M4.md) / [M5](CHECKWASH_M5.md) / [M6](CHECKWASH_M6.md) (also the v0.2.12 model-arm brief) / [M7](CHECKWASH_M7.md) / [M8](CHECKWASH_M8.md) / [M9](CHECKWASH_M9.md).
 **Adapter id:** `checkwash`
 **Plan version:** 0.1.0
 **Target repo:** `taipei49314/checkwash` (owned, local observation; never mutated by this line)

@@ -103,8 +103,9 @@ uv run smallestlie report outputs/<campaign-id>
 ## Status
 
 **Current source version: v0.7.1** ([package metadata](pyproject.toml)).
-The checkwash verifier is pinned to the published **v0.2.13** asset.
-This maintenance update does not rerun or relabel M0–M6; the recorded results
+The checkwash verifier is pinned to the published **v0.3.3** asset
+([M9](docs/adapters/CHECKWASH_M9.md)). Pin updates do not rerun or relabel
+earlier records; the recorded results
 above retain their original engine versions, including M6's v0.2.12 pin.
 The v0.7.0 automation summary and its commands are retained below as history.
 The older synthetic greenwash line is frozen.

@@ -22,9 +22,9 @@ If you want to review your own code changes before merge, start with
 
 ## Current pin and recorded checkwash results
 
-The current published engine pin is **v0.3.3**. Its own fixed-catalog
-verification status is in [M9](docs/adapters/CHECKWASH_M9.md); the completed
-v0.3.2 fixed-catalog record is [M8](docs/adapters/CHECKWASH_M8.md).
+The current published engine pin is **v0.4.2**. Its own fixed-catalog
+verification status is in [M10](docs/adapters/CHECKWASH_M10.md); the completed
+v0.3.3 fixed-catalog record is [M9](docs/adapters/CHECKWASH_M9.md).
 
 ### Historical model-arm results
 
@@ -103,8 +103,8 @@ uv run smallestlie report outputs/<campaign-id>
 ## Status
 
 **Current source version: v0.7.1** ([package metadata](pyproject.toml)).
-The checkwash verifier is pinned to the published **v0.3.3** asset
-([M9](docs/adapters/CHECKWASH_M9.md)). Pin updates do not rerun or relabel
+The checkwash verifier is pinned to the published **v0.4.2** asset
+([M10](docs/adapters/CHECKWASH_M10.md)). Pin updates do not rerun or relabel
 earlier records; the recorded results
 above retain their original engine versions, including M6's v0.2.12 pin.
 The v0.7.0 automation summary and its commands are retained below as history.
@@ -116,7 +116,7 @@ The older synthetic greenwash line is frozen.
 | Multi-target batch | `smallestlie campaign batch --config …` |
 | Diff attack preview | `smallestlie select-attacks --path …` |
 | Greenwash SUT campaigns | `adapter greenwash` + `greenwash-wave-a` (synthetic SUT; **frozen 2026-09-03**, superseded by the real-engine line) |
-| Checkwash **real-engine** campaigns | `adapter checkwash` + wave0 / wave1 / wave2 / `checkwash-regressions` (current pin: v0.3.3 pyz; recorded runs keep their original pins) — [adapter and recorded history](docs/adapters/README.md) · [M6 partial results](docs/adapters/CHECKWASH_M6.md) |
+| Checkwash **real-engine** campaigns | `adapter checkwash` + wave0 / wave1 / wave2 / `checkwash-regressions` (current pin: v0.4.2 pyz; recorded runs keep their original pins) — [adapter and recorded history](docs/adapters/README.md) · [M6 partial results](docs/adapters/CHECKWASH_M6.md) |
 
 See [docs/automation.md](docs/automation.md).
 

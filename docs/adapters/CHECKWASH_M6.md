@@ -9,7 +9,7 @@
 > historical: it ran against checkwash v0.2.12, and its estate references
 > describe 2026-09-04 (the Grok 4.6 / OpenAI Codex rows T-79 / T-80 were
 > cancelled on 2026-09-26 when the family left estate governance, T-451).
-> The current pin is v0.3.3 ([M9](CHECKWASH_M9.md)).
+> The current pin is v0.4.2 ([M10](CHECKWASH_M10.md)).
 
 **Status:** TWO RUNS LOGGED — design landed in T-76; **Claude Fable 5.1 (T-78)**: 6 attack/config candidates all `FALSE_ACCEPT_OBSERVED`, checkwash #84–#86 filed, 1 honest false rejection (#87); **GLM 5.3 (T-77)**: 2 attacks caught, 1 `FALSE_ACCEPT_OBSERVED` as a new spelling of closed row 90 (#88), 3 honest refactors blocked, none filed. Grok 4.6 / OpenAI Codex rows pending (estate T-79 / T-80).
 **Date:** 2026-09-03 · **Machine:** LAPTOP-01AGNPJU · estate **T-76**

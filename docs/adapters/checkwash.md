@@ -1,22 +1,24 @@
 # Adapter design & M0 plan: Checkwash (the real engine)
 
 **Document type:** Real-repository adapter — **brand-new M0 plan (executed)**
-**Status:** `M9_EXECUTED` — M0–M2 recorded against v0.2.8; M3 re-pinned to v0.2.9; M4 to v0.2.11; M5 to v0.2.12. Later pins: v0.2.13 (maintenance pin, no campaign); M6 v0.3.0 and M7 v0.3.1 (release-pin reruns not executed); M8 v0.3.2 (executed); M9 **v0.3.3** (current pin, executed). Logs: wave0 / [M1](CHECKWASH_M1.md) / [M2](CHECKWASH_M2.md) / [M3](CHECKWASH_M3.md) / [M4](CHECKWASH_M4.md) / [M5](CHECKWASH_M5.md) / [M6](CHECKWASH_M6.md) (also the v0.2.12 model-arm brief) / [M7](CHECKWASH_M7.md) / [M8](CHECKWASH_M8.md) / [M9](CHECKWASH_M9.md).
+**Status:** `M10_PINNED_CAMPAIGN_PENDING` — M0–M2 recorded against v0.2.8; M3 re-pinned to v0.2.9; M4 to v0.2.11; M5 to v0.2.12. Later pins: v0.2.13 (maintenance pin, no campaign); M6 v0.3.0 and M7 v0.3.1 (release-pin reruns not executed); M8 v0.3.2 (executed); M9 v0.3.3 (executed); M10 **v0.4.2** (current pin, campaign pending). Logs: wave0 / [M1](CHECKWASH_M1.md) / [M2](CHECKWASH_M2.md) / [M3](CHECKWASH_M3.md) / [M4](CHECKWASH_M4.md) / [M5](CHECKWASH_M5.md) / [M6](CHECKWASH_M6.md) (also the v0.2.12 model-arm brief) / [M7](CHECKWASH_M7.md) / [M8](CHECKWASH_M8.md) / [M9](CHECKWASH_M9.md) / [M10](CHECKWASH_M10.md).
 **Adapter id:** `checkwash`
 **Plan version:** 0.1.0
 **Target repo:** `taipei49314/checkwash` (owned, local observation; never mutated by this line)
 **Observed HEAD (at planning):** `50e969fdbbe169284b380c7f544c8afcd5990cdf` — `v0.2.8` (2026-09-02 01:36 +0800)
-**Engine artifact (current pin):** `verifiers/checkwash.pyz` — v0.3.3, SHA-256 `583de5a186662c4f4c550e5d712eb9af7647c7b0af4dbbe21864c8f10f451007`
+**Engine artifact (current pin):** `verifiers/checkwash.pyz` — v0.4.2, SHA-256 `423ce220365d0e179cfd9caa7e45724d71b8bd7c67d3cbfc51eca19e8a626ee7`
 **SmallestLie baseline:** v0.7.1 @ `4485c6b`
-**Campaign coordination:** estate-consolidation LEDGER T-11..T-16 (M0–M2) + **T-18** (M3 re-pin) + **T-47** (M4 re-pin) + **T-55** (M5 re-pin) + **T-199** (M6 re-pin) + **T-208** (M7 re-pin) + **T-218** (M8 re-pin) + **T-229** (M9 re-pin)
+**Campaign coordination:** estate-consolidation LEDGER T-11..T-16 (M0–M2) + **T-18** (M3 re-pin) + **T-47** (M4 re-pin) + **T-55** (M5 re-pin) + **T-199** (M6 re-pin) + **T-208** (M7 re-pin) + **T-218** (M8 re-pin) + **T-229** (M9 re-pin); M10 re-pin: one-time named human grant, 2026-09-29 (not an estate task; EC POLICY `independent-repos`, T-451)
 **Supersedes:** [`greenwash.md`](greenwash.md) **for the real-engine line only.** The synthetic-SUT campaigns it records remain valid history.
 
-**Current pin maintenance (2026-09-08):** v0.3.3 is vendored from the
-published asset (T-229). [M9](CHECKWASH_M9.md) records its own campaign status.
-The v0.3.2 [M8 campaign](CHECKWASH_M8.md) remains completed evidence for its
-old pin. Historical model-generated M6 partial results against v0.2.12 are
-separate from the unexecuted v0.3.0/M6 and v0.3.1/M7 release-pin wave reruns.
-Those records are not relabeled as v0.3.3 measurements.
+**Current pin maintenance (2026-09-29):** v0.4.2 is vendored from the
+published asset under a one-time named human grant recorded in
+[M10](CHECKWASH_M10.md), which carries its own campaign status. The v0.3.3
+[M9 campaign](CHECKWASH_M9.md) and the v0.3.2 [M8 campaign](CHECKWASH_M8.md)
+remain completed evidence for their old pins. Historical model-generated M6
+partial results against v0.2.12 are separate from the unexecuted v0.3.0/M6 and
+v0.3.1/M7 release-pin wave reruns. Those records are not relabeled as v0.4.2
+measurements.
 
 ### Human decisions (recorded 2026-09-02)
 
@@ -473,3 +475,14 @@ Previous pin v0.3.2 remains described by the completed M8 record. The older
 M8 paragraph's pending status describes its creation; the later execution
 is recorded in [M8](CHECKWASH_M8.md). [M9](CHECKWASH_M9.md) carries this pin's
 new verification status and does not backfill M6/M7 release-pin reruns.
+
+## 20. M10 — re-pin to checkwash v0.4.2 (2026-09-29)
+
+One-time named human grant from the repository owner (Nelson, 2026-09-29),
+quoted in [M10](CHECKWASH_M10.md); not an estate task. Published artifact from
+annotated tag `v0.4.2`, source
+`23ef5929896187e4aac5889735c792e65af3e721`, SHA-256 `423ce220365d0e179cfd9caa7e45724d71b8bd7c67d3cbfc51eca19e8a626ee7`.
+Previous pin v0.3.3 remains described by the completed M9 record. v0.3.4,
+v0.4.0 and v0.4.1 were published in between and were never pinned here.
+[M10](CHECKWASH_M10.md) carries this pin's verification status and does not
+relabel M9 or earlier records.

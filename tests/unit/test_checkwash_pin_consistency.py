@@ -1,8 +1,10 @@
 """The vendored checkwash engine, its constants and its ledger row move together.
 
-estate-consolidation T-57 D-4 (2026-09-03): checkwash is re-pinned only in the
-cadence PR that follows a checkwash release slot. Between slots nothing here may
-drift: the constants in ``adapters/checkwash.py``, the table in
+checkwash is re-pinned only to a published release asset, in the PR that
+records a one-time named human grant for that re-pin (AGENTS.md; the rule dates
+from estate-consolidation T-57 D-4, 2026-09-03, whose weekly release slot was
+canceled by T-197). Between re-pins nothing here may drift: the constants in
+``adapters/checkwash.py``, the table in
 ``verifiers/README.md`` and the artifact itself must describe the same
 *released* version. These tests do not need the network; they cannot prove the
 tag exists on GitHub, only that every local record agrees and that the number

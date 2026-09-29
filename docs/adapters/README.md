@@ -17,24 +17,26 @@ a design package does not by itself establish that an evaluation ran.
 | Order | Target | Status |
 |------:|--------|--------|
 | 0 | Synthetic `fixture_gate` (+ composition fixture) | **Implemented** (M0–M4) |
-| 1 | **TomorrowCI** (verify / evidence authority) | **Design only** — [tomorrowci.md](./tomorrowci.md) |
+| 1 | **TomorrowCI** (verify / evidence authority) | **Retired** — target repositories (`tomorrowci`, `tomorrowci-lab`) deleted 2026-09-26 (estate T-457); no adapter was built. Design kept as history: [tomorrowci.md](./tomorrowci.md) |
 | 2 | **ClaimGate** (claim authorization semantics) | **Design only** — [claimgate.md](./claimgate.md) · *no local tree* |
 | 3 | **Greenwash** (anti-theater / green credibility) | **Historical synthetic SUT; frozen 2026-09-03** — [greenwash.md](./greenwash.md) · [campaign log](./GREENWASH_CAMPAIGN.md) |
 | 3b | **Checkwash** (current published pin v0.3.3) | Current fixed-catalog verification: [M9](./CHECKWASH_M9.md); completed v0.3.2: [M8](./CHECKWASH_M8.md). Historical model-generated M6 partial results against v0.2.12 remain [separate](./CHECKWASH_M6.md). [Pin and history](./checkwash.md). |
-| 4 | RepoPassport | Planned |
-| 5 | TraceCapsule | Planned |
+| 4 | RepoPassport | **Retired** — repository deleted 2026-09-26 (estate T-457); not planned |
+| 5 | TraceCapsule | **Retired** — repository deleted 2026-09-26 (estate T-457); not planned |
 | 6 | Larger evidence systems | Deferred |
 
 ### Design documents
 
-- [tomorrowci.md](./tomorrowci.md) — first real target (local tree observed)
+- [tomorrowci.md](./tomorrowci.md) — former first target (retired; repositories deleted, T-457)
 - [claimgate.md](./claimgate.md) — claim authorization (interface-first; source missing)
 - [greenwash.md](./greenwash.md) — green theater detection (interface-first; source missing)
 - [authorization-package.template.yaml](./authorization-package.template.yaml)
 
 ## Why TomorrowCI first
 
-Among locally available Nelson projects, TomorrowCI is the strongest first real adapter because:
+Historical rationale (2026-08). TomorrowCI has since been retired: its repositories were
+deleted on 2026-09-26 (estate T-457). At design time, among locally available Nelson
+projects, TomorrowCI was the strongest first real adapter because:
 
 - it already makes **explicit claims** about evidence integrity and verdict honesty;
 - it has a **pinned offline verify path** (`tomorrowci verify <run_id> --json`);
@@ -59,5 +61,5 @@ Each adapter design must include:
 
 ## Documents
 
-- [tomorrowci.md](./tomorrowci.md) — first real adapter design
+- [tomorrowci.md](./tomorrowci.md) — former first real adapter design (retired, T-457)
 - [authorization-package.template.yaml](./authorization-package.template.yaml) — auth object for real targets

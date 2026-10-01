@@ -1,6 +1,6 @@
 # Execution validity before verdict comparison
 
-This local draft changes how SmallestLie adjudicates incomplete executions.
+This draft changes how SmallestLie adjudicates incomplete executions.
 It does not change the vendored CheckWash engine or its published v0.4.2 pin.
 
 ## Contract
@@ -38,12 +38,31 @@ campaign records and expected known false acceptances are not rewritten.
 
 ## Validation status
 
-NOT_RUN：工作機規則（AGENTS.md §1／EC POLICY work-machine-local），本次只做本地碼與案例準備。
+Nelson authorized the bounded pool verification with 「自行選一台空閒的 授權」.
+On 2026-10-01, EC [run 36876256944, attempt 1](https://github.com/taipei49314/estate-consolidation/actions/runs/36876256944)
+verified product commit `d549c0df92e549b014743461810ac9c5f30b2161` on
+`LAPTOP-50KP71KA-workload`, generation `8b1bcfb4b5dc0588.1`, Windows Python 3.12.10.
+The focused regression/comparator phase passed 42 tests in 1.045 s; full pytest
+passed 140 tests in 147.376 s. Both JUnit reports recorded zero failures, errors
+and skips. Both pytest exits and the EC entry exit were 0, with no timeout.
+Source SHA and clean status matched before and after execution.
 
-The new regression files cover interrupted executions with leftover reports,
-missing/invalid fixture reports, normal report/exit disagreement, campaign
-aggregation, and minimization/replay. They are written but not executed.
-The existing naive/honest fixtures and published CheckWash fixed-catalog
-expectations must also be verified on an authorized pool workload before this
-draft is accepted. No local dependency installation, product execution,
-pytest collection, compilation, lint or campaign was performed.
+The product check `ec / execution-verdict-verify`, Actions job and private
+receipt publication all succeeded. Receipt commit
+`b9a3f224a48ae4e4f22a2547f7b917d6916e8684` in the private EC repository preserves
+the result, JUnit, raw stdout/stderr, pinned dependencies and runtime evidence;
+all file sizes/hashes matched `ec-publication.json` when read back from Git blobs.
+The receipt ref is `sweep-receipts/36876256944/1/workload-execution-verdict-verify`.
+
+These results include the existing naive/honest fixtures, CheckWash adapter/pin
+and fixed-catalog expectations, and the frozen greenwash regressions. Known
+false accepts remain expected observations; passing those assertions does not
+close the limits above. This is one Windows regression, with no new adversarial
+campaign, cross-OS verification, product acceptance or release.
+
+NOT_RUN on the work machine: no local dependency installation, product execution,
+pytest collection, compilation, lint or campaign was performed. Existing Linux
+CI campaigns and measurement were not dispatched by this bounded verification.
+The documentation-only result commit carries `[skip ci]` to keep this review
+draft within that scope; skipped workflows are not passes. Public PR merge is
+reserved for the human under AGENTS.md.

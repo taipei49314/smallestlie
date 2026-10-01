@@ -80,9 +80,30 @@ expectation: Python 3.12 parsed a deeply nested array and the adapter correctly
 returned `invalid_report_type`, while the test expected `invalid_report_json`.
 Both outcomes remain inconclusive. The assertion was corrected to the actual
 contract, and explicit decoder-recursion fault injection was added for both
-adapters. A new exact-SHA bounded pool verification is pending. Failure receipt
+adapters. Failure receipt
 `087202078b230469e3a232cc40b9a3f785f9fbe9` remains immutable; its file manifest
 was verified against raw Git blobs. T-488 remains the completed first slice.
+
+The corrected product `89a84ec15cf2de06e8d37f68ce0e646a2da03b36` then passed
+EC [run 36881928902, attempt 1](https://github.com/taipei49314/estate-consolidation/actions/runs/36881928902),
+with EC source `ffd41c930dcaa9d10e2a3f9946b99de81560448a`, actual
+`LAPTOP-50KP71KA`, generation `8b1bcfb4b5dc0588.1`, Windows Python 3.12.10.
+Focused JUnit passed 136 tests in 3.787 s; full JUnit passed 218 tests in
+154.887 s, with zero failures/errors/skips. Focused is a subset of full, not
+136 additional independent tests. All subprocess exits and the EC entry exit
+were 0; entry duration was 179.453 s and no timeout occurred. Initial/final
+source SHA matched the requested commit and both Git status observations were
+clean. Product check `ec / execution-verdict-verify` (110437151900), job and
+private receipt publication all succeeded.
+
+Immutable receipt `68183762fe5da965f5c6badb56271b305e0e3462`, ref
+`sweep-receipts/36881928902/1/workload-execution-verdict-verify`, preserves JSON,
+both JUnit reports, raw logs, dependency pins, runtime/generation and QoS.
+All 23 manifest-listed file sizes/hashes matched raw Git blobs when read back;
+product result, JUnit and EC workload result agreed. The final result-document
+commit changes only this file; product code, tests and workload remain exactly
+those of the tested SHA. No additional test run is claimed for that document.
+
 NOT_RUN: work-machine policy prohibits local product
 execution, pytest collection, compilation, lint and dependency installation.
 The approved EC workload declaration and its 35-minute budget are unchanged;

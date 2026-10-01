@@ -13,6 +13,9 @@ from smallestlie.sandbox.executor import ExecutionResult
 from smallestlie.verdict.compare import compare
 
 
+BINDING = {"run_id": "current-run", "input_sha256": "a" * 64, "input_sha256_after": "a" * 64}
+
+
 def execution(exit_code: int = 0, *, timed_out: bool = False) -> ExecutionResult:
     return ExecutionResult(
         command_id="run_target_verifier",
@@ -22,6 +25,7 @@ def execution(exit_code: int = 0, *, timed_out: bool = False) -> ExecutionResult
         stdout="partial output",
         stderr="",
         timed_out=timed_out,
+        execution_binding=dict(BINDING),
     )
 
 
@@ -68,7 +72,8 @@ def test_completed_report_keeps_channel_disagreement(
     output = tmp_path / "outputs"
     output.mkdir()
     (output / "report.json").write_text(
-        json.dumps({"status": "VERIFIED" if accepted else "REJECTED", "accepted": accepted}),
+        json.dumps({"status": "VERIFIED" if accepted else "REJECTED", "accepted": accepted,
+                    "execution_binding": BINDING}),
         encoding="utf-8",
     )
     verdict = FixtureGateAdapter().read_verdict(tmp_path, execution(exit_code))
@@ -92,6 +97,9 @@ def test_missing_report_is_not_an_exit_only_verdict(tmp_path: Path, exit_code: i
     "report,error",
     [
         ("{", "invalid_report_json"),
+        ("[" * 2000 + "0" + "]" * 2000, "invalid_report_json"),
+        ('{"accepted": true, "accepted": false}', "invalid_report_json"),
+        ('{"accepted": true, "extra": NaN}', "invalid_report_json"),
         ("[]", "invalid_report_type"),
         ("null", "invalid_report_type"),
         ("true", "invalid_report_type"),
@@ -124,7 +132,9 @@ def test_unreadable_report_cannot_be_a_rejection(tmp_path: Path) -> None:
 def test_known_status_only_report_remains_supported(tmp_path: Path, status: str, accepted: bool) -> None:
     output = tmp_path / "outputs"
     output.mkdir()
-    (output / "report.json").write_text(json.dumps({"status": status}), encoding="utf-8")
+    (output / "report.json").write_text(
+        json.dumps({"status": status, "execution_binding": BINDING}), encoding="utf-8"
+    )
     verdict = FixtureGateAdapter().read_verdict(tmp_path, execution(0 if accepted else 1))
     assert verdict.execution_error is None
     assert verdict.accepted is accepted

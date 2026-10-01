@@ -7,8 +7,8 @@ from pathlib import Path
 from typing import Any
 
 from smallestlie.models import TargetVerdict
-from smallestlie.policy.command_allowlist import CommandAllowlist
-from smallestlie.sandbox.executor import ExecutionResult
+from smallestlie.policy.command_allowlist import CommandAllowlist, CommandSpec
+from smallestlie.sandbox.executor import ExecutionResult, SandboxExecutor
 
 
 class EnginePinError(Exception):
@@ -69,6 +69,17 @@ class Adapter(ABC):
 
     def preflight(self, workspace: Path) -> dict[str, Any]:
         return {"ok": True}
+
+    def execute(
+        self,
+        workspace: Path,
+        executor: SandboxExecutor,
+        spec: CommandSpec,
+        *,
+        extra_env: dict[str, str] | None = None,
+    ) -> ExecutionResult:
+        """Shared execution boundary for campaigns, minimization and replay."""
+        return executor.run(spec, extra_env=extra_env)
 
     def prepare_workspace(self, workspace: Path) -> dict[str, Any]:
         """Hook: called after disposable workspace creation, before mutations.

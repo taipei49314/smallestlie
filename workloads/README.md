@@ -4,6 +4,10 @@ Nelson authorized this bounded pool regression in the current Codex conversation
 on 2026-10-01: 「自行選一台空閒的 授權」, responding to the prepared execution-verdict
 patch and its verification plan. EC dispatch is recorded as T-488; this does not
 authorize a public PR merge, publication or CheckWash re-pin.
+Nelson subsequently said 「繼續」 for the output-validity / execution-binding
+follow-up on the same draft PR and the same bounded pool workflow. The follow-up
+has EC dispatch T-492 and its own exact product SHA; T-488 remains the completed
+first-slice receipt.
 
 `execution-verdict-verify` runs on LAPTOP-50KP71KA only, because the existing full
 suite includes isolation/boundary regressions. The entry checks its actual host,
@@ -11,7 +15,8 @@ EC workload identity and exact source SHA before execution. It uses the pinned
 generation Python 3.12 and a disposable job-local venv with the eight verification
 dependencies selected from `uv.lock` and installed by exact wheel URL/hash.
 
-It first runs the new execution-verdict/failure tests and existing comparator
+It first runs execution-verdict/binding/failure tests, CheckWash adapter tests
+and the existing comparator
 (5-minute subprocess limit), then the full pytest suite (20-minute limit).
 Existing frozen greenwash regressions and intentional false-accept expectations
 remain part of the suite. No additional benchmark, model campaign, nightly sweep

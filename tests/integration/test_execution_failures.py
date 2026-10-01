@@ -63,6 +63,8 @@ def fake_execution(
         (2, False, '{"accepted": false, "status": "REJECTED"}'),
         (1, False, None),
         (0, False, "[]"),
+        (0, False, '{"accepted": true, "execution_binding": {"run_id": "prior", "input_sha256": "prior"}}'),
+        (1, False, '{"accepted": false, "execution_binding": {"run_id": "prior", "input_sha256": "prior"}}'),
     ],
 )
 def test_campaign_cannot_turn_incomplete_execution_into_success(
@@ -97,6 +99,7 @@ def test_campaign_cannot_turn_incomplete_execution_into_success(
         .read_text(encoding="utf-8")
     )
     assert stored["execution_error"] == result["target_verdict"]["execution_error"]
+    assert result["execution"]["execution_binding"]["run_id"]
     assert batch_expectation_met("pass_no_false_accept", summary) is False
     assert ci_expectation_met("pass_no_false_accept", summary) is False
     aggregate = _aggregate_profiles(
@@ -116,14 +119,19 @@ def test_campaign_cannot_turn_incomplete_execution_into_success(
 
 
 @pytest.mark.integration
-def test_timeout_report_cannot_reproduce_a_false_accept_witness(
-    monkeypatch: pytest.MonkeyPatch
+@pytest.mark.parametrize("exit_code,timed_out,report,error", [
+    (124, True, '{"accepted": true, "status": "VERIFIED"}', "timed_out"),
+    (0, False, '{"accepted": true, "execution_binding": {"run_id": "prior", "input_sha256": "prior"}}', "report_execution_binding_mismatch"),
+    (1, False, '{"accepted": true, "execution_binding": {"run_id": "prior", "input_sha256": "prior"}}', "report_execution_binding_mismatch"),
+])
+def test_incomplete_report_cannot_reproduce_a_false_accept_witness(
+    monkeypatch: pytest.MonkeyPatch, exit_code: int, timed_out: bool, report: str, error: str,
 ) -> None:
     fake_execution(
         monkeypatch,
-        exit_code=124,
-        timed_out=True,
-        report='{"accepted": true, "status": "VERIFIED"}',
+        exit_code=exit_code,
+        timed_out=timed_out,
+        report=report,
     )
     target = ROOT / "fixtures" / "naive_gate"
     adapter = FixtureGateAdapter()
@@ -144,7 +152,7 @@ def test_timeout_report_cannot_reproduce_a_false_accept_witness(
         allowlist=adapter.command_allowlist(),
     )
     assert result["comparison"]["result"] == ComparisonResult.INCONCLUSIVE.value
-    assert result["execution_error"] == "timed_out"
+    assert result["execution_error"] == error
     assert result["target_accepted"] is None
     replay = runner._replay_false_accept(
         attack=attack,
@@ -157,7 +165,7 @@ def test_timeout_report_cannot_reproduce_a_false_accept_witness(
     assert replay["stable"] is False
     assert replay["reproduced"] == 0
     assert replay["details"][0]["target_accepted"] is None
-    assert replay["details"][0]["execution_error"] == "timed_out"
+    assert replay["details"][0]["execution_error"] == error
 
 
 @pytest.mark.parametrize("expectation", [batch_expectation_met, ci_expectation_met])

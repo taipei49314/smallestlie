@@ -138,10 +138,11 @@ def test_honest_gate_valid_control(tmp_path: Path) -> None:
     ws = DisposableWorkspace.create(target, parent_dir=tmp_path / "ws")
     try:
         spec = adapter.command_allowlist().resolve("run_target_verifier")
-        ex = SandboxExecutor(ws.workspace_path).run(
+        ex = adapter.execute(ws.workspace_path, SandboxExecutor(ws.workspace_path),
             spec, extra_env={"PYTHONPATH": str(ws.workspace_path)}
         )
-        verdict = adapter.parse_verdict(ws.workspace_path, ex)
+        verdict = adapter.read_verdict(ws.workspace_path, ex)
+        assert verdict.execution_error is None
         assert ex.exit_code == 0, (ex.stdout, ex.stderr)
         assert verdict.accepted is True
 

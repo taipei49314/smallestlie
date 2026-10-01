@@ -482,7 +482,9 @@ def _execute_run(
             limits=ResourceLimits(timeout_seconds=timeout),
         )
         # Ensure fixture package is importable: workspace root on PYTHONPATH.
-        execution = executor.run(
+        execution = adapter.execute(
+            workspace.workspace_path,
+            executor,
             spec,
             extra_env={"PYTHONPATH": str(workspace.workspace_path)},
         )
@@ -496,6 +498,7 @@ def _execute_run(
                 "exit_code": execution.exit_code,
                 "timed_out": execution.timed_out,
                 "env_keys": execution.env_keys,
+                "execution_binding": execution.execution_binding,
             },
         )
 
@@ -586,6 +589,7 @@ def _execute_run(
                 "exit_code": execution.exit_code,
                 "timed_out": execution.timed_out,
                 "command_id": execution.command_id,
+                "execution_binding": execution.execution_binding,
             },
         }
 
@@ -777,7 +781,9 @@ def _run_mutant_once(
         adapter.before_execute(ws.workspace_path)
         spec = allowlist.resolve(str(attack.execute["command_ref"]))
         executor = SandboxExecutor(ws.workspace_path)
-        execution = executor.run(
+        execution = adapter.execute(
+            ws.workspace_path,
+            executor,
             spec,
             extra_env={"PYTHONPATH": str(ws.workspace_path)},
         )
@@ -797,6 +803,7 @@ def _run_mutant_once(
             "exit_code": execution.exit_code,
             "timed_out": execution.timed_out,
             "execution_error": verdict.execution_error,
+            "execution_binding": execution.execution_binding,
         }
     finally:
         # A cleanup failure must never mask or replace the measured verdict

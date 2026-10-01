@@ -21,7 +21,6 @@ false acceptance when the engine under test is lying-clean (mirrors the
 from __future__ import annotations
 
 import hashlib
-import json
 import os
 import subprocess
 from pathlib import Path
@@ -31,6 +30,7 @@ from smallestlie.adapters.base import Adapter, EnginePinError
 from smallestlie.models import TargetVerdict
 from smallestlie.policy.command_allowlist import CommandAllowlist
 from smallestlie.sandbox.executor import ExecutionResult
+from smallestlie.verdict.json_input import read_json
 
 PINNED_VERSION = "0.4.2"
 PINNED_SHA256 = "423ce220365d0e179cfd9caa7e45724d71b8bd7c67d3cbfc51eca19e8a626ee7"
@@ -172,27 +172,54 @@ def materialize_mutant(workspace: Path) -> dict[str, Any]:
 
 
 def _parse_findings_json(stdout: str) -> dict[str, Any]:
-    text = (stdout or "").strip()
-    if not text:
-        return {}
-    try:
-        loaded = json.loads(text)
-        return loaded if isinstance(loaded, dict) else {}
-    except json.JSONDecodeError:
-        # Tolerate leading banner lines; take outermost {...} block.
-        start, end = text.find("{"), text.rfind("}")
-        if start >= 0 and end > start:
-            try:
-                loaded = json.loads(text[start : end + 1])
-                return loaded if isinstance(loaded, dict) else {}
-            except json.JSONDecodeError:
-                return {}
-        return {}
+    loaded = read_json(stdout or "")
+    if not isinstance(loaded, dict):
+        raise ValueError("findings must be a JSON object")
+    return loaded
+
+
+def _findings_error(payload: dict[str, Any], version: str, schema: int) -> str | None:
+    if (type(payload.get("checkwash_findings_version")) is not int
+            or payload["checkwash_findings_version"] != schema):
+        return "invalid_findings_version"
+    run = payload.get("run")
+    if (not isinstance(run, dict)
+            or any(not isinstance(run.get(key), str) or not run[key] for key in ("base", "head"))
+            or run.get("checkwash_version") != version):
+        return "invalid_findings_run"
+    counts = dict.fromkeys(("critical", "high", "warn", "info"), 0)
+    findings = payload.get("findings")
+    if not isinstance(findings, list):
+        return "invalid_findings_list"
+    for finding in findings:
+        if (not isinstance(finding, dict)
+                or not isinstance(finding.get("severity"), str)
+                or finding["severity"] not in counts
+                or any(not isinstance(finding.get(key), str)
+                       for key in ("rule", "message", "path", "fingerprint"))
+                or "unit" not in finding
+                or (finding["unit"] is not None and not isinstance(finding["unit"], str))
+                or type(finding.get("allowlisted")) is not bool):
+            return "invalid_finding"
+        counts[finding["severity"]] += 1
+    summary = payload.get("summary")
+    if (not isinstance(summary, dict)
+            or any(type(summary.get(key)) is not int or summary[key] != count
+                   for key, count in counts.items())):
+        return "invalid_findings_summary"
+    for key in ("skipped_files", "config_errors"):
+        if not isinstance(payload.get(key), list) or any(not isinstance(x, str) for x in payload[key]):
+            return f"invalid_findings_{key}"
+    if payload.get("verdict") not in ("pass", "block"):
+        return "invalid_findings_verdict"
+    return None
 
 
 class CheckwashAdapter(Adapter):
     name = "checkwash"
-    version = "0.1.0"
+    version = "0.2.0"
+    findings_version = 2
+    engine_version = PINNED_VERSION
 
     def command_allowlist(self) -> CommandAllowlist:
         engine = str(engine_path())
@@ -234,26 +261,36 @@ class CheckwashAdapter(Adapter):
         return materialize_mutant(workspace)
 
     def parse_verdict(self, workspace: Path, execution: ExecutionResult) -> TargetVerdict:
-        payload = _parse_findings_json(execution.stdout)
+        payload: dict[str, Any] = {}
+        error = None
+        if execution.timed_out:
+            error = "timed_out"
+        elif execution.exit_code not in self.verdict_exit_codes:
+            error = f"unexpected_exit_code:{execution.exit_code}"
+        else:
+            try:
+                payload = _parse_findings_json(execution.stdout)
+                error = _findings_error(payload, self.engine_version, self.findings_version)
+            except ValueError:
+                error = "invalid_findings_json"
         verdict = str(payload.get("verdict", ""))
-        summary = payload.get("summary") or {}
         warnings: list[str] = []
         if execution.timed_out:
             warnings.append("engine_timeout")
         if payload.get("config_errors"):
             warnings.append("config_errors_present")
 
-        if execution.exit_code == 0:
-            accepted = True
-            raw_status = verdict or "pass"
-        elif execution.exit_code == 1:
+        if error is not None:
             accepted = False
-            raw_status = verdict or "block"
-        else:
-            # SPEC §9: exit 2 = engine error — never a defense, never an acceptance.
-            accepted = False
-            raw_status = "engine_error"
+            raw_status = (
+                "INVALID_FINDINGS" if execution.exit_code in self.verdict_exit_codes else "engine_error"
+            )
             warnings.append((execution.stderr or "").strip()[:400])
+        else:
+            accepted = execution.exit_code == 0
+            raw_status = verdict
+
+        run = payload.get("run")
 
         return TargetVerdict(
             accepted=accepted,
@@ -261,11 +298,18 @@ class CheckwashAdapter(Adapter):
             exit_code=execution.exit_code,
             warnings=warnings,
             raw={
-                "checkwash_version": payload.get("run", {}).get("checkwash_version"),
-                "summary": summary,
+                "checkwash_version": run.get("checkwash_version") if isinstance(run, dict) else None,
+                "summary": payload.get("summary"),
                 "skipped_files": payload.get("skipped_files", []),
             },
             evidence_refs=["stdout.txt"],
+            execution_error=error,
+            channels={
+                "exit_code": execution.exit_code,
+                "exit_accepted": execution.exit_code == 0,
+                "report_verdict": verdict,
+                "report_accepted": verdict == "pass" if error is None else None,
+            },
         )
 
 
@@ -273,7 +317,9 @@ class CheckwashBlindAdapter(CheckwashAdapter):
     """Positive control: a stand-in engine that always accepts, on purpose."""
 
     name = "checkwash_blind"
-    version = "0.1.0"
+    version = "0.2.0"
+    findings_version = 1
+    engine_version = "blind-control"
 
     def command_allowlist(self) -> CommandAllowlist:
         return CommandAllowlist.from_mapping(

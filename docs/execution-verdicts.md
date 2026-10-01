@@ -18,6 +18,34 @@ unusable report is `INCONCLUSIVE`, including a missing report after exit 1.
 A valid report remains the target's accepting/rejecting claim, with its exit
 channel preserved separately for the independent oracle.
 
+Fixture campaigns, minimization and replay also use `Adapter.execute`. The
+fixture adapter clears only disposable `outputs/report.json` and
+`outputs/execution_trace.json`, then supplies a fresh `SMALLESTLIE_RUN_ID` and
+`SMALLESTLIE_INPUT_SHA256`. All six fixture verifiers echo these two values in
+the report's `execution_binding`. The expected values live on the harness-owned
+`ExecutionResult`, not in adapter state or target output. A report with missing
+or mismatched binding is inconclusive, even when its verdict and exit are valid.
+Unbound direct executor calls cannot adjudicate fixture reports.
+
+The input digest covers sorted directory/file paths and file contents before
+execution. It excludes root `outputs`, `.git`, Python/pytest caches and venvs;
+`.pyc` files are excluded too. The harness recomputes it after execution and
+rejects changed or unreadable inputs. Linked/reparse input or generated-output
+paths are refused. Expected binding is preserved in execution records, ledger
+events, verdict channels and replay details. Clearing output never changes the
+source fixture or unrelated output artifacts.
+
+Real CheckWash output must be exactly one unambiguous JSON object with findings
+schema 2, run version `0.4.2`, nonempty base/head, a typed findings list, severity
+counts matching that list, string-list skipped files/config errors, and a
+`pass`/`block` verdict. Empty/malformed output, missing or mistyped fields,
+duplicate keys, nonstandard constants and banner salvage are inconclusive.
+The blind control keeps its separate schema 1 / `blind-control` contract.
+CheckWash acceptance still follows its documented exit 0/1 contract; a valid
+report/exit disagreement remains visible in separate channels. Counts, findings
+and config warnings do not cause the harness to recompute engine gating policy.
+These adapter contracts are versioned as `0.2.0`; the engine pin stays unchanged.
+
 `target_verdict.execution_error` records the reason. The comparison uses
 `target_accepted: null` when an execution cannot adjudicate; the boolean on the
 target model is not a defense observation. No false-accept witness or regression
@@ -31,12 +59,28 @@ projection), without inventing a false-accept observation from the unknown resul
 ## Limits
 
 This change does not provide an OS sandbox, independently attest actual test
-execution, or establish attack semantics. In particular, exit 1 accompanied by
-a structurally valid stale report still requires freshness/execution evidence.
-Other adapters retain their existing output-parser contracts. Historical
+execution, or establish attack semantics. A hostile verifier can read the
+current nonce/digest and forge a correctly bound report; it can also rewrite and
+restore input between the two digest observations. Binding detects stale or
+cross-run reports, not honest execution. Traces still come from the fixture.
+The frozen greenwash adapter retains its output-parser contract. Historical
 campaign records and expected known false acceptances are not rewritten.
 
 ## Validation status
+
+### Output validity / execution binding follow-up
+
+Nelson said 「繼續」 after the proposed next slice: real CheckWash output validity
+and fixture report freshness/binding, followed by the same bounded pool workflow
+and an update to draft PR #22. Static review completed and corrected the
+deeply nested JSON exception path. This follow-up has not yet been executed.
+EC dispatch is claimed as T-492; T-488 remains the completed first slice.
+NOT_RUN: work-machine policy prohibits local product
+execution, pytest collection, compilation, lint and dependency installation.
+The approved EC workload declaration and its 35-minute budget are unchanged;
+the focused phase adds CheckWash adapter and fixture binding regressions.
+
+### First slice (historical result, not validation of the follow-up)
 
 Nelson authorized the bounded pool verification with 「自行選一台空閒的 授權」.
 On 2026-10-01, EC [run 36876256944, attempt 1](https://github.com/taipei49314/estate-consolidation/actions/runs/36876256944)

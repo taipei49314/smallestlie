@@ -139,6 +139,7 @@ def main() -> int:
     if not problems:
         phases = [
             ("focused", 300, ["tests/unit/test_execution_verdict.py",
+                              "tests/unit/test_execution_binding.py", "tests/unit/test_checkwash_adapter.py",
                               "tests/integration/test_execution_failures.py", "tests/unit/test_comparator.py"]),
             ("full", 1200, ["tests"]),
         ]

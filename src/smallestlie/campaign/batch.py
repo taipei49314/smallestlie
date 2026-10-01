@@ -416,7 +416,7 @@ def _expectation_met(expect: str | None, summary: dict[str, Any]) -> bool:
         # Must be the dedicated FA status (not FA mixed with harness collapse)
         return status == "FAIL_FALSE_ACCEPT_OBSERVED" and fa > 0
     if expect == "pass_no_false_accept":
-        return status in {"PASS_NO_FALSE_ACCEPT_OBSERVED", "PASS_WITH_WARNINGS"} and fa == 0
+        return status == "PASS_NO_FALSE_ACCEPT_OBSERVED" and fa == 0
     return False
 
 

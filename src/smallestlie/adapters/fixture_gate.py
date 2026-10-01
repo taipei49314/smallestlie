@@ -44,14 +44,33 @@ class FixtureGateAdapter(Adapter):
     def parse_verdict(self, workspace: Path, execution: ExecutionResult) -> TargetVerdict:
         report_path = workspace / "outputs" / "report.json"
         report: dict = {}
+        error = "missing_report"
         if report_path.is_file():
             try:
-                report = json.loads(report_path.read_text(encoding="utf-8"))
+                loaded = json.loads(report_path.read_text(encoding="utf-8"))
+                if not isinstance(loaded, dict):
+                    error = "invalid_report_type"
+                else:
+                    report = loaded
+                    status = report.get("status")
+                    if "accepted" in report:
+                        error = None if isinstance(report["accepted"], bool) else "invalid_report_verdict"
+                    elif isinstance(status, str) and status in {
+                        "VERIFIED", "PASS", "OK", "REJECTED", "FAIL", "BLOCKED"
+                    }:
+                        error = None
+                    else:
+                        error = "invalid_report_verdict"
             except json.JSONDecodeError:
-                report = {"status": "INVALID_REPORT", "accepted": False}
+                error = "invalid_report_json"
+            except (OSError, UnicodeDecodeError):
+                error = "unreadable_report"
 
         raw_status = str(report.get("status", "UNKNOWN"))
-        report_accepted = bool(report.get("accepted", raw_status in {"VERIFIED", "PASS", "OK"}))
+        report_accepted = (
+            bool(report.get("accepted", raw_status in {"VERIFIED", "PASS", "OK"}))
+            if error is None else False
+        )
         exit_ok = execution.exit_code == 0
 
         # Preserve channel disagreement; do not collapse prematurely.
@@ -64,13 +83,13 @@ class FixtureGateAdapter(Adapter):
             "stderr_tail": (execution.stderr or "")[-500:],
         }
 
-        # Target's own aggregator (what the gate claims) lives in report if present,
-        # otherwise exit code. This is the *target* verdict, not oracle truth.
-        if report_path.is_file():
-            accepted = report_accepted
-        else:
-            accepted = exit_ok
-            raw_status = "EXIT_ONLY"
+        # A fixture verifier must emit a usable report. Exit 1 without one may
+        # be a Python crash; exit 0 alone does not establish an accepting claim.
+        # A valid report still leads the target verdict, preserving report/exit
+        # disagreement for the independent oracle.
+        accepted = report_accepted
+        if error is not None:
+            raw_status = "INVALID_REPORT" if report_path.is_file() else "MISSING_REPORT"
 
         evidence_refs = []
         if isinstance(report.get("evidence_refs"), list):
@@ -91,4 +110,5 @@ class FixtureGateAdapter(Adapter):
             warnings=warnings,
             raw=report,
             channels=channels,
+            execution_error=error,
         )

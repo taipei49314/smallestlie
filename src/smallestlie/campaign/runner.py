@@ -25,6 +25,8 @@ from smallestlie.models import (
     CampaignStatus,
     ComparisonResult,
     ExitCode,
+    OracleResult,
+    TargetVerdict,
     jsonable,
 )
 from smallestlie.oracle.base import evaluate_oracle
@@ -497,7 +499,7 @@ def _execute_run(
             },
         )
 
-        verdict = adapter.parse_verdict(workspace.workspace_path, execution)
+        verdict = adapter.read_verdict(workspace.workspace_path, execution)
         (run_dir / "target-verdict.json").write_text(
             json.dumps(verdict.to_dict(), indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
@@ -509,10 +511,11 @@ def _execute_run(
                 "accepted": verdict.accepted,
                 "raw_status": verdict.raw_status,
                 "exit_code": verdict.exit_code,
+                "execution_error": verdict.execution_error,
             },
         )
 
-        oracle = evaluate_oracle(
+        oracle = _evaluate_run_oracle(
             workspace.workspace_path,
             attack_oracle=attack.oracle,
             baseline=baseline,
@@ -778,8 +781,8 @@ def _run_mutant_once(
             spec,
             extra_env={"PYTHONPATH": str(ws.workspace_path)},
         )
-        verdict = adapter.parse_verdict(ws.workspace_path, execution)
-        oracle = evaluate_oracle(
+        verdict = adapter.read_verdict(ws.workspace_path, execution)
+        oracle = _evaluate_run_oracle(
             ws.workspace_path,
             attack_oracle=attack.oracle,
             baseline=baseline,
@@ -789,9 +792,11 @@ def _run_mutant_once(
         comparison = compare(oracle, verdict)
         return {
             "comparison": comparison.to_dict(),
-            "target_accepted": verdict.accepted,
+            "target_accepted": comparison.target_accepted,
             "oracle_valid": oracle.valid,
             "exit_code": execution.exit_code,
+            "timed_out": execution.timed_out,
+            "execution_error": verdict.execution_error,
         }
     finally:
         # A cleanup failure must never mask or replace the measured verdict
@@ -800,6 +805,29 @@ def _run_mutant_once(
             ws.cleanup()
         except OSError:
             pass
+
+
+def _evaluate_run_oracle(
+    workspace: Path,
+    *,
+    attack_oracle: dict[str, Any],
+    baseline: dict[str, Any],
+    target_verdict: TargetVerdict,
+    mutations_applied: list[dict[str, Any]],
+) -> OracleResult:
+    if target_verdict.execution_error is not None:
+        return OracleResult(
+            valid=None,
+            reasons=[f"target_execution_error:{target_verdict.execution_error}"],
+            facts={"execution_error": target_verdict.execution_error},
+        )
+    return evaluate_oracle(
+        workspace,
+        attack_oracle=attack_oracle,
+        baseline=baseline,
+        target_verdict=target_verdict,
+        mutations_applied=mutations_applied,
+    )
 
 
 def _replay_false_accept(
@@ -833,6 +861,7 @@ def _replay_false_accept(
                 "result": one.get("comparison", {}).get("result"),
                 "target_accepted": one.get("target_accepted"),
                 "oracle_valid": one.get("oracle_valid"),
+                "execution_error": one.get("execution_error"),
             }
         )
     return {

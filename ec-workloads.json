@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "workloads": {
+    "execution-verdict-verify": {
+      "description": "Bounded regression of execution-error adjudication and the existing full test suite on LAPTOP-50KP71KA; preserves CheckWash v0.4.2 and known false-accept expectations.",
+      "entry": "workloads/execution_verdict_verify/run.py",
+      "profile": "profile-ec-integrity",
+      "timeout_minutes": 35,
+      "cache": false,
+      "parameters": {}
+    }
+  }
+}

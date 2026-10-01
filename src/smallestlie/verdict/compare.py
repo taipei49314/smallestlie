@@ -6,6 +6,13 @@ from smallestlie.models import Comparison, ComparisonResult, OracleResult, Targe
 
 
 def compare(oracle: OracleResult, target: TargetVerdict | None) -> Comparison:
+    if target is not None and target.execution_error is not None:
+        return Comparison(
+            result=ComparisonResult.INCONCLUSIVE,
+            oracle_valid=oracle.valid,
+            target_accepted=None,
+            rationale=f"target execution cannot adjudicate: {target.execution_error}",
+        )
     if oracle.valid is None:
         return Comparison(
             result=ComparisonResult.INCONCLUSIVE,

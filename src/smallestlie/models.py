@@ -46,6 +46,7 @@ class TargetVerdict:
     warnings: list[str] = field(default_factory=list)
     raw: dict[str, Any] = field(default_factory=dict)
     channels: dict[str, Any] = field(default_factory=dict)
+    execution_error: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

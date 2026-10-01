@@ -18,6 +18,8 @@ class EnginePinError(Exception):
 class Adapter(ABC):
     name: str
     version: str
+    # A verifier's ordinary rejection is a completed execution, not a crash.
+    verdict_exit_codes: tuple[int, ...] = (0, 1)
 
     @abstractmethod
     def command_allowlist(self) -> CommandAllowlist:
@@ -34,6 +36,36 @@ class Adapter(ABC):
         execution: ExecutionResult,
     ) -> TargetVerdict:
         raise NotImplementedError
+
+    def read_verdict(
+        self,
+        workspace: Path,
+        execution: ExecutionResult,
+    ) -> TargetVerdict:
+        """Require a completed execution before interpreting target output.
+
+        Campaigns, minimization and replay share this boundary. Partial or stale
+        output from a timeout/crash cannot become either a defense or a witness.
+        """
+        error = None
+        if execution.timed_out:
+            error = "timed_out"
+        elif execution.exit_code not in self.verdict_exit_codes:
+            error = f"unexpected_exit_code:{execution.exit_code}"
+        if error is not None:
+            return TargetVerdict(
+                accepted=False,
+                raw_status="EXECUTION_INCOMPLETE",
+                exit_code=execution.exit_code,
+                execution_error=error,
+                channels={
+                    "exit_code": execution.exit_code,
+                    "timed_out": execution.timed_out,
+                    "stdout_tail": (execution.stdout or "")[-500:],
+                    "stderr_tail": (execution.stderr or "")[-500:],
+                },
+            )
+        return self.parse_verdict(workspace, execution)
 
     def preflight(self, workspace: Path) -> dict[str, Any]:
         return {"ok": True}

@@ -30,7 +30,7 @@ Network remains denied by default. Model-assisted hypotheses are out of scope un
 - Implemented adapters (`get_adapter` in `src/smallestlie/adapters/base.py`):
   `fixture_gate`; `greenwash` (synthetic SUT, frozen 2026-09-03); `checkwash`
   and `checkwash_blind` (real engine, vendored `verifiers/checkwash.pyz`, current
-  pin v0.4.2)
+  pin v0.5.0)
 - ClaimGate: `DESIGN_ONLY`
 - TomorrowCI: retired (repositories deleted 2026-09-26, estate T-457)
 

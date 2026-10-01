@@ -8,6 +8,8 @@ from pathlib import Path
 import pytest
 
 from smallestlie.adapters.fixture_gate import FixtureGateAdapter
+from smallestlie.adapters.checkwash import CheckwashAdapter
+from smallestlie.verdict import json_input
 from smallestlie.models import ComparisonResult, OracleResult, TargetVerdict
 from smallestlie.sandbox.executor import ExecutionResult
 from smallestlie.verdict.compare import compare
@@ -97,7 +99,6 @@ def test_missing_report_is_not_an_exit_only_verdict(tmp_path: Path, exit_code: i
     "report,error",
     [
         ("{", "invalid_report_json"),
-        ("[" * 2000 + "0" + "]" * 2000, "invalid_report_json"),
         ('{"accepted": true, "accepted": false}', "invalid_report_json"),
         ('{"accepted": true, "extra": NaN}', "invalid_report_json"),
         ("[]", "invalid_report_type"),
@@ -125,6 +126,37 @@ def test_unreadable_report_cannot_be_a_rejection(tmp_path: Path) -> None:
     (output / "report.json").write_bytes(b"\xff")
     verdict = FixtureGateAdapter().read_verdict(tmp_path, execution(1))
     assert verdict.execution_error == "unreadable_report"
+    assert compare(OracleResult(valid=False), verdict).result == ComparisonResult.INCONCLUSIVE
+
+
+def test_deep_nonobject_report_cannot_adjudicate(tmp_path: Path) -> None:
+    output = tmp_path / "outputs"
+    output.mkdir()
+    (output / "report.json").write_text("[" * 2000 + "0" + "]" * 2000, encoding="utf-8")
+    verdict = FixtureGateAdapter().read_verdict(tmp_path, execution(1))
+    # Decoder nesting limits vary by Python runtime. Either invalid form must
+    # remain unknown, without depending on which limit the decoder reaches.
+    assert verdict.execution_error in {"invalid_report_json", "invalid_report_type"}
+    assert compare(OracleResult(valid=False), verdict).result == ComparisonResult.INCONCLUSIVE
+
+
+@pytest.mark.parametrize("adapter,error", [
+    (FixtureGateAdapter(), "invalid_report_json"),
+    (CheckwashAdapter(), "invalid_findings_json"),
+])
+def test_decoder_recursion_failure_is_an_incomplete_verdict(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, adapter: object, error: str,
+) -> None:
+    output = tmp_path / "outputs"
+    output.mkdir()
+    (output / "report.json").write_text('{"accepted": true}', encoding="utf-8")
+
+    def recursion_failure(*args: object, **kwargs: object) -> None:
+        raise RecursionError("decoder nesting limit")
+
+    monkeypatch.setattr(json_input.json, "loads", recursion_failure)
+    verdict = adapter.read_verdict(tmp_path, execution(1))
+    assert verdict.execution_error == error
     assert compare(OracleResult(valid=False), verdict).result == ComparisonResult.INCONCLUSIVE
 
 

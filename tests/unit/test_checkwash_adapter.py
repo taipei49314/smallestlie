@@ -252,7 +252,7 @@ class TestParseVerdict:
     @pytest.mark.parametrize("exit_code", [0, 1])
     @pytest.mark.parametrize("output", ["", "{", "[]", "null", "banner\n{}", "{}\n{}",
                                        '{"verdict":"pass","verdict":"block"}', '{"x":NaN}',
-                                       "[" * 2000 + "0" + "]" * 2000])
+                                       pytest.param("[" * 2000 + "0" + "]" * 2000, id="deep-nesting")])
     def test_unusable_json_is_inconclusive(self, exit_code: int, output: str) -> None:
         v = CheckwashAdapter().read_verdict(Path("."), _execution(exit_code, output))
         assert v.execution_error == "invalid_findings_json"

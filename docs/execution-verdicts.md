@@ -73,8 +73,16 @@ campaign records and expected known false acceptances are not rewritten.
 Nelson said 「繼續」 after the proposed next slice: real CheckWash output validity
 and fixture report freshness/binding, followed by the same bounded pool workflow
 and an update to draft PR #22. Static review completed and corrected the
-deeply nested JSON exception path. This follow-up has not yet been executed.
-EC dispatch is claimed as T-492; T-488 remains the completed first slice.
+deeply nested JSON exception path. EC T-492 [run 36881268126](https://github.com/taipei49314/estate-consolidation/actions/runs/36881268126)
+tested `2151bca29007e0752eafad06c25c64ca1deabfc2` on 50K: 133/134 focused and
+215/216 full tests passed. One shared failure was an overly specific test
+expectation: Python 3.12 parsed a deeply nested array and the adapter correctly
+returned `invalid_report_type`, while the test expected `invalid_report_json`.
+Both outcomes remain inconclusive. The assertion was corrected to the actual
+contract, and explicit decoder-recursion fault injection was added for both
+adapters. A new exact-SHA bounded pool verification is pending. Failure receipt
+`087202078b230469e3a232cc40b9a3f785f9fbe9` remains immutable; its file manifest
+was verified against raw Git blobs. T-488 remains the completed first slice.
 NOT_RUN: work-machine policy prohibits local product
 execution, pytest collection, compilation, lint and dependency installation.
 The approved EC workload declaration and its 35-minute budget are unchanged;

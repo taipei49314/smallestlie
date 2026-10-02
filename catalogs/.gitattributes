@@ -1,0 +1,2 @@
+# The reviewed residual index is pinned by its exact bytes.
+residual-rows-checkwash-*.json -text

@@ -260,6 +260,8 @@ def filter_catalog_file(
     selected_ids: list[str],
 ) -> Path:
     """Write a filtered catalog YAML for a campaign run."""
+    if catalog.metadata or any(a.schema_version == "smallestlie.attack/v2" for a in catalog.ordered()):
+        raise ValueError("v2 preregistered catalogs cannot be diff-filtered")
     path.parent.mkdir(parents=True, exist_ok=True)
     body = {
         "name": f"{catalog.name}-diff-filtered",

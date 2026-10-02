@@ -40,6 +40,8 @@ def plan_campaign(
       - mixed: singles first, then declarative compounds, then pairwise fill
     """
     limits = composition_limits or CompositionLimits()
+    if mode != "single" and any(a.schema_version == "smallestlie.attack/v2" for a in catalog.ordered()):
+        raise ValueError("v2 declarations only support single-case plans")
     runs: list[dict[str, Any]] = []
     run_idx = 0
     composed_registry: dict[str, AttackSpec] = {}

@@ -26,12 +26,14 @@ def digest(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def main() -> int:
+def main(*, workload_name: str = "execution-verdict-verify",
+         focused_paths: tuple[str, ...] | None = None,
+         heading: str = "SmallestLie execution verdict regression") -> int:
     required = ("EC_WORKLOAD_SOURCE", "EC_WORKLOAD_OUT", "EC_WORKLOAD_WORK", "EC_WORKLOAD_SHA")
     if any(not os.environ.get(key) for key in required):
         raise RuntimeError("run only through the approved EC pool workload")
     if (os.environ.get("EC_WORKLOAD_REPOSITORY") != "taipei49314/smallestlie"
-            or os.environ.get("EC_WORKLOAD_NAME") != "execution-verdict-verify"
+            or os.environ.get("EC_WORKLOAD_NAME") != workload_name
             or Path(os.environ["EC_WORKLOAD_SOURCE"]).resolve() != ROOT):
         raise RuntimeError("unexpected workload identity")
     host = platform.node().upper()
@@ -138,7 +140,7 @@ def main() -> int:
 
     if not problems:
         phases = [
-            ("focused", 300, ["tests/unit/test_execution_verdict.py",
+            ("focused", 300, list(focused_paths) if focused_paths is not None else ["tests/unit/test_execution_verdict.py",
                               "tests/unit/test_execution_binding.py", "tests/unit/test_checkwash_adapter.py",
                               "tests/integration/test_execution_failures.py", "tests/unit/test_comparator.py"]),
             ("full", 1200, ["tests"]),
@@ -176,7 +178,7 @@ def main() -> int:
                               "not a product acceptance, new attack evaluation, release or security attestation"]}
     (out / "result.json").write_text(json.dumps(result, sort_keys=True, indent=2) + "\n",
                                      encoding="utf-8", newline="\n")
-    lines = ["# SmallestLie execution verdict regression", "", f"Result: {'FAIL' if problems else 'PASS'}",
+    lines = [f"# {heading}", "", f"Result: {'FAIL' if problems else 'PASS'}",
              f"Source: `{actual}` (requested `{expected}`)", f"Host: `{host}`", f"Suites: {counts}", "",
              "Evidence: result.json, focused.xml, full.xml and raw stdout/stderr logs.", ""]
     lines += [f"- {problem}" for problem in problems]

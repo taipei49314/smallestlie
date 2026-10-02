@@ -32,6 +32,8 @@ def compose_pair(
     limits: CompositionLimits | None = None,
 ) -> AttackSpec:
     """SEQUENCE(left, right) as a deterministic compound AttackSpec."""
+    if left.schema_version != "smallestlie.attack/v1" or right.schema_version != "smallestlie.attack/v1":
+        raise ValueError("v2 declarations cannot be auto-composed or downgraded to v1")
     limits = limits or CompositionLimits()
     if limits.require_distinct_ids and left.attack_id == right.attack_id:
         raise ValueError("compound parents must be distinct attack ids")
@@ -137,6 +139,8 @@ def pairwise_candidates(
     Otherwise all ordered pairs i!=j are considered, pruned, then truncated
     to max_compound_runs with a stable seed-based order.
     """
+    if any(a.schema_version != "smallestlie.attack/v1" for a in attacks):
+        raise ValueError("v2 declarations cannot be auto-composed or downgraded")
     limits = limits or CompositionLimits()
     if limits.max_depth < 2:
         return []

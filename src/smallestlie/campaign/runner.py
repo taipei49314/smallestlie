@@ -152,6 +152,8 @@ def run_campaign(
 
     try:
         catalog = load_catalog(catalog_p, attacks_root=project_root / "attacks")
+        if any(a.schema_version == "smallestlie.attack/v2" for a in catalog.ordered()):
+            raise ValueError("v2 execution requires the pending preregistration/evidence protocol")
     except Exception as exc:
         ledger.append(ev.EVENT_HARNESS_ERROR, {"error": f"catalog load failed: {exc}"})
         return _finalize_error(campaign_dir, campaign_id, str(exc), ledger)
@@ -403,6 +405,10 @@ def _execute_run(
     seed: int,
 ) -> dict[str, Any]:
     run_dir = runs_dir / run_id
+    if attack.schema_version == "smallestlie.attack/v2":
+        return {"run_id": run_id, "attack_id": attack.attack_id,
+                "comparison": {"result": ComparisonResult.BLOCKED_BY_POLICY.value},
+                "error": "v2 execution requires preregistration/evidence validation"}
     run_dir.mkdir(parents=True, exist_ok=True)
     (run_dir / "attack.yaml").write_text(
         yaml.safe_dump(attack.to_dict(), sort_keys=False),
@@ -774,6 +780,9 @@ def _run_mutant_once(
     adapter: Any,
     allowlist: Any,
 ) -> dict[str, Any]:
+    if attack.schema_version == "smallestlie.attack/v2":
+        return {"comparison": {"result": ComparisonResult.BLOCKED_BY_POLICY.value},
+                "error": "v2 execution requires preregistration/evidence validation"}
     ws = DisposableWorkspace.create(target_path)
     try:
         adapter.prepare_workspace(ws.workspace_path)
@@ -847,6 +856,9 @@ def _replay_false_accept(
     attempts: int = 3,
     mutations: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
+    if attack.schema_version == "smallestlie.attack/v2":
+        return {"attempts": 0, "reproduced": 0, "stable": False, "details": [],
+                "error": "v2 replay requires preregistration/evidence validation"}
     muts = mutations if mutations is not None else list(attack.mutations)
     successes = 0
     details: list[dict[str, Any]] = []

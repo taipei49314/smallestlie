@@ -1,6 +1,14 @@
 {
   "schema_version": 1,
   "workloads": {
+    "m12-prereg-evidence-verify": {
+      "description": "M12 slice-B preregistration, external evidence and opt-in ledger contracts plus existing full-suite regression on LAPTOP-50KP71KA; synthetic records only, no W3 evaluation, real runner adoption, measurement or engine re-pin.",
+      "entry": "workloads/m12_prereg_evidence_verify/run.py",
+      "profile": "profile-ec-integrity",
+      "timeout_minutes": 35,
+      "cache": false,
+      "parameters": {}
+    },
     "m12-schema-v2-verify": {
       "description": "M12 slice-A schema, twin declarations, pinned residual source/index contracts and existing full-suite regression on LAPTOP-50KP71KA; no W3 attack evaluation, measurement, runner adoption or engine re-pin.",
       "entry": "workloads/m12_schema_verify/run.py",

@@ -85,11 +85,13 @@ synthetic tests, never a value loaded from a manifest or receipt. See GitHub's
 [tree API](https://docs.github.com/en/rest/git/trees) and
 [raw blob contract](https://docs.github.com/en/rest/git/blobs#get-a-blob).
 
-This subcut authenticates **preregistration approval only**. It does not prove
+The original D1 subcut authenticates **preregistration approval only**. It does not prove
 an actual EC dispatch, job host, lock-before-command, runner exit, effective
-verifier configuration or semantic review. Execution/verifier/review providers
-remain unconfigured until separate trustworthy supervisor and human-review
-sources are implemented. Their missing provenance continues to produce unknown.
+verifier configuration or semantic review. The later
+[evidence-source subcut](campaign-evidence-sources.md) adds separately configured
+immutable EC/accepted-supervisor providers and an explicit post-run review
+role/grant. None is automatically configured; the actual outer collector and
+real acceptance registry remain absent. Missing provenance produces unknown.
 Ordinary pool regression receipts cannot stand in for formal W3 receipts.
 
 Subsequent D work must add raw capture and actual facts, formal ledger/campaign

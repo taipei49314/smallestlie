@@ -389,9 +389,8 @@ def cmd_campaign_batch(args: Any, root: Path) -> int:
 
 
 def cmd_replay(args: Any, root: Path) -> int:
-    import yaml
     from smallestlie.adapters.base import get_adapter
-    from smallestlie.attacks.schema import parse_attack_spec
+    from smallestlie.attacks.schema import AttackSchemaError, load_attack_spec
     from smallestlie.baseline.capture import capture_baseline
     from smallestlie.campaign.runner import _replay_false_accept
     from smallestlie.policy.authorization import default_fixture_authorization
@@ -403,8 +402,14 @@ def cmd_replay(args: Any, root: Path) -> int:
     if not attack_path.is_file():
         print(f"missing minimized-attack.yaml in {witness}", file=sys.stderr)
         return int(ExitCode.INVALID_CONFIG)
-    raw = yaml.safe_load(attack_path.read_text(encoding="utf-8"))
-    attack = parse_attack_spec(raw, source_path=str(attack_path))
+    try:
+        attack = load_attack_spec(attack_path)
+    except (AttackSchemaError, OSError) as exc:
+        print(str(exc), file=sys.stderr)
+        return int(ExitCode.INVALID_CONFIG)
+    if attack.schema_version == "smallestlie.attack/v2":
+        print("v2 replay requires preregistration/evidence validation", file=sys.stderr)
+        return int(ExitCode.INVALID_CONFIG)
 
     manifest = {}
     man_path = witness / "evidence-manifest.json"
@@ -444,9 +449,8 @@ def cmd_replay(args: Any, root: Path) -> int:
 
 
 def cmd_minimize(args: Any, root: Path) -> int:
-    import yaml
     from smallestlie.adapters.base import get_adapter
-    from smallestlie.attacks.schema import parse_attack_spec
+    from smallestlie.attacks.schema import AttackSchemaError, load_attack_spec
     from smallestlie.baseline.capture import capture_baseline
     from smallestlie.campaign.runner import _run_mutant_once
     from smallestlie.minimize.ddmin import ddmin
@@ -460,10 +464,14 @@ def cmd_minimize(args: Any, root: Path) -> int:
     if not attack_path.is_file():
         print(f"missing attack.yaml in {run_dir}", file=sys.stderr)
         return int(ExitCode.INVALID_CONFIG)
-    attack = parse_attack_spec(
-        yaml.safe_load(attack_path.read_text(encoding="utf-8")),
-        source_path=str(attack_path),
-    )
+    try:
+        attack = load_attack_spec(attack_path)
+    except (AttackSchemaError, OSError) as exc:
+        print(str(exc), file=sys.stderr)
+        return int(ExitCode.INVALID_CONFIG)
+    if attack.schema_version == "smallestlie.attack/v2":
+        print("v2 minimization requires fresh evidence for any changed declaration", file=sys.stderr)
+        return int(ExitCode.INVALID_CONFIG)
     target = Path(args.target)
     if not target.is_absolute():
         target = (root / target).resolve()

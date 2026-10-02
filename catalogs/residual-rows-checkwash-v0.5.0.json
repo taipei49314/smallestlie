@@ -1,0 +1,92 @@
+{
+  "schema_version": "smallestlie.residual-catalog/v1",
+  "coverage": "partial",
+  "engine": {
+    "repository": "taipei49314/checkwash",
+    "version": "0.5.0",
+    "artifact_sha256": "b305bc3f7d35f827190051f7a676ac40e3e86badf9eaed750f22f082fd10b05c",
+    "source_revision": "24b60a2019a5900291ecb35ab8290f34af2d5438"
+  },
+  "sources": [
+    {
+      "id": "THREATMODEL.md",
+      "path": "provenance/checkwash-v0.5.0/THREATMODEL.md",
+      "sha256": "7ab08e84cec01b9be3e6a683ef17dc68a9fa98b318ef94484ede467aaefe11e9",
+      "git_blob": "eca177da1d353ba76f7f65854b9bc41dd77aa978"
+    },
+    {
+      "id": "SPEC.md",
+      "path": "provenance/checkwash-v0.5.0/SPEC.md",
+      "sha256": "84dbfd719be56c8a8de59c84c6c34160c74d933ea1cda81623790486583c36e3",
+      "git_blob": "647195b30423fa988eefebbaa528155e353288e5"
+    }
+  ],
+  "entries": [
+    {
+      "id": "SPEC:SUBJECT_NORMALIZED:two-hop",
+      "source": "SPEC.md",
+      "start_line": 279,
+      "end_line": 279,
+      "quote_sha256": "811573150026e352805b07134894c1b470e284bffcbc0286a14df80272faae38",
+      "status": "documented_residual",
+      "status_raw": "Two hops are a stated residual",
+      "coverage": "Subject-normalization through two own bindings; not the repair-call-graph limit.",
+      "rationale": "Source locator and declared shape only; does not adjudicate case coverage."
+    },
+    {
+      "id": "THREATMODEL:5",
+      "source": "THREATMODEL.md",
+      "start_line": 126,
+      "end_line": 126,
+      "quote_sha256": "1ecaf2de525cd6ee7b36cd5175bd04626009d8697e7b6461632518c1fcbeda65",
+      "status": "closed",
+      "status_raw": "**Closed**",
+      "coverage": "Moving a test file out of collection, in range or worktree mode.",
+      "rationale": "Source locator and declared shape only; does not adjudicate case coverage."
+    },
+    {
+      "id": "THREATMODEL:1",
+      "source": "THREATMODEL.md",
+      "start_line": 122,
+      "end_line": 122,
+      "quote_sha256": "59c88d09c4c790eb1d09a1f3bb0d1bd4c6ba64395f5da1db485111086394d079",
+      "status": "out_of_scope",
+      "status_raw": "Out of scope (documented limit)",
+      "coverage": "Rewriting production logic so a weak test passes honestly.",
+      "rationale": "Source locator and declared shape only; does not adjudicate case coverage."
+    },
+    {
+      "id": "THREATMODEL:2",
+      "source": "THREATMODEL.md",
+      "start_line": 123,
+      "end_line": 123,
+      "quote_sha256": "ef2a83432de4ad89c2831916b820034188d4e89c3514699cb1a6ae232f277fcd",
+      "status": "narrowed",
+      "status_raw": "**Narrowed**",
+      "coverage": "Mixed historical closures and remaining opaque-production shapes; case review required.",
+      "rationale": "Source locator and declared shape only; does not adjudicate case coverage."
+    },
+    {
+      "id": "THREATMODEL:108",
+      "source": "THREATMODEL.md",
+      "start_line": 328,
+      "end_line": 328,
+      "quote_sha256": "19a6ebff7c523d32ac81e02401716a02db01bb3b24f6ae55460132d4d0ee836b",
+      "status": "mixed",
+      "status_raw": "**Closed for the reported spellings**",
+      "coverage": "Reported JS liveness spellings and explicit residual variants; case review required.",
+      "rationale": "Source locator and declared shape only; does not adjudicate case coverage."
+    },
+    {
+      "id": "THREATMODEL:109",
+      "source": "THREATMODEL.md",
+      "start_line": 329,
+      "end_line": 329,
+      "quote_sha256": "5627920352845b31920219476186d4994958de668594894407645539a165bcc6",
+      "status": "mixed",
+      "status_raw": "**Closed**",
+      "coverage": "Reported subject mocks and explicit residual variants; case review required.",
+      "rationale": "Source locator and declared shape only; does not adjudicate case coverage."
+    }
+  ]
+}

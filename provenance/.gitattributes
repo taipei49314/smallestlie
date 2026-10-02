@@ -1,0 +1,2 @@
+# Source snapshots are exact published Git bytes, including their newlines.
+*.md -text

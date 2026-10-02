@@ -1,5 +1,26 @@
 # Authorized EC verification workload
 
+## Prepared M12 slice-A workload (not yet authorized)
+
+`m12-schema-v2-verify` is a new, separate declaration requiring human EC
+admission approval before any dispatch. The authorizations below do not cover
+it. It checks only the exact reviewed source SHA on LAPTOP-50KP71KA with the
+same pinned Python 3.12 Windows x64 dependency/environment and receipt checks.
+The existing entry's default verification scope is unchanged; its new internal
+arguments let this entry select a separately declared focused suite and title.
+
+The focused phase covers the new v2/source contracts, composition, diff
+selection and the v1 wave1 catalog (5-minute limit), followed by the entire
+existing pytest suite (20-minute limit). Total budget is 35 minutes, no cache,
+no workload parameters. Source status is checked before and after. No W3 case
+run, benchmark, measurement, nightly, release, runner adoption or re-pin is
+included. Outputs are raw logs, JUnit, result.json and SUMMARY.md, with exact
+source, runtime, wheel hashes, commands and exit/timeout details.
+
+Status: NOT_RUN; prepared for human approval and EC dispatch only.
+
+## Earlier execution-verdict authorizations
+
 Nelson authorized this bounded pool regression in the current Codex conversation
 on 2026-10-01: 「自行選一台空閒的 授權」, responding to the prepared execution-verdict
 patch and its verification plan. EC dispatch is recorded as T-488; this does not

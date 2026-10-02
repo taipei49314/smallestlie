@@ -33,6 +33,7 @@ from smallestlie.sandbox.executor import ExecutionResult
 from smallestlie.verdict.json_input import read_json
 
 PINNED_VERSION = "0.5.0"
+PINNED_SOURCE_REVISION = "24b60a2019a5900291ecb35ab8290f34af2d5438"
 PINNED_SHA256 = "b305bc3f7d35f827190051f7a676ac40e3e86badf9eaed750f22f082fd10b05c"
 ENGINE_FILENAME = "checkwash.pyz"
 

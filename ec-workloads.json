@@ -1,6 +1,14 @@
 {
   "schema_version": 1,
   "workloads": {
+    "m12-schema-v2-verify": {
+      "description": "M12 slice-A schema, twin declarations, pinned residual source/index contracts and existing full-suite regression on LAPTOP-50KP71KA; no W3 attack evaluation, measurement, runner adoption or engine re-pin.",
+      "entry": "workloads/m12_schema_verify/run.py",
+      "profile": "profile-ec-integrity",
+      "timeout_minutes": 35,
+      "cache": false,
+      "parameters": {}
+    },
     "execution-verdict-verify": {
       "description": "Bounded regression of execution-error adjudication and the existing full test suite on LAPTOP-50KP71KA; preserves the repository's published CheckWash pin and fixed-catalog expectations.",
       "entry": "workloads/execution_verdict_verify/run.py",

@@ -20,7 +20,7 @@ a design package does not by itself establish that an evaluation ran.
 | 1 | **TomorrowCI** (verify / evidence authority) | **Retired** — target repositories (`tomorrowci`, `tomorrowci-lab`) deleted 2026-09-26 (estate T-457); no adapter was built. Design kept as history: [tomorrowci.md](./tomorrowci.md) |
 | 2 | **ClaimGate** (claim authorization semantics) | **Design only** — [claimgate.md](./claimgate.md) · *no local tree* |
 | 3 | **Greenwash** (anti-theater / green credibility) | **Historical synthetic SUT; frozen 2026-09-03** — [greenwash.md](./greenwash.md) · [campaign log](./GREENWASH_CAMPAIGN.md) |
-| 3b | **Checkwash** (current published pin v0.4.2) | Current fixed-catalog verification: [M10](./CHECKWASH_M10.md); completed v0.3.3: [M9](./CHECKWASH_M9.md); completed v0.3.2: [M8](./CHECKWASH_M8.md). Historical model-generated M6 partial results against v0.2.12 remain [separate](./CHECKWASH_M6.md). [Pin and history](./checkwash.md). |
+| 3b | **Checkwash** (current published pin v0.5.0) | Current fixed-catalog verification: [M11](./CHECKWASH_M11.md); v0.4.2 pin: [M10](./CHECKWASH_M10.md); completed v0.3.3: [M9](./CHECKWASH_M9.md); completed v0.3.2: [M8](./CHECKWASH_M8.md). Historical model-generated M6 partial results against v0.2.12 remain [separate](./CHECKWASH_M6.md). [Pin and history](./checkwash.md). |
 | 4 | RepoPassport | **Retired** — repository deleted 2026-09-26 (estate T-457); not planned |
 | 5 | TraceCapsule | **Retired** — repository deleted 2026-09-26 (estate T-457); not planned |
 | 6 | Larger evidence systems | Deferred |

@@ -154,3 +154,10 @@ versioned recording and evidence-only revalidation contract. Its new
 reservation-aware `CompletionAuthority` is a separate external boundary;
 these existing `outer-supervisor/v1` providers cannot authenticate that ticket.
 It introduces no accepted production collector or formal launch entry point.
+
+The [reservation-aware offline source subcut](campaign-completion-sources.md)
+implements that separate CompletionAuthority for a single action, with explicit
+external collector/storage/journal admissions, exact prefix/ticket and acyclic
+action publication roles. It calls `read()`, never the v1 `supervisor()` bridge.
+Full multi-command/live source mapping remains unsupported; the new provider
+does not establish real admission, formal launch or W3 effectiveness.

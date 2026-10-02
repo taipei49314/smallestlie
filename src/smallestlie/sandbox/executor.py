@@ -49,6 +49,8 @@ class ExecutionResult:
     stderr: str
     timed_out: bool = False
     env_keys: list[str] = field(default_factory=list)
+    # Harness-owned context; never derived from verifier-controlled output.
+    execution_binding: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -60,6 +62,7 @@ class ExecutionResult:
             "stderr": self.stderr,
             "timed_out": self.timed_out,
             "env_keys": self.env_keys,
+            "execution_binding": self.execution_binding,
         }
 
 

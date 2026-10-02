@@ -374,7 +374,7 @@ def _expectation_met(expect: str, summary: dict[str, Any]) -> bool:
     if expect == "fail_false_accept":
         return status == "FAIL_FALSE_ACCEPT_OBSERVED" and fa > 0
     if expect == "pass_no_false_accept":
-        return status in {"PASS_NO_FALSE_ACCEPT_OBSERVED", "PASS_WITH_WARNINGS"} and fa == 0
+        return status == "PASS_NO_FALSE_ACCEPT_OBSERVED" and fa == 0
     return False
 
 
@@ -406,6 +406,27 @@ def _aggregate_profiles(
                 budget_exceeded=budget_exceeded,
             ).to_dict()
         if not p.get("expectation_met"):
+            # Incomplete execution is a failed confidence gate, not evidence of
+            # a false acceptance. Preserve blocked runs; fail unknown results
+            # as a harness error so this required profile cannot turn CI green.
+            if p.get("projection") in {
+                CiProjection.PASS_WITH_WARNINGS.value,
+                CiProjection.BLOCKED.value,
+                CiProjection.HARNESS_ERROR.value,
+                CiProjection.INVALID_CONFIG.value,
+            }:
+                blocked = p.get("projection") == CiProjection.BLOCKED.value
+                return project_campaign_status(
+                    campaign_status="BLOCKED" if blocked else "HARNESS_ERROR",
+                    exit_code=4 if blocked else 5,
+                    ran=True,
+                    budget_exceeded=budget_exceeded,
+                ).to_dict() | {
+                    "notes": [
+                        f"required profile {p.get('name')} cannot meet its expectation: "
+                        f"{p.get('projection')}"
+                    ]
+                }
             # Distinguish unexpected clean on naive vs unexpected FA on honest
             if p.get("expect") == "fail_false_accept":
                 return project_campaign_status(

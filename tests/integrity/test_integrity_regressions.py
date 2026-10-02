@@ -213,10 +213,11 @@ def test_naive_clean_control_true_accept(tmp_path: Path) -> None:
     ws = DisposableWorkspace.create(target, parent_dir=tmp_path / "ws")
     try:
         spec = adapter.command_allowlist().resolve("run_target_verifier")
-        ex = SandboxExecutor(ws.workspace_path).run(
+        ex = adapter.execute(ws.workspace_path, SandboxExecutor(ws.workspace_path),
             spec, extra_env={"PYTHONPATH": str(ws.workspace_path)}
         )
-        verdict = adapter.parse_verdict(ws.workspace_path, ex)
+        verdict = adapter.read_verdict(ws.workspace_path, ex)
+        assert verdict.execution_error is None
         # Control: require valid-looking discovery (oracle type that can be true)
         oracle = evaluate_oracle(
             ws.workspace_path,

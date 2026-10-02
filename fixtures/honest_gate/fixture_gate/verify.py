@@ -6,11 +6,24 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import sys
 from pathlib import Path
 
 import yaml
+
+
+def _write_report(root: Path, report: dict) -> None:
+    run_id = os.environ.get("SMALLESTLIE_RUN_ID")
+    input_sha256 = os.environ.get("SMALLESTLIE_INPUT_SHA256")
+    if run_id and input_sha256:
+        report["execution_binding"] = {"run_id": run_id, "input_sha256": input_sha256}
+    out = root / "outputs"
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "report.json").write_text(
+        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
 
 def _load_yaml(path: Path) -> dict:
@@ -254,9 +267,7 @@ def main(argv: list[str] | None = None) -> int:
         "execution_trace": "outputs/execution_trace.json",
         "reasons": [],
     }
-    (out / "report.json").write_text(
-        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    _write_report(root, report)
     print("VERIFIED")
     return 0
 
@@ -280,8 +291,6 @@ def _reject(
     }
     out = root / "outputs"
     out.mkdir(parents=True, exist_ok=True)
-    (out / "report.json").write_text(
-        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    _write_report(root, report)
     print("REJECTED: " + ", ".join(reasons))
     return 1

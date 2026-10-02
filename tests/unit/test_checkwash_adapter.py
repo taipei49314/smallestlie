@@ -12,15 +12,18 @@ from smallestlie.adapters.base import EnginePinError, get_adapter
 from smallestlie.adapters.checkwash import (
     CheckwashAdapter,
     CheckwashBlindAdapter,
+    PINNED_VERSION,
     engine_path,
     materialize_baseline,
     materialize_mutant,
     verify_engine_pin,
 )
 from smallestlie.models import TargetVerdict
+from smallestlie.models import ComparisonResult, OracleResult
 from smallestlie.oracle import git_diff
 from smallestlie.oracle.base import evaluate_oracle
 from smallestlie.sandbox.executor import ExecutionResult
+from smallestlie.verdict.compare import compare
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -210,10 +213,12 @@ class TestOracleDispatch:
 class TestParseVerdict:
     PAYLOAD = json.dumps(
         {
-            "checkwash_findings_version": 1,
-            "run": {"base": "HEAD~1", "head": "HEAD", "checkwash_version": "0.2.12"},
+            "checkwash_findings_version": 2,
+            "run": {"base": "HEAD~1", "head": "HEAD", "checkwash_version": PINNED_VERSION},
             "findings": [],
             "summary": {"critical": 0, "high": 0, "warn": 0, "info": 0},
+            "skipped_files": [],
+            "config_errors": [],
             "verdict": "pass",
         },
         indent=2,
@@ -223,7 +228,8 @@ class TestParseVerdict:
         v = CheckwashAdapter().parse_verdict(Path("."), _execution(0, self.PAYLOAD))
         assert v.accepted is True
         assert v.raw_status == "pass"
-        assert v.raw["checkwash_version"] == "0.2.12"
+        assert v.raw["checkwash_version"] == PINNED_VERSION
+        assert v.execution_error is None
 
     def test_exit1_block_is_rejected(self) -> None:
         payload = self.PAYLOAD.replace('"pass"', '"block"')
@@ -238,7 +244,83 @@ class TestParseVerdict:
         assert v.accepted is False
         assert v.raw_status == "engine_error"
         assert v.warnings
+        assert v.execution_error == "unexpected_exit_code:2"
 
     def test_multiline_json_payload_parses(self) -> None:
         v = CheckwashAdapter().parse_verdict(Path("."), _execution(0, self.PAYLOAD))
         assert v.accepted is True
+
+    @pytest.mark.parametrize("exit_code", [0, 1])
+    @pytest.mark.parametrize("output", ["", "{", "[]", "null", "banner\n{}", "{}\n{}",
+                                       '{"verdict":"pass","verdict":"block"}', '{"x":NaN}',
+                                       pytest.param("[" * 2000 + "0" + "]" * 2000, id="deep-nesting")])
+    def test_unusable_json_is_inconclusive(self, exit_code: int, output: str) -> None:
+        v = CheckwashAdapter().read_verdict(Path("."), _execution(exit_code, output))
+        assert v.execution_error == "invalid_findings_json"
+        assert compare(OracleResult(valid=False), v).result == ComparisonResult.INCONCLUSIVE
+
+    @pytest.mark.parametrize("exit_code", [0, 1])
+    @pytest.mark.parametrize("key,value", [
+        ("checkwash_findings_version", 1), ("checkwash_findings_version", True),
+        ("run", []), ("run", {"base": "HEAD~1", "head": "HEAD", "checkwash_version": "dev"}),
+        ("run", {"base": "", "head": "HEAD", "checkwash_version": PINNED_VERSION}),
+        ("findings", {}), ("findings", [{"severity": "high"}]), ("findings", [False]),
+        ("summary", {"critical": False, "high": 0, "warn": 0, "info": 0}),
+        ("summary", {"critical": 0, "high": 1, "warn": 0, "info": 0}),
+        ("skipped_files", "src/app.py"), ("config_errors", [False]), ("verdict", "ok"),
+    ])
+    def test_wrong_contract_is_inconclusive(self, exit_code: int, key: str, value: object) -> None:
+        payload = json.loads(self.PAYLOAD)
+        payload[key] = value
+        v = CheckwashAdapter().read_verdict(Path("."), _execution(exit_code, json.dumps(payload)))
+        assert v.execution_error is not None
+        assert compare(OracleResult(valid=False), v).target_accepted is None
+
+    @pytest.mark.parametrize("key", ["checkwash_findings_version", "run", "findings", "summary",
+                                     "skipped_files", "config_errors", "verdict"])
+    def test_missing_required_field_is_inconclusive(self, key: str) -> None:
+        payload = json.loads(self.PAYLOAD)
+        del payload[key]
+        v = CheckwashAdapter().read_verdict(Path("."), _execution(1, json.dumps(payload)))
+        assert v.execution_error is not None
+
+    def test_findings_and_config_warnings_do_not_recompute_engine_policy(self) -> None:
+        payload = json.loads(self.PAYLOAD)
+        payload["findings"] = [{"rule": "EXAMPLE", "severity": "warn", "message": "warning",
+                                "path": "tests/test_app.py", "unit": None, "fingerprint": "example",
+                                "allowlisted": False}]
+        payload["summary"]["warn"] = 1
+        payload["config_errors"] = ["configuration warning"]
+        v = CheckwashAdapter().read_verdict(Path("."), _execution(0, json.dumps(payload)))
+        assert v.execution_error is None
+        assert v.accepted is True
+        assert "config_errors_present" in v.warnings
+
+    @pytest.mark.parametrize("exit_code,report", [(0, "block"), (1, "pass")])
+    def test_valid_channel_disagreement_is_preserved(self, exit_code: int, report: str) -> None:
+        payload = json.loads(self.PAYLOAD)
+        payload["verdict"] = report
+        v = CheckwashAdapter().read_verdict(Path("."), _execution(exit_code, json.dumps(payload)))
+        assert v.execution_error is None
+        assert v.accepted is (exit_code == 0)
+        assert v.channels["report_accepted"] is (report == "pass")
+        assert v.channels["exit_accepted"] is (exit_code == 0)
+
+    def test_blind_control_has_its_own_contract(self) -> None:
+        payload = json.loads(self.PAYLOAD)
+        payload["checkwash_findings_version"] = 1
+        payload["run"]["checkwash_version"] = "blind-control"
+        output = json.dumps(payload)
+        blind = CheckwashBlindAdapter().read_verdict(Path("."), _execution(0, output))
+        assert blind.execution_error is None
+        assert blind.accepted is True
+        real = CheckwashAdapter().read_verdict(Path("."), _execution(0, output))
+        assert real.execution_error is not None
+
+    @pytest.mark.parametrize("exit_code", [0, 1])
+    def test_prior_release_report_cannot_adjudicate_current_pin(self, exit_code: int) -> None:
+        payload = json.loads(self.PAYLOAD)
+        payload["run"]["checkwash_version"] = "0.4.2"
+        v = CheckwashAdapter().read_verdict(Path("."), _execution(exit_code, json.dumps(payload)))
+        assert v.execution_error == "invalid_findings_run"
+        assert compare(OracleResult(valid=False), v).result == ComparisonResult.INCONCLUSIVE

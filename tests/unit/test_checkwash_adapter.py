@@ -12,6 +12,7 @@ from smallestlie.adapters.base import EnginePinError, get_adapter
 from smallestlie.adapters.checkwash import (
     CheckwashAdapter,
     CheckwashBlindAdapter,
+    PINNED_VERSION,
     engine_path,
     materialize_baseline,
     materialize_mutant,
@@ -213,7 +214,7 @@ class TestParseVerdict:
     PAYLOAD = json.dumps(
         {
             "checkwash_findings_version": 2,
-            "run": {"base": "HEAD~1", "head": "HEAD", "checkwash_version": "0.4.2"},
+            "run": {"base": "HEAD~1", "head": "HEAD", "checkwash_version": PINNED_VERSION},
             "findings": [],
             "summary": {"critical": 0, "high": 0, "warn": 0, "info": 0},
             "skipped_files": [],
@@ -227,7 +228,7 @@ class TestParseVerdict:
         v = CheckwashAdapter().parse_verdict(Path("."), _execution(0, self.PAYLOAD))
         assert v.accepted is True
         assert v.raw_status == "pass"
-        assert v.raw["checkwash_version"] == "0.4.2"
+        assert v.raw["checkwash_version"] == PINNED_VERSION
         assert v.execution_error is None
 
     def test_exit1_block_is_rejected(self) -> None:
@@ -262,7 +263,7 @@ class TestParseVerdict:
     @pytest.mark.parametrize("key,value", [
         ("checkwash_findings_version", 1), ("checkwash_findings_version", True),
         ("run", []), ("run", {"base": "HEAD~1", "head": "HEAD", "checkwash_version": "dev"}),
-        ("run", {"base": "", "head": "HEAD", "checkwash_version": "0.4.2"}),
+        ("run", {"base": "", "head": "HEAD", "checkwash_version": PINNED_VERSION}),
         ("findings", {}), ("findings", [{"severity": "high"}]), ("findings", [False]),
         ("summary", {"critical": False, "high": 0, "warn": 0, "info": 0}),
         ("summary", {"critical": 0, "high": 1, "warn": 0, "info": 0}),
@@ -315,3 +316,11 @@ class TestParseVerdict:
         assert blind.accepted is True
         real = CheckwashAdapter().read_verdict(Path("."), _execution(0, output))
         assert real.execution_error is not None
+
+    @pytest.mark.parametrize("exit_code", [0, 1])
+    def test_prior_release_report_cannot_adjudicate_current_pin(self, exit_code: int) -> None:
+        payload = json.loads(self.PAYLOAD)
+        payload["run"]["checkwash_version"] = "0.4.2"
+        v = CheckwashAdapter().read_verdict(Path("."), _execution(exit_code, json.dumps(payload)))
+        assert v.execution_error == "invalid_findings_run"
+        assert compare(OracleResult(valid=False), v).result == ComparisonResult.INCONCLUSIVE

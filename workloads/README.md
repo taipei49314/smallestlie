@@ -9,6 +9,13 @@ follow-up on the same draft PR and the same bounded pool workflow. The follow-up
 has EC dispatch T-492 and its own exact product SHA; T-488 remains the completed
 first-slice receipt.
 
+On 2026-10-02 Nelson requested 「Checkwash 0.5.0已發佈 pr 要重新測」 after
+master merged re-pin PR #23. PR #22 incorporates that base and is revalidated
+at a new exact SHA. The declaration description now refers to the repository's
+published pin; entry/profile, parameters, no-cache policy and all budgets remain
+unchanged. EC approval metadata must match this new description before dispatch.
+This request applies to this v0.5.0 retest only, not future pins or executions.
+
 `execution-verdict-verify` runs on LAPTOP-50KP71KA only, because the existing full
 suite includes isolation/boundary regressions. The entry checks its actual host,
 EC workload identity and exact source SHA before execution. It uses the pinned

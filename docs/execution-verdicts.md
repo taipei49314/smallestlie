@@ -1,7 +1,8 @@
 # Execution validity before verdict comparison
 
 This draft changes how SmallestLie adjudicates incomplete executions.
-It does not change the vendored CheckWash engine or its published v0.4.2 pin.
+The engine pin follows the separately authorized published release on master.
+PR #23 advanced it to CheckWash v0.5.0; PR #22 incorporates that merged base.
 
 ## Contract
 
@@ -36,7 +37,8 @@ events, verdict channels and replay details. Clearing output never changes the
 source fixture or unrelated output artifacts.
 
 Real CheckWash output must be exactly one unambiguous JSON object with findings
-schema 2, run version `0.4.2`, nonempty base/head, a typed findings list, severity
+schema 2, run version matching `PINNED_VERSION` (currently `0.5.0`), nonempty
+base/head, a typed findings list, severity
 counts matching that list, string-list skipped files/config errors, and a
 `pass`/`block` verdict. Empty/malformed output, missing or mistyped fields,
 duplicate keys, nonstandard constants and banner salvage are inconclusive.
@@ -67,6 +69,23 @@ The frozen greenwash adapter retains its output-parser contract. Historical
 campaign records and expected known false acceptances are not rewritten.
 
 ## Validation status
+
+### CheckWash v0.5.0 revalidation (2026-10-02)
+
+Nelson requested: 「Checkwash 0.5.0已發佈 pr 要重新測」. Master PR #23 had
+already merged the separately authorized published v0.5.0 artifact and pin.
+PR #22 incorporates master and updates parser regression payloads to the
+current pin, with an explicit regression refusing a prior v0.4.2 report.
+The artifact SHA matches the published release digest
+`b305bc3f7d35f827190051f7a676ac40e3e86badf9eaed750f22f082fd10b05c`;
+read-only archive inspection confirms findings schema 2 is unchanged.
+
+This exact updated PR has not yet been tested. The bounded workload description
+now refers to the repository's published pin, keeping its entry/profile,
+parameters, no-cache policy and 35-minute budget unchanged. Its approval metadata
+must be refreshed before dispatch. This human request authorizes this v0.5.0
+retest; it grants no standing authority to advance future pins or run workloads.
+All v0.4.2 results below remain dated evidence, not passes for v0.5.0.
 
 ### Output validity / execution binding follow-up
 

@@ -83,10 +83,11 @@ def verify_ledger(path: str | Path, *, required_protocol: str | None = None,
         "head_digest": prev if entries else None,
     }
     from smallestlie.ledger.protocol import M12_EVENTS, PROTOCOL, verify_m12_protocol
+    from smallestlie.ledger.lifecycle import EVENTS as LIFECYCLE_EVENTS, PROTOCOL as LIFECYCLE_PROTOCOL, verify_lifecycle_protocol
     markers = [entry.get("payload", {}).get("protocol") for entry in entries
                if entry.get("event_type") == "campaign_created" and isinstance(entry.get("payload"), dict)
                and "protocol" in entry["payload"]]
-    new_events = any(entry.get("event_type") in M12_EVENTS for entry in entries)
+    new_events = any(entry.get("event_type") in M12_EVENTS | LIFECYCLE_EVENTS for entry in entries)
     if markers or new_events or required_protocol is not None or expected_lock is not None:
         from smallestlie.verdict.json_input import read_json
         try:
@@ -95,9 +96,11 @@ def verify_ledger(path: str | Path, *, required_protocol: str | None = None,
         except ValueError as exc:
             return {**chain_result, "ok": False, "chain_ok": True, "protocol_ok": False,
                     "complete": False, "error": f"ambiguous formal ledger JSON: {exc}"}
-        if markers != [PROTOCOL] or required_protocol not in (None, PROTOCOL):
+        if (len(markers) != 1 or markers[0] not in (PROTOCOL, LIFECYCLE_PROTOCOL)
+                or required_protocol not in (None, markers[0])):
             return {**chain_result, "ok": False, "chain_ok": True, "protocol_ok": False,
                     "complete": False, "error": "missing/unknown formal protocol marker"}
-        protocol_result = verify_m12_protocol(entries, expected_lock=expected_lock)
+        protocol_result = (verify_lifecycle_protocol(entries, expected_lock=expected_lock)
+                           if markers[0] == LIFECYCLE_PROTOCOL else verify_m12_protocol(entries, expected_lock=expected_lock))
         return {**chain_result, **protocol_result, "chain_ok": True, "protocol_ok": protocol_result["ok"]}
     return chain_result

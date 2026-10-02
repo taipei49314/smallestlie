@@ -148,3 +148,9 @@ Remaining D: implement/adopt the trustworthy outer collector and actual policy
 resolver; version formal ledger reservations/evidence/review/adjudication
 bindings; formal campaign entry; reports and evidence-only replay with renewed
 source authority; actual Phase 1/2 and separately authorized W3 execution.
+
+The subsequent [formal lifecycle subcut](campaign-lifecycle.md) supplies the
+versioned recording and evidence-only revalidation contract. Its new
+reservation-aware `CompletionAuthority` is a separate external boundary;
+these existing `outer-supervisor/v1` providers cannot authenticate that ticket.
+It introduces no accepted production collector or formal launch entry point.

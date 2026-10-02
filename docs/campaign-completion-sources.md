@@ -96,6 +96,11 @@ retains unsupported/unknown and makes no full paired-run, headline, real
 collector adoption or W3 claim. No alias, ancestor inference, retrospective
 ticket filling or weakened provenance guard hides that limitation.
 
+The separate [offline source map](campaign-source-map.md) now checks distinct
+action receipts, one original locked anchor, a final raw archive and external
+mapping evidence. Its mapped carriers preserve per-command refs and complete
+slots; they are not legacy envelopes and do not activate `FormalLifecycle`.
+
 ## Validation
 
 Synthetic contracts cover positive own-action materialization/runner/verifier

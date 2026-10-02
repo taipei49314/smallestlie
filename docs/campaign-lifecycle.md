@@ -50,6 +50,10 @@ command, output completion and termination of descendant writers. Hashing an
 input document or copying expected values cannot establish those facts.
 
 Existing `outer-supervisor/v1` providers do not implement this new authority.
+The [offline reservation-aware source provider](campaign-completion-sources.md)
+checks independently admitted single-action sources. Its explicit publication
+roles avoid wrapper/hash cycles; it does not adopt a collector or implement a
+full cross-action/live source model. Existing provenance guards remain.
 Their sequence numbers cannot be retrofitted into reservation entry digests.
 Runner/verifier envelopes are eligible only after their own new completions
 and raw output bindings validate. Runner eligibility is per arm: a proven

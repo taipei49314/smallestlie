@@ -9,7 +9,8 @@ from typing import Any
 from smallestlie.ledger.chain import payload_digest
 
 
-def verify_ledger(path: str | Path) -> dict[str, Any]:
+def verify_ledger(path: str | Path, *, required_protocol: str | None = None,
+                  expected_lock: dict | None = None) -> dict[str, Any]:
     p = Path(path)
     if not p.is_file():
         return {
@@ -19,6 +20,7 @@ def verify_ledger(path: str | Path) -> dict[str, Any]:
         }
 
     entries: list[dict[str, Any]] = []
+    raw_lines: list[str] = []
     with p.open("r", encoding="utf-8") as fh:
         for lineno, line in enumerate(fh, start=1):
             line = line.strip()
@@ -26,6 +28,7 @@ def verify_ledger(path: str | Path) -> dict[str, Any]:
                 continue
             try:
                 entries.append(json.loads(line))
+                raw_lines.append(line)
             except json.JSONDecodeError as exc:
                 return {
                     "ok": False,
@@ -73,9 +76,28 @@ def verify_ledger(path: str | Path) -> dict[str, Any]:
             }
         prev = entry["entry_digest"]
 
-    return {
+    chain_result = {
         "ok": True,
         "error": None,
         "entries_checked": len(entries),
         "head_digest": prev if entries else None,
     }
+    from smallestlie.ledger.protocol import M12_EVENTS, PROTOCOL, verify_m12_protocol
+    markers = [entry.get("payload", {}).get("protocol") for entry in entries
+               if entry.get("event_type") == "campaign_created" and isinstance(entry.get("payload"), dict)
+               and "protocol" in entry["payload"]]
+    new_events = any(entry.get("event_type") in M12_EVENTS for entry in entries)
+    if markers or new_events or required_protocol is not None or expected_lock is not None:
+        from smallestlie.verdict.json_input import read_json
+        try:
+            for line in raw_lines:
+                read_json(line)
+        except ValueError as exc:
+            return {**chain_result, "ok": False, "chain_ok": True, "protocol_ok": False,
+                    "complete": False, "error": f"ambiguous formal ledger JSON: {exc}"}
+        if markers != [PROTOCOL] or required_protocol not in (None, PROTOCOL):
+            return {**chain_result, "ok": False, "chain_ok": True, "protocol_ok": False,
+                    "complete": False, "error": "missing/unknown formal protocol marker"}
+        protocol_result = verify_m12_protocol(entries, expected_lock=expected_lock)
+        return {**chain_result, **protocol_result, "chain_ok": True, "protocol_ok": protocol_result["ok"]}
+    return chain_result

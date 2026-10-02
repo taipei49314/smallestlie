@@ -1,7 +1,7 @@
 # Adapter design & M0 plan: Checkwash (the real engine)
 
 **Document type:** Real-repository adapter — **brand-new M0 plan (executed)**
-**Status:** `M11_PINNED_CAMPAIGN_PENDING` — M0–M2 recorded against v0.2.8; M3 re-pinned to v0.2.9; M4 to v0.2.11; M5 to v0.2.12. Later pins: v0.2.13 (maintenance pin, no campaign); M6 v0.3.0 and M7 v0.3.1 (release-pin reruns not executed); M8 v0.3.2 (executed); M9 v0.3.3 (executed); M10 v0.4.2 (campaign run not recorded); M11 **v0.5.0** (current pin, campaign pending). Logs: wave0 / [M1](CHECKWASH_M1.md) / [M2](CHECKWASH_M2.md) / [M3](CHECKWASH_M3.md) / [M4](CHECKWASH_M4.md) / [M5](CHECKWASH_M5.md) / [M6](CHECKWASH_M6.md) (also the v0.2.12 model-arm brief) / [M7](CHECKWASH_M7.md) / [M8](CHECKWASH_M8.md) / [M9](CHECKWASH_M9.md) / [M10](CHECKWASH_M10.md).
+**Status:** `M11_FIXED_CATALOG_RECORDED` — M0–M2 recorded against v0.2.8; M3 re-pinned to v0.2.9; M4 to v0.2.11; M5 to v0.2.12. Later pins: v0.2.13 (maintenance pin, no campaign); M6 v0.3.0 and M7 v0.3.1 (release-pin reruns not executed); M8 v0.3.2 (executed); M9 v0.3.3 (executed); M10 v0.4.2 (campaign run not recorded); M11 **v0.5.0** (current pin, fixed-catalog regressions recorded 2026-10-02). Logs: wave0 / [M1](CHECKWASH_M1.md) / [M2](CHECKWASH_M2.md) / [M3](CHECKWASH_M3.md) / [M4](CHECKWASH_M4.md) / [M5](CHECKWASH_M5.md) / [M6](CHECKWASH_M6.md) (also the v0.2.12 model-arm brief) / [M7](CHECKWASH_M7.md) / [M8](CHECKWASH_M8.md) / [M9](CHECKWASH_M9.md) / [M10](CHECKWASH_M10.md) / [M11](CHECKWASH_M11.md).
 **Adapter id:** `checkwash`
 **Plan version:** 0.1.0
 **Target repo:** `taipei49314/checkwash` (owned, local observation; never mutated by this line)
@@ -11,9 +11,11 @@
 **Campaign coordination:** estate-consolidation LEDGER T-11..T-16 (M0–M2) + **T-18** (M3 re-pin) + **T-47** (M4 re-pin) + **T-55** (M5 re-pin) + **T-199** (M6 re-pin) + **T-208** (M7 re-pin) + **T-218** (M8 re-pin) + **T-229** (M9 re-pin); M10 re-pin: one-time named human grant, 2026-09-29; M11 re-pin: one-time human grant, 2026-10-01 (neither is an estate task; EC POLICY `independent-repos`, T-451)
 **Supersedes:** [`greenwash.md`](greenwash.md) **for the real-engine line only.** The synthetic-SUT campaigns it records remain valid history.
 
-**Current pin maintenance (2026-10-01):** v0.5.0 is vendored from the
+**Current pin maintenance (2026-10-02):** v0.5.0 is vendored from the
 published asset under a one-time human grant recorded in
-[M11](CHECKWASH_M11.md), which carries its own campaign status. The v0.4.2
+[M11](CHECKWASH_M11.md). Its fixed-catalog assertions passed in re-pin CI
+and the later PR #22 pool retest; M11 records their exact sources and scope.
+The v0.4.2
 pin is recorded in [M10](CHECKWASH_M10.md). The v0.3.3
 [M9 campaign](CHECKWASH_M9.md) and the v0.3.2 [M8 campaign](CHECKWASH_M8.md)
 remain completed evidence for their old pins. Historical model-generated M6
@@ -497,3 +499,9 @@ annotated tag `v0.5.0`, source
 The previous pin v0.4.2 is recorded in M10.
 [M11](CHECKWASH_M11.md) carries this pin's verification status and does not
 relabel M10 or earlier records.
+
+On 2026-10-02, re-pin CI recorded 103 passing tests at `7cb3b4b`; the
+subsequent PR #22 pool retest recorded 138 focused / 220 full at `9cf9432`
+(focused is a subset). Both suites kept the fixed-catalog/blind-control
+expectations unchanged, including the known `CW-W1-2HOP` false acceptance.
+The detailed record and execution-validity closeout are linked from M11.

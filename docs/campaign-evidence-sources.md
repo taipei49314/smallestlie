@@ -127,6 +127,18 @@ compile/lint/typecheck/build/install are not run on this work machine. A new
 exact-source pool grant is required; prior one-dispatch grants are consumed.
 The accepted `m12-adjudication-verify` declaration/payload/uv.lock is unchanged.
 
+The first authorized pool run at source
+`4fa85aa96100793c9d2c9d1e2912adff5f3ea54d` was
+`36988167830/1`, immutable receipt
+`10b7dd868ba5e852d0e3187d2ba6ed882283ecca`. Native focused XML has
+222 tests with no failures/errors/skips; full XML has 616 tests, two failures,
+no errors/skips. Both failing assertions expected `ProvenanceError`, while the
+shared strict integer guard correctly rejected bool values with its parent
+`PreregistrationError`. The assertions now check that error and its field-specific
+message; production validation and fail-closed behavior are unchanged. The failed
+run remains recorded. This correction has not been executed locally or in the
+pool; a new exact-source one-dispatch grant is required before merge.
+
 Remaining D: implement/adopt the trustworthy outer collector and actual policy
 resolver; version formal ledger reservations/evidence/review/adjudication
 bindings; formal campaign entry; reports and evidence-only replay with renewed

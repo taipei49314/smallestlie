@@ -15,7 +15,9 @@ from smallestlie.campaign.evidence_sources import (
     EcExecutionAuthority, EcPublicationGrant, EcReceiptStore, EcReceiptTrustRoot,
     EcVerifierAuthority, ProvenanceError,
 )
-from smallestlie.campaign.preregistration import canonical_digest, case_binding, digest
+from smallestlie.campaign.preregistration import (
+    PreregistrationError, canonical_digest, case_binding, digest,
+)
 from smallestlie.oracle.runner_evidence import assess_effectiveness, validate_runner_receipt
 
 
@@ -235,7 +237,10 @@ def test_complete_raw_manifest_is_required(ctx, damage):
     grant = replace(ctx["root"].publications[0], publication_sha256=digest(ctx["files"]["ec-publication.json"]))
     root = replace(ctx["root"], publications=(grant,))
     ctx["api"].install(root.repository, grant.receipt_commit, ctx["files"])
-    with pytest.raises(ProvenanceError): EcReceiptStore(root, transport=ctx["api"]).read(ctx["plan"])
+    error = PreregistrationError if damage == "bool_size" else ProvenanceError
+    message = "published byte count requires an integer" if damage == "bool_size" else None
+    with pytest.raises(error, match=message):
+        EcReceiptStore(root, transport=ctx["api"]).read(ctx["plan"])
 
 
 @pytest.mark.parametrize("damage", ["truncated", "symlink", "submodule", "alias", "bytes", "pin", "limit"])
@@ -319,7 +324,8 @@ def test_duplicate_grants_and_implicit_roots_rejected(ctx):
     with pytest.raises(ProvenanceError): replace(ctx["root"], publications=())
     with pytest.raises(ProvenanceError): replace(ctx["root"], publications=ctx["root"].publications * 2)
     with pytest.raises(ProvenanceError): replace(ctx["root"], verifier_semantic_env=(("Path", "x"), ("PATH", "y")))
-    with pytest.raises(ProvenanceError): replace(ctx["root"].publications[0], job_id=True)
+    with pytest.raises(PreregistrationError, match="job_id requires an integer"):
+        replace(ctx["root"].publications[0], job_id=True)
     with pytest.raises(ProvenanceError): replace(ctx["root"].publications[0], supervisor_acceptance_ref=None)
     with pytest.raises(ProvenanceError): replace(ctx["root"], product_repository=ctx["root"].repository)
 

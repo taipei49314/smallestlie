@@ -11,6 +11,7 @@ from m12_helpers import capture, encoded, native_report, prepared
 from test_adjudication import finding, verifier_capture
 from test_governance_provenance import Api
 from smallestlie.adjudication.observations import validate_verifier_observation
+from smallestlie.attacks.adjudication import DeclarationError
 from smallestlie.campaign.evidence_sources import (
     EcExecutionAuthority, EcPublicationGrant, EcReceiptStore, EcReceiptTrustRoot,
     EcVerifierAuthority, ProvenanceError,
@@ -326,7 +327,8 @@ def test_duplicate_grants_and_implicit_roots_rejected(ctx):
     with pytest.raises(ProvenanceError): replace(ctx["root"], verifier_semantic_env=(("Path", "x"), ("PATH", "y")))
     with pytest.raises(PreregistrationError, match="job_id requires an integer"):
         replace(ctx["root"].publications[0], job_id=True)
-    with pytest.raises(ProvenanceError): replace(ctx["root"].publications[0], supervisor_acceptance_ref=None)
+    with pytest.raises(DeclarationError, match="independent outer collector acceptance must be a nonempty string"):
+        replace(ctx["root"].publications[0], supervisor_acceptance_ref=None)
     with pytest.raises(ProvenanceError): replace(ctx["root"], product_repository=ctx["root"].repository)
 
 

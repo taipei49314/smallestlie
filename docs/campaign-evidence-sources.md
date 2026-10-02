@@ -136,7 +136,12 @@ no errors/skips. Both failing assertions expected `ProvenanceError`, while the
 shared strict integer guard correctly rejected bool values with its parent
 `PreregistrationError`. The assertions now check that error and its field-specific
 message; production validation and fail-closed behavior are unchanged. The failed
-run remains recorded. This correction has not been executed locally or in the
+run remains recorded. Read-only follow-up also checks the later assertion that
+was not reached after the bool job-ID failure: a missing supervisor acceptance
+reference is rejected by the shared nonempty-string guard with `DeclarationError`,
+so that assertion now checks this type and its field-specific message. This is
+an additional static diagnosis, not a third observed pool failure. These
+corrections have not been executed locally or in the
 pool; a new exact-source one-dispatch grant is required before merge.
 
 Remaining D: implement/adopt the trustworthy outer collector and actual policy

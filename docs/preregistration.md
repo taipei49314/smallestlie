@@ -84,3 +84,8 @@ still belong to later adjudication.
 Validation: adversarial unit tests are prepared for pool execution. NOT_RUN:
 work-machine rule (`POLICY work-machine-local`); no local product/test execution,
 collection, compilation, lint or installation.
+
+The independent [formal lifecycle recording contract](campaign-lifecycle.md)
+adds an explicit `smallestlie.m12/v2` wrapper around this unchanged v1 lock.
+It records per-arm reservation/completion, observation sealing and full
+review/adjudication artifacts without activating a production launch driver.

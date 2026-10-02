@@ -78,7 +78,8 @@ class EffectivenessAssessment:
     twin_reasons: tuple[str, ...]
 
 
-def _junit(data: bytes, predicate: dict) -> tuple[tuple[str, str, str | None], ...]:
+def _junit(data: bytes, predicate: dict, *, require_assertion_type: bool = False
+           ) -> tuple[tuple[str, str, str | None], ...]:
     if len(data) > 10_000_000 or b"<!DOCTYPE" in data.upper() or b"<!ENTITY" in data.upper():
         raise PreregistrationError("unsafe or oversized JUnit")
     root = ET.fromstring(data)
@@ -101,7 +102,8 @@ def _junit(data: bytes, predicate: dict) -> tuple[tuple[str, str, str | None], .
             state = {"failure": "failed", "error": "error", "skipped": "skipped"}[node.tag]
             matched = (predicate["message_contains"] in node.get("message", "")
                        and predicate["text_contains"] in (node.text or ""))
-            assertion = node.tag == "failure" and matched and node.get("type") in {None, "AssertionError"}
+            assertion_types = {"AssertionError"} if require_assertion_type else {None, "AssertionError"}
+            assertion = node.tag == "failure" and matched and node.get("type") in assertion_types
             failure_kind = "assertion" if assertion else (
                 "exception:" + (node.get("type") or "unspecified") if node.tag in {"failure", "error"} else None)
         result.append((test_id, state, failure_kind))
@@ -222,7 +224,11 @@ def _arm(role: str, record: dict, expected: dict, profile: dict,
             if type(data) is not bytes or digest(data) != ref["sha256"]:
                 raise PreregistrationError(f"missing/mismatched {key} bytes")
             payloads[key] = data
-        tests = _junit(payloads["report"], profile["assertion_failure"]) if profile["report_format"] == "junit" else _mocha(payloads["report"], profile["assertion_failure"])
+        if profile["report_format"] in {"junit", "vitest-junit"}:
+            tests = _junit(payloads["report"], profile["assertion_failure"],
+                           require_assertion_type=profile["report_format"] == "vitest-junit")
+        else:
+            tests = _mocha(payloads["report"], profile["assertion_failure"])
         if code == 0 and any(state in {"failed", "error"} for _, state, _ in tests):
             raise PreregistrationError("green exit contradicts native test results")
         return ArmEvidence(role, True, (), kind, code, tests)

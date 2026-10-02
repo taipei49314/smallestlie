@@ -184,7 +184,7 @@ def validate_profile(data: bytes) -> dict:
     choice(raw["schema_version"], "profile.schema_version", {"smallestlie.runner-profile/v1"})
     for key in ("profile_id", "baseline_assertion"):
         string(raw[key], key)
-    choice(raw["report_format"], "report_format", {"junit", "mocha-json"})
+    choice(raw["report_format"], "report_format", {"junit", "mocha-json", "vitest-junit"})
     if not isinstance(raw["assertion_exit_codes"], list) or not raw["assertion_exit_codes"]:
         raise PreregistrationError("assertion exit codes are required")
     codes = [integer(code, "assertion exit code", minimum=1) for code in raw["assertion_exit_codes"]]
@@ -197,10 +197,13 @@ def validate_profile(data: bytes) -> dict:
         string(item["name"], key)
         string(item["version"], key)
         sha256(item["artifact_sha256"], key)
-    if (raw["runner"]["name"], raw["report_format"]) not in {("pytest", "junit"), ("mocha", "mocha-json")}:
+    if (raw["runner"]["name"], raw["report_format"]) not in {
+            ("pytest", "junit"), ("mocha", "mocha-json"), ("vitest", "vitest-junit")}:
         raise PreregistrationError("unsupported runner/report contract")
+    if raw["report_format"] == "vitest-junit" and raw["runner"]["version"] != "3.2.7":
+        raise PreregistrationError("Vitest external JUnit contract supports only 3.2.7")
     predicate = raw["assertion_failure"]
-    if raw["report_format"] == "junit":
+    if raw["report_format"] in {"junit", "vitest-junit"}:
         mapping(predicate, "assertion failure", {"message_contains", "text_contains"})
         string(predicate["message_contains"], "assertion message predicate")
         string(predicate["text_contains"], "assertion trace predicate")

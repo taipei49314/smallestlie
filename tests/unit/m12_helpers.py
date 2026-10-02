@@ -15,6 +15,7 @@ from smallestlie.oracle.runner_evidence import TrustedExecutionEnvelope
 ROOT = Path(__file__).resolve().parents[2]
 INDEX = "catalogs/residual-rows-checkwash-v0.5.0.json"
 TARGET = "tests.test_billing::test_total"
+VITEST_TARGET = "tests/billing.test.js::billing > total includes tax"
 
 
 def encoded(value):
@@ -50,10 +51,12 @@ def design(root, *, twin=False, report_format="junit", change=None):
         asset_bytes[source.relative_to(ROOT).as_posix()] = source.read_bytes()
     asset_bytes["contracts/collector.py"] = b"# synthetic collector asset, never executed\n"
     asset_bytes["locks/runner.lock"] = b"synthetic pinned dependencies\n"
+    target = VITEST_TARGET if report_format == "vitest-junit" else TARGET
+    runner = {"junit": "pytest", "mocha-json": "mocha", "vitest-junit": "vitest"}[report_format]
     profile = {"schema_version": "smallestlie.runner-profile/v1", "profile_id": "contract-profile",
-        "baseline_assertion": TARGET, "report_format": report_format, "assertion_exit_codes": [1],
-        "assertion_failure": {"message_contains": "assert 75 == 78.75", "text_contains": "E       assert 75 == 78.75"} if report_format == "junit" else {"message_contains": "Expected 78.75"},
-        "runner": {"name": "pytest" if report_format == "junit" else "mocha", "version": "synthetic", "artifact_sha256": "1" * 64},
+        "baseline_assertion": target, "report_format": report_format, "assertion_exit_codes": [1],
+        "assertion_failure": {"message_contains": "assert 75 == 78.75", "text_contains": "E       assert 75 == 78.75"} if report_format in {"junit", "vitest-junit"} else {"message_contains": "Expected 78.75"},
+        "runner": {"name": runner, "version": "3.2.7" if report_format == "vitest-junit" else "synthetic", "artifact_sha256": "1" * 64},
         "runtime": {"name": "synthetic-runtime", "version": "test", "artifact_sha256": "2" * 64},
         "dependencies": {"lock_path": "locks/runner.lock", "installed_sha256": "3" * 64},
         "collector_path": "contracts/collector.py", "collector_sha256": digest(asset_bytes["contracts/collector.py"]),
@@ -79,7 +82,7 @@ def design(root, *, twin=False, report_format="junit", change=None):
                 "residual_mapping": {"status": "unresolved", "row_refs": [], "rationale": "Synthetic contract."},
                 "twin": {"case_id": "C", "role": "detectable_attack_control", "contrast": "Synthetic near shape",
                          "detection": {"rule_ids": ["TEST_DISABLED"], "paths": ["tests/test_billing.py"]}} if cid == "D" else None},
-            "runner_protocol": {"profile_id": profile["profile_id"], "profile_sha256": profile_sha, "baseline_assertion": TARGET}}
+            "runner_protocol": {"profile_id": profile["profile_id"], "profile_sha256": profile_sha, "baseline_assertion": target}}
         spec_path = f"attacks/{cid}.json.yaml"
         asset_bytes[spec_path] = encoded(spec)
         variants = {}
@@ -130,9 +133,13 @@ def native_report(state, report_format):
         return encoded({"stats": {"tests": 1, "passes": len(passes), "failures": len(failures), "pending": len(pending)},
                         "tests": [record], "passes": passes, "failures": failures, "pending": pending})
     suite = ET.Element("testsuite", tests="1", failures="1" if state in {"red", "typeerror"} else "0", errors="0", skipped="1" if state == "skip" else "0")
-    case = ET.SubElement(suite, "testcase", classname="tests.test_billing", name="test_total")
+    case = ET.SubElement(suite, "testcase",
+        classname="tests/billing.test.js" if report_format == "vitest-junit" else "tests.test_billing",
+        name="billing > total includes tax" if report_format == "vitest-junit" else "test_total")
     if state == "red":
         failure = ET.SubElement(case, "failure", message="assert 75 == 78.75")
+        if report_format == "vitest-junit":
+            failure.set("type", "AssertionError")
         failure.text = "E       assert 75 == 78.75"
     elif state == "typeerror":
         ET.SubElement(case, "failure", type="TypeError", message="not callable").text = "TypeError"

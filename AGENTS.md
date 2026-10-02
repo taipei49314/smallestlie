@@ -22,3 +22,30 @@
 - Frozen: the greenwash adapter line (`adapter greenwash`, `greenwash-wave-a`)
   is superseded by the real-engine line. No further work on it.
 - Public repository: open a PR, do not merge it. The human merges.
+
+## M12 second-wave campaign protocol
+
+- Follow the authorized published pin's diff, enumerate its repaired surfaces,
+  and read the pinned repair source before designing nearby shapes. Do not
+  change the pin as part of a campaign or reuse a consumed re-pin grant.
+- Freeze cases, hypotheses, preregistered class and declared twins in a
+  results-free Phase-1 PR before formal execution. A detectable twin retains
+  the same bug and effective cheating, with a nearby shape the engine catches;
+  an honest or repaired test is a separate control. Declare the relevant
+  blocking rule/path and contrast before running.
+- Formal Phase 1 requires the independent exact human approval/merge registry.
+  Permission for an agent to merge framework PRs does not establish that fact
+  or authorize formal runner execution. Preserve the actual actor/provenance.
+- Phase 2 binds the exact approved Phase-1 commit, request/source, complete
+  frozen catalog, pin and residual-source bytes, and durable lock before any
+  launch. Use the separately authorized execution host and bounded workload;
+  verify immutable raw observations and independent supervisor/review sources.
+- Adjudicate the complete frozen denominator in two passes. Preserve genuine
+  DEF refutations in the kill table, incomplete evidence as unknown, residual
+  reconciliation and relevant detectable twins. Count only qualified paired
+  cases as the headline; never silently drop unsupported or missing cases.
+- Record the M-record and Phase-2 artifacts with raw digests, actual runtime,
+  source/dispatch, lock order and honest limitations. Historical local rt4
+  results may inform design; do not relabel them as formal preregistration or
+  invent missing logs. Formal replay reacquires independent source authority;
+  a witness bundle cannot authorize itself, and rerunning needs a new request.

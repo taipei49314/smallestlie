@@ -46,6 +46,23 @@ def _path(value: str) -> str:
     return value
 
 
+def decode_git_blob(blob: dict, object_id: str) -> bytes:
+    """Validate original Git blob bytes for both governance and receipt reads."""
+    commit(object_id, "immutable blob")
+    if (not isinstance(blob, dict) or blob.get("sha") != object_id or blob.get("encoding") != "base64"
+            or type(blob.get("size")) is not int or not 0 <= blob["size"] <= MAX_BYTES
+            or not isinstance(blob.get("content"), str) or len(blob["content"]) > 2 * MAX_BYTES):
+        raise ProvenanceError("invalid Git blob response")
+    try:
+        data = base64.b64decode(blob["content"].replace("\n", ""), validate=True)
+    except ValueError as exc:
+        raise ProvenanceError("invalid Git blob encoding") from exc
+    actual = hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\0" + data).hexdigest()
+    if len(data) != blob["size"] or actual != object_id:
+        raise ProvenanceError("raw Git blob size or object digest mismatch")
+    return data
+
+
 @dataclass(frozen=True)
 class RepositoryTrust:
     full_name: str
@@ -90,6 +107,7 @@ class GovernanceTrustRoot:
     product: RepositoryTrust
     requests: RepositoryTrust
     human_approvals: tuple[HumanMergeApproval, ...]
+    reviews: RepositoryTrust | None = None
 
     def __post_init__(self) -> None:
         if not all(isinstance(root, RepositoryTrust) for root in (self.product, self.requests)):
@@ -97,6 +115,10 @@ class GovernanceTrustRoot:
         if (self.product.full_name == self.requests.full_name
                 or self.product.repository_id == self.requests.repository_id):
             raise ProvenanceError("request governance must be independent of product inputs")
+        if self.reviews is not None and (not isinstance(self.reviews, RepositoryTrust)
+                or self.reviews.full_name == self.product.full_name
+                or self.reviews.repository_id == self.product.repository_id):
+            raise ProvenanceError("review governance must be independent of product inputs")
         if (type(self.human_approvals) is not tuple or not self.human_approvals
                 or any(not isinstance(item, HumanMergeApproval) for item in self.human_approvals)):
             raise ProvenanceError("independent exact human approvals required")
@@ -104,9 +126,9 @@ class GovernanceTrustRoot:
         if len(set(identities)) != len(identities):
             raise ProvenanceError("ambiguous human approval registry")
         for item in self.human_approvals:
-            trust = next((root for root in (self.product, self.requests)
-                          if root.repository_id == item.repository_id), None)
-            if trust is None or item.merger_id not in trust.merger_ids:
+            roles = [self.product, self.requests] + ([self.reviews] if self.reviews is not None else [])
+            if not any(root.repository_id == item.repository_id and item.merger_id in root.merger_ids
+                       for root in roles):
                 raise ProvenanceError("human approval outside repository/account trust roots")
 
 
@@ -178,6 +200,15 @@ class GitHubTransport:
         commit(object_id, "immutable blob")
         return self._get(f"repos/{_repository(repository)}/git/blobs/{object_id}")
 
+    def workflow_run(self, repository: str, run_id: int, attempt: int) -> dict:
+        integer(run_id, "workflow run ID", minimum=1)
+        integer(attempt, "workflow attempt", minimum=1)
+        return self._get(f"repos/{_repository(repository)}/actions/runs/{run_id}/attempts/{attempt}")
+
+    def workflow_job(self, repository: str, job_id: int) -> dict:
+        integer(job_id, "numeric workflow job ID", minimum=1)
+        return self._get(f"repos/{_repository(repository)}/actions/jobs/{job_id}")
+
 
 @dataclass(frozen=True)
 class GovernanceReference:
@@ -213,39 +244,16 @@ class VerifiedGovernanceBlob:
         return digest(self.data)
 
 
-class GitHubGovernanceStore:
-    def __init__(self, root: GovernanceTrustRoot, *, transport: GovernanceTransport | None = None):
-        if not isinstance(root, GovernanceTrustRoot):
-            raise ProvenanceError("governance trust root is not configured")
-        self.root = root
+class GitHubObjectReader:
+    """Immutable raw blob reader. Reading bytes conveys no approval or authority."""
+
+    def __init__(self, *, transport: GovernanceTransport | None = None):
         self.transport = transport if transport is not None else GitHubTransport()
 
-    def _merged(self, ref: GovernanceReference, trust: RepositoryTrust) -> tuple[str, int, str]:
-        if ref.repository != trust.full_name:
-            raise ProvenanceError("wrong approval repository or role")
-        pr = self.transport.pull_request(ref.repository, ref.pull_request)
-        if not isinstance(pr, dict):
-            raise ProvenanceError("invalid GitHub PR response")
-        base, actor = pr.get("base"), pr.get("merged_by")
-        repo = base.get("repo") if isinstance(base, dict) else None
-        if (type(pr.get("number")) is not int or pr["number"] != ref.pull_request
-                or pr.get("merged") is not True or pr.get("state") != "closed"
-                or not isinstance(pr.get("merged_at"), str) or not pr["merged_at"]
-                or not isinstance(repo, dict) or type(repo.get("id")) is not int
-                or repo["id"] != trust.repository_id or repo.get("full_name") != trust.full_name
-                or base.get("ref") != trust.base_branch
-                or not isinstance(actor, dict) or actor.get("type") != "User"
-                or type(actor.get("id")) is not int or actor["id"] not in trust.merger_ids):
-            raise ProvenanceError("PR is not an approved human merge at the trusted destination")
-        revision = commit(pr.get("merge_commit_sha"), "PR merge commit")
-        approval = next((item for item in self.root.human_approvals
-                         if item.repository_id == trust.repository_id
-                         and item.pull_request == ref.pull_request), None)
-        if (approval is None or approval.merge_commit != revision or approval.merger_id != actor["id"]):
-            raise ProvenanceError("GitHub account action lacks independent exact human approval")
-        return revision, actor["id"], approval.reference
-
     def _blob_at(self, repository: str, revision: str, path: str) -> tuple[str, bytes]:
+        _repository(repository)
+        commit(revision, "immutable commit")
+        _path(path)
         obj = self.transport.git_commit(repository, revision)
         if not isinstance(obj, dict) or obj.get("sha") != revision or not isinstance(obj.get("tree"), dict):
             raise ProvenanceError("merge commit identity mismatch")
@@ -275,25 +283,49 @@ class GitHubGovernanceStore:
                 tree_id = object_id
             elif found.get("type") != "blob" or found.get("mode") not in {"100644", "100755"}:
                 raise ProvenanceError("governance input must be a regular Git blob")
-        blob = self.transport.blob(repository, object_id)
-        if (not isinstance(blob, dict) or blob.get("sha") != object_id or blob.get("encoding") != "base64"
-                or type(blob.get("size")) is not int or not 0 <= blob["size"] <= MAX_BYTES
-                or not isinstance(blob.get("content"), str) or len(blob["content"]) > 2 * MAX_BYTES):
-            raise ProvenanceError("invalid Git blob response")
-        try:
-            # GitHub wraps base64 with LF. Other non-base64 characters are rejected.
-            data = base64.b64decode(blob["content"].replace("\n", ""), validate=True)
-        except ValueError as exc:
-            raise ProvenanceError("invalid Git blob encoding") from exc
-        actual = hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\0" + data).hexdigest()
-        if len(data) != blob["size"] or actual != object_id:
-            raise ProvenanceError("raw Git blob size or object digest mismatch")
-        return object_id, data
+        return object_id, decode_git_blob(self.transport.blob(repository, object_id), object_id)
+
+    def blob_at(self, repository: str, revision: str, path: str) -> bytes:
+        return self._blob_at(repository, revision, path)[1]
+
+
+class GitHubGovernanceStore(GitHubObjectReader):
+    def __init__(self, root: GovernanceTrustRoot, *, transport: GovernanceTransport | None = None):
+        if not isinstance(root, GovernanceTrustRoot):
+            raise ProvenanceError("governance trust root is not configured")
+        self.root = root
+        super().__init__(transport=transport)
+
+    def _merged(self, ref: GovernanceReference, trust: RepositoryTrust) -> tuple[str, int, str]:
+        if ref.repository != trust.full_name:
+            raise ProvenanceError("wrong approval repository or role")
+        pr = self.transport.pull_request(ref.repository, ref.pull_request)
+        if not isinstance(pr, dict):
+            raise ProvenanceError("invalid GitHub PR response")
+        base, actor = pr.get("base"), pr.get("merged_by")
+        repo = base.get("repo") if isinstance(base, dict) else None
+        if (type(pr.get("number")) is not int or pr["number"] != ref.pull_request
+                or pr.get("merged") is not True or pr.get("state") != "closed"
+                or not isinstance(pr.get("merged_at"), str) or not pr["merged_at"]
+                or not isinstance(repo, dict) or type(repo.get("id")) is not int
+                or repo["id"] != trust.repository_id or repo.get("full_name") != trust.full_name
+                or base.get("ref") != trust.base_branch
+                or not isinstance(actor, dict) or actor.get("type") != "User"
+                or type(actor.get("id")) is not int or actor["id"] not in trust.merger_ids):
+            raise ProvenanceError("PR is not an approved human merge at the trusted destination")
+        revision = commit(pr.get("merge_commit_sha"), "PR merge commit")
+        approval = next((item for item in self.root.human_approvals
+                         if item.repository_id == trust.repository_id
+                         and item.pull_request == ref.pull_request), None)
+        if (approval is None or approval.merge_commit != revision or approval.merger_id != actor["id"]):
+            raise ProvenanceError("GitHub account action lacks independent exact human approval")
+        return revision, actor["id"], approval.reference
 
     def approved_blob(self, reference: str, *, role: str) -> VerifiedGovernanceBlob:
         """Authenticate the exact changed blob approved by the configured role."""
         ref = GovernanceReference.parse(reference)
-        trust = {"phase1": self.root.product, "request": self.root.requests}.get(role)
+        trust = {"phase1": self.root.product, "request": self.root.requests,
+                 "review": self.root.reviews}.get(role)
         if trust is None:
             raise ProvenanceError("unconfigured approval role")
         revision, actor, human_ref = self._merged(ref, trust)

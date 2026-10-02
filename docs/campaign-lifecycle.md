@@ -127,3 +127,18 @@ Remaining D work includes the accepted real collector and policy resolver,
 production launch driver and CLI/gates, report/witness integration, independent
 human Phase 1 and separately authorized formal W3 execution. Historical rt4
 evidence remains historical, including its known missing own base captures.
+
+The first authorized lifecycle pool run at source
+`a17cbcf254d1d64ef1f50e1d8c80a4d058d2c70e` was `37006289429/1`, immutable
+receipt `915304054a27abf388a0de01d46def5d069e0473`. Native focused XML records
+222 tests with no failures/errors/skips; full XML records 670 tests, seven
+failures, no errors/skips. All seven are new lifecycle positive-path assertions:
+the fixture serialized a receipt with the canonical artifact encoder while its
+synthetic authority bound the helper's pretty-JSON raw bytes. Source inspection
+identifies this mismatch at the strict raw receipt digest guard; the native
+stacks expose the failed assertions, without full runner diagnostics. The fixture now uses
+the helper's actual bound bytes; a regression explicitly retains rejection of
+equivalent JSON reencoding. Production code and original verdict expectations
+are unchanged. The failed results and assertions they did not reach are
+retained; these corrections are NOT_RUN and require a new exact-source pool
+grant before merge.

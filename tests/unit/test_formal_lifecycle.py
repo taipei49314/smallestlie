@@ -7,7 +7,9 @@ import os
 
 import pytest
 
-from m12_helpers import ApprovalAuthority, CaptureAuthority, capture, prepared
+from m12_helpers import (
+    ApprovalAuthority, CaptureAuthority, capture, encoded as receipt_encoded, prepared,
+)
 from test_adjudication import SyntheticAuthority, add_reviews, finding, verifier_capture
 from smallestlie.adjudication.engine import CaseInputs
 from smallestlie.campaign.lifecycle import (
@@ -92,7 +94,10 @@ def observations(plan, *, states=None, invalid_stdout=False):
         runners[cid] = CaptureAuthority(plan, cid, receipt).envelope
         metadata, stdout, stderr, envelope = verifier_capture(plan, cid, [finding()] if cid == "C" else [])
         verifiers[cid] = envelope
-        items[cid] = CaseInputs(encoded(receipt), artifacts, metadata, stdout, stderr)
+        # CaptureAuthority binds this helper's exact pretty-JSON bytes. Using
+        # the lifecycle's canonical artifact encoder here would change the raw
+        # receipt digest even though its parsed JSON is equivalent.
+        items[cid] = CaseInputs(receipt_encoded(receipt), artifacts, metadata, stdout, stderr)
     return items, CountedSource(runners), CountedSource(verifiers)
 
 
@@ -159,11 +164,12 @@ def rewrite_tail(ledger, index, payloads):
 
 def test_complete_pair_revalidates_raw_artifacts_and_each_own_action(tmp_path, plan):
     session, snapshot, report, tickets, ra, va, reviews = finalized(tmp_path, plan, invalid_stdout=True)
-    assert report["frozen_case_count"] == 2 and report["paired_defect_case_count"] == 1
+    assert report["frozen_case_count"] == 2 and report["paired_defect_case_count"] == 1, report["cases"][0]["runner"]
     assert report["cases"][1]["verifier"]["findings"][0] == finding()
     assert tickets["D", "runner_command", "twin"] != tickets["C", "runner_command", "attack"]
     assert tickets["D", "runner_materialize", "twin"] != tickets["C", "runner_materialize", "attack"]
-    assert verify(session, ra, va, reviews)["ok"]
+    verified = verify(session, ra, va, reviews)
+    assert verified["ok"], verified
     index_entry = next(entry for entry in session.ledger.read_entries() if entry["event_type"] == "observations_sealed")
     index = json.loads(session.artifacts.read(index_entry["payload"]["index"]))
     raw = next(case for case in index["cases"] if case["binding"]["case_id"] == "D")
@@ -415,6 +421,25 @@ def test_capture_substitution_cannot_borrow_a_valid_command_output(tmp_path, pla
     assert result["semantic_ok"] and not result["authority_ok"]
 
 
+def test_equivalent_json_reencoding_cannot_borrow_raw_receipt_authority(tmp_path, plan):
+    items, ra, va = observations(plan)
+    original = items["D"].runner_receipt
+    assert digest(original) == ra.envelopes["D"].receipt_sha256
+    changed = encoded(json.loads(original))
+    assert json.loads(changed) == json.loads(original) and changed != original
+    items["D"] = replace(items["D"], runner_receipt=changed)
+    session = begin(tmp_path, plan, runner=ra, verifier=va)
+    complete_all(session, items, ra, va)
+    snapshot = session.seal_observations(items)
+    reviews = sealed_reviews(session, items, ra, va)
+    report = session.finalize(snapshot, {cid: item.review for cid, item in items.items()}, review_authority=reviews)
+    row = report["cases"][0]
+    assert row["verdict"] == "unknown" and row["runner"]["provenance_ref"] is None
+    assert "independent execution envelope mismatch" in row["runner"]["reasons"]
+    result = verify(session, ra, va, reviews)
+    assert result["semantic_ok"] and not result["authority_ok"] and not result["ok"], result
+
+
 @pytest.mark.parametrize("missing", ["preregistration", "completion", "runner", "verifier", "review"])
 def test_complete_ledger_cannot_authorize_itself_on_evidence_reverification(tmp_path, plan, missing):
     session, _, _, _, ra, va, reviews = finalized(tmp_path, plan)
@@ -429,7 +454,8 @@ def test_read_only_verification_never_creates_or_replaces_artifacts(tmp_path, pl
     def forbidden(*args, **kwargs):
         raise AssertionError("verification attempted to write evidence")
     monkeypatch.setattr(ArtifactStore, "put", forbidden)
-    assert verify(session, ra, va, reviews)["ok"]
+    verified = verify(session, ra, va, reviews)
+    assert verified["ok"], verified
 
 
 def test_raw_artifact_replacement_fails_beyond_a_valid_complete_hash_chain(tmp_path, plan):
@@ -458,7 +484,7 @@ def test_coherent_new_row_and_report_hashes_still_require_semantic_reverificatio
     rewrite_tail(session.ledger, target, {entries[target]["seq"]: payload, entries[-1]["seq"]: summary})
     assert verify_ledger(session.ledger.path)["ok"]
     result = verify(session, ra, va, reviews)
-    assert result["artifact_ok"] and result["authority_ok"] and not result["semantic_ok"] and not result["ok"]
+    assert result["artifact_ok"] and result["authority_ok"] and not result["semantic_ok"] and not result["ok"], result
 
 
 @pytest.mark.parametrize("damage", ["marker", "denominator", "post_summary"])

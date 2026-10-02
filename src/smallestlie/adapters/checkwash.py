@@ -20,6 +20,7 @@ false acceptance when the engine under test is lying-clean (mirrors the
 
 from __future__ import annotations
 
+from copy import deepcopy
 import hashlib
 import os
 import subprocess
@@ -302,6 +303,9 @@ class CheckwashAdapter(Adapter):
                 "checkwash_version": run.get("checkwash_version") if isinstance(run, dict) else None,
                 "summary": payload.get("summary"),
                 "skipped_files": payload.get("skipped_files", []),
+                # Additive evidence only: research qualification must not change
+                # the legacy exit/report comparison or discard finding details.
+                "findings_payload": deepcopy(payload),
             },
             evidence_refs=["stdout.txt"],
             execution_error=error,

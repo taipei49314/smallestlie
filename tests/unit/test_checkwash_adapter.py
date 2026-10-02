@@ -296,6 +296,19 @@ class TestParseVerdict:
         assert v.accepted is True
         assert "config_errors_present" in v.warnings
 
+    def test_complete_findings_payload_is_additive_and_preserves_attachments(self) -> None:
+        payload = json.loads(self.PAYLOAD)
+        item = {"rule": "EXAMPLE", "severity": "high", "message": "detail",
+                "path": "tests/test_app.py", "unit": None, "fingerprint": "opaque:v2",
+                "allowlisted": True, "before": {"text": "assert x", "span": [0, 8]},
+                "after": None, "shape": "near shape", "future": {"keep": True}}
+        payload["findings"] = [item]
+        payload["summary"]["high"] = 1
+        v = CheckwashAdapter().read_verdict(Path("."), _execution(0, json.dumps(payload)))
+        assert v.accepted is True and v.execution_error is None
+        assert v.raw["findings_payload"] == payload
+        assert v.raw["findings_payload"]["findings"][0]["future"] == {"keep": True}
+
     @pytest.mark.parametrize("exit_code,report", [(0, "block"), (1, "pass")])
     def test_valid_channel_disagreement_is_preserved(self, exit_code: int, report: str) -> None:
         payload = json.loads(self.PAYLOAD)

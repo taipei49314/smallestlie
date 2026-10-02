@@ -80,14 +80,48 @@ The artifact SHA matches the published release digest
 `b305bc3f7d35f827190051f7a676ac40e3e86badf9eaed750f22f082fd10b05c`;
 read-only archive inspection confirms findings schema 2 is unchanged.
 
-This exact updated PR has not yet been tested. The bounded workload description
-now refers to the repository's published pin, keeping its entry/profile,
-parameters, no-cache policy and 35-minute budget unchanged. Its approval metadata
-must be refreshed before dispatch. This human request authorizes this v0.5.0
-retest; it grants no standing authority to advance future pins or run workloads.
-All v0.4.2 results below remain dated evidence, not passes for v0.5.0.
+Product `9cf9432614f3394b937751e535cbd4766834efc2` passed
+EC T-498 [run 36951896511, attempt 1](https://github.com/taipei49314/estate-consolidation/actions/runs/36951896511),
+with EC source `6134e4960ab3e95b03d5a8b3b9d0c9f9b3644af1`, actual
+`LAPTOP-50KP71KA`, generation `8b1bcfb4b5dc0588.1`, Windows Python 3.12.10.
+Focused JUnit passed 138 tests in 4.432 s; full JUnit passed 220 tests in
+154.162 s, with zero failures/errors/skips. Focused is a subset of full.
+All subprocess exits and the EC entry exit were 0, no timeout occurred, and
+entry duration was 166.5 s. Initial/final source SHA matched the request and
+both Git status observations were clean. Product check
+`ec / execution-verdict-verify` (110667249919), job and receipt publication
+all succeeded.
 
-### Output validity / execution binding follow-up
+The full suite includes the current-pin consistency/version execution, the
+prior-v0.4.2 report rejection at exit 0/1, all existing fixed-catalog assertions
+and blind controls. Their expectations were unchanged. `CW-W1-2HOP` remains a
+known false accept; green regression does not mean that residual is closed.
+
+Immutable receipt `de10040b19ed0a81943432a87ccca8d2a8ce71d3`, ref
+`sweep-receipts/36951896511/1/workload-execution-verdict-verify`, preserves JSON,
+both JUnit reports, raw logs, dependency pins, runtime/generation and QoS.
+All 23 manifest-listed file sizes/hashes matched raw Git blobs; product result,
+JUnit and EC workload result agreed. This final result-document commit changes
+only this file; product code, tests and workload remain exactly the tested SHA.
+No additional test run is claimed for this document.
+
+The bounded workload description now refers to the repository's published pin.
+EC [admission PR #112](https://github.com/taipei49314/estate-consolidation/pull/112)
+passed integrity and merged at `d528a54c95d8eca469e86394008174ff5e50dc17`, changing
+only the approval hash/decision in `governance/pool/workloads.json`. Canonical
+entry hash is `1bc3b68df3e384e288d5d3ca5c5af1a71cf5ab92a9e4dd52c89b8ee25ad308c5`.
+Entry/profile, parameters, no-cache policy and 35-minute budget are unchanged;
+App, host and workflow routing were not changed. This human request authorizes
+this v0.5.0 retest, not future pins or workloads. All v0.4.2 results below remain
+dated evidence, not passes for v0.5.0.
+
+NOT_RUN: work-machine policy prohibits local product execution, pytest
+collection, compilation, lint and dependency installation. No new attack
+campaign, benchmark or cross-OS verification was dispatched. Public PR #22
+remains draft/unmerged for human review; result documentation carries `[skip ci]`,
+and skipped workflows are not passes.
+
+### Output validity / execution binding follow-up (historical v0.4.2)
 
 Nelson said 「繼續」 after the proposed next slice: real CheckWash output validity
 and fixture report freshness/binding, followed by the same bounded pool workflow

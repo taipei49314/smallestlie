@@ -16,7 +16,7 @@ from smallestlie.campaign.completion_source import (
 )
 from smallestlie.campaign.evidence_sources import EcReceiptStore
 from smallestlie.campaign.lifecycle import ArtifactStore, COMPLETION_SCHEMA, encoded, output_roles
-from smallestlie.campaign.preregistration import canonical_digest, digest
+from smallestlie.campaign.preregistration import PreregistrationError, canonical_digest, digest
 from smallestlie.campaign.provenance import ProvenanceError
 from smallestlie.campaign.source_map import (
     ANCHOR_SCHEMA, ARCHIVE_SCHEMA, JOURNAL_SCHEMA, MAP_SCHEMA,
@@ -355,7 +355,7 @@ def test_typed_mapping_grants_reject_bool_sequences_and_role_aliases(mapped):
         replace(mapped["grant"], journal_path=mapped["grant"].ledger_path)
     with pytest.raises(ProvenanceError, match="separate"):
         replace(mapped["grant"], publisher_acceptance_ref=mapped["grant"].mapping_acceptance_ref)
-    with pytest.raises(ProvenanceError, match="sequence"):
+    with pytest.raises(PreregistrationError, match="sequence"):
         replace(mapped["members"][0], publication_sequence=True)
 
 

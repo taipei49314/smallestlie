@@ -1,5 +1,10 @@
 # Offline cross-action source map (M12 D)
 
+This document describes the original same-dispatch v1 contract. The separate
+[cross-terminal v2 source map](campaign-multi-dispatch-sources.md) supports each
+action's independently configured terminal dispatch without changing this
+reader or its exact-type consumers.
+
 `EcLifecycleSourceMapAuthority.verify(prepared)` reads a complete sealed
 action map from independent immutable sources. Each action keeps its own
 receipt commit. The reader checks that all action prefixes belong to the same

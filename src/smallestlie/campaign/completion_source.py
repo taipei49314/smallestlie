@@ -126,7 +126,7 @@ def _same(actual, expected, label):
         raise ProvenanceError(label)
 
 
-def _prefix(data: bytes, prepared, ticket, final_ref) -> None:
+def _prefix(data: bytes, prepared, ticket, final_ref) -> dict:
     if not data or len(data) > 10_000_000 or not data.endswith(b"\n"):
         raise ProvenanceError("bounded complete raw ledger prefix required")
     lines = data.splitlines()
@@ -149,7 +149,7 @@ def _prefix(data: bytes, prepared, ticket, final_ref) -> None:
         # A Git tree cannot include a prefix that embeds its own final commit.
         # Prior dispositions must have their own earlier independent sources;
         # this action's grant never endorses their artifacts or authority.
-        if (entry["event_type"] == "lifecycle_action_disposed"
+        if (final_ref is not None and entry["event_type"] == "lifecycle_action_disposed"
                 and entry["payload"].get("provenance_ref") == final_ref):
             raise ProvenanceError("prefix references its containing final receipt")
         entries.append(entry)
@@ -163,6 +163,7 @@ def _prefix(data: bytes, prepared, ticket, final_ref) -> None:
         raise ProvenanceError("source prefix must end at the exact persisted reservation")
     _same(reservation(prepared.lock(), plan[key], entries[-1]).to_dict(), ticket.to_dict(), "prefix ticket mismatch")
     _same(result["action_states"][key]["reservation"], ticket.to_dict(), "prefix action identity mismatch")
+    return result
 
 
 def _measured_command(prepared, ticket, observed, root) -> None:

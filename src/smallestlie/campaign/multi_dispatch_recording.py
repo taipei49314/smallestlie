@@ -122,9 +122,22 @@ def verify_multi_dispatch_recording(root: str | Path, prepared: PreparedRun, *, 
         data = fh.read(10_000_001)
     if digest(data) != expected_journal_sha256:
         raise PreregistrationError("multi_dispatch_journal_external_raw_digest_mismatch")
+    return _verify_raw_recording(data, prepared, ArtifactStore(root / "artifacts", create=False),
+        expected_journal_sha256=expected_journal_sha256,
+        source_authority=source_authority, review_authority=review_authority)
+
+
+def _verify_raw_recording(data, prepared, store, *, expected_journal_sha256,
+                          source_authority, review_authority=None):
+    """Shared private core; public readers supply their independently read bytes."""
+    sha256(expected_journal_sha256, "external exact multi-dispatch journal digest")
+    if type(data) is not bytes:
+        raise PreregistrationError("multi_dispatch_journal_requires_raw_bytes")
+    ArtifactStore.reference(data)
+    if digest(data) != expected_journal_sha256:
+        raise PreregistrationError("multi_dispatch_journal_external_raw_digest_mismatch")
     ids = [case["case_id"] for case in prepared.lock()["cases"]]
     entries = read_multi_dispatch_journal(data, ids)
-    store = ArtifactStore(root / "artifacts", create=False)
     reviews = {cid: store.read(entries[1 + index * 2]["payload"]["raw_review"]) for index, cid in enumerate(ids)}
     report = adjudicate_multi_dispatch_campaign(prepared, reviews,
         source_authority=source_authority, review_authority=review_authority)

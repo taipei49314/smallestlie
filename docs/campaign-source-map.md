@@ -136,7 +136,12 @@ PR32 source `a99cadcd5f3752f5ef3f1f585182f4ad0eea293f` passed focused 222/full
 740 and merged as `581533771a70cb08b7a747e03d7c84fc649eab49`. Its consumed
 grant does not validate this new source; a new exact-source pool run is needed.
 
-Remaining D includes a versioned mapped semantic/recording consumer, actual
+The separate [mapped observation consumer](campaign-mapped-observations.md)
+revalidates F's index/captures and computes native runner/verifier semantics
+while retaining every per-action source. It does not turn the carriers in this
+module into legacy execution authority or activate lifecycle recording.
+
+Remaining D includes mapped recording/review/adjudication integration, actual
 live publication and collector/coordinator/storage/policy-resolver admission,
 launch/CLI/report/witness integration, independent human Phase 1 and separately
 authorized formal W3. Historical rt4 captures retain their original scope and

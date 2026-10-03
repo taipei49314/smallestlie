@@ -10,6 +10,7 @@ from m12_helpers import capture
 from test_evidence_sources import ctx as ec_context, plan, republish
 from test_formal_lifecycle import begin
 from smallestlie.adjudication.observations import validate_verifier_observation
+from smallestlie.adjudication.engine import CaseInputs
 from smallestlie.campaign.completion_source import (
     ADMISSION_SCHEMA, JOURNAL_SCHEMA as ACTION_JOURNAL, PUBLICATION_SCHEMA, SOURCE_SCHEMA,
     EcLifecycleCompletionAuthority, LifecycleActionGrant, LifecycleCollectorAdmission, _dispatch,
@@ -119,7 +120,7 @@ def assemble(ctx, *, index_change=None, evidence_change=None):
 
 @pytest.fixture
 def make_map(ec_context, tmp_path, plan):
-    def make(*, selected=None, incomplete=None):
+    def make(*, selected=None, incomplete=None, semantic=False, mutate_native=None, mutate_inputs=None):
         template, api, root = ec_context, ec_context["api"], ec_context["root"]
         registry = SourceRegistry()
         session = begin(tmp_path, plan, source=registry)
@@ -179,6 +180,8 @@ def make_map(ec_context, tmp_path, plan):
                     "reservation": ticket.to_dict(), "context_sha256": ticket.context_sha256, "prefix": None, "journal": None,
                     "files": deepcopy(context["files"]), "command": command, "termination_kind": status, "exit_code": code,
                     "output_complete": slot != incomplete, "descendants_reaped": slot != incomplete, "outputs": outputs}}
+            if mutate_native:
+                mutate_native(child)
             publish_action(child, first, f"action-{index}")
             registry.authorities[canonical_digest(ticket.to_dict())] = child["authority"]
             validation = session.complete_action(ticket, child_files["action/completion.json"],
@@ -193,7 +196,34 @@ def make_map(ec_context, tmp_path, plan):
             members.append(LifecycleMappedAction(*slot, ticket, child["authority"], first + 5))
             children[slot] = child
             first += 6
-        session.seal_observations({})  # Raw actions only; deliberately no semantic aggregate acceptance.
+        inputs = {}
+        if semantic:
+            for case in plan.lock()["cases"]:
+                cid = case["case_id"]
+                raw_runner = deepcopy(json.loads(template["files"][cid + "/runner.json"]))
+                artifacts = {}
+                for arm, record in raw_runner["arms"].items():
+                    child = children.get((cid, "runner_command", arm))
+                    if child:
+                        facts = child["facts"]
+                        record.update(deepcopy(facts["command"]))
+                        record.update({key: facts[key] for key in ("termination_kind", "exit_code")})
+                        for role, ref in facts["outputs"].items():
+                            if ref is not None:
+                                record[role] = deepcopy(ref)
+                                artifacts[ref["path"]] = child["files"][ref["path"]]
+                    else:
+                        for ref in (record["stdout"], record["stderr"], record["report"]):
+                            artifacts[ref["path"]] = template["files"][ref["path"]]
+                child = children.get((cid, "verifier_command", "attack"))
+                raw_verifier = next(row for row in template["supervisor"]["cases"] if row["binding"]["case_id"] == cid)["verifier"]
+                captures = [child["files"][child["facts"]["outputs"][role]["path"]]
+                    if child and child["facts"]["outputs"][role] is not None else template["files"][raw_verifier[role]["path"]]
+                    for role in ("metadata", "stdout", "stderr")]
+                inputs[cid] = CaseInputs(encoded(raw_runner), artifacts, *captures)
+            if mutate_inputs:
+                mutate_inputs(inputs)
+        session.seal_observations(inputs)  # Existing default retains its raw-only contract.
         files = {"ec-workload.json": template["files"]["ec-workload.json"],
             "archive/ledger.jsonl": session.ledger.path.read_bytes(),
             "archive/publisher.json": encoded({"schema_version": JOURNAL_SCHEMA, "dispatch": dispatch,

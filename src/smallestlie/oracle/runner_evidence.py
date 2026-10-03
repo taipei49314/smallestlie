@@ -287,10 +287,13 @@ def validate_runner_receipt(prepared_run: PreparedRun, case_id: str, receipt_byt
         return RunnerEvidenceValidation(case_id, receipt_sha, None, (str(exc),), ())
 
 
-def assess_effectiveness(prepared_run: PreparedRun,
-                         evidence: RunnerEvidenceValidation) -> EffectivenessAssessment:
-    binding = prepared_run.binding(evidence.case_id)
-    profile = prepared_run.profile(evidence.case_id)
+def assess_bound_change(profile: dict, base: ArmEvidence, changed: ArmEvidence,
+                        repaired: ArmEvidence) -> tuple[str, tuple[str, ...]]:
+    """Pure native-arm semantics. The caller must authenticate every arm first.
+
+    This helper grants no execution authority and supplies no provenance ref.
+    Baseline/changed refutations precede repair calibration deliberately.
+    """
     assertion = profile["baseline_assertion"]
     def green(arm: ArmEvidence, *, target: bool = False) -> bool:
         return (arm.valid and arm.termination_kind == "completed" and arm.exit_code == 0
@@ -300,6 +303,23 @@ def assess_effectiveness(prepared_run: PreparedRun,
         return (arm.valid and arm.termination_kind == "completed" and arm.exit_code in profile["assertion_exit_codes"]
                 and any(tid == assertion and state == "failed" and kind == "assertion" for tid, state, kind in arm.tests)
                 and not any(state == "error" for _, state, _ in arm.tests))
+    if green(base, target=True):
+        return "refuted", ("baseline_target_already_green",)
+    if not red(base):
+        return "unknown", ("baseline_assertion_red_unproved", *base.reasons)
+    if red(changed):
+        return "refuted", ("changed_target_assertion_still_red",)
+    if not green(changed):
+        return "unknown", ("changed_green_unproved", *changed.reasons)
+    if not green(repaired, target=True):
+        return "unknown", ("repair_target_green_unproved", *repaired.reasons)
+    return "confirmed", ("bound_assertion_red_to_green_with_repair_calibration",)
+
+
+def assess_effectiveness(prepared_run: PreparedRun,
+                         evidence: RunnerEvidenceValidation) -> EffectivenessAssessment:
+    binding = prepared_run.binding(evidence.case_id)
+    profile = prepared_run.profile(evidence.case_id)
     def assess(role: str) -> tuple[str, tuple[str, ...]]:
         if (evidence.lock_digest != prepared_run.lock()["lock_digest"]
                 or evidence.spec_sha256 != binding["spec_sha256"]
@@ -307,18 +327,7 @@ def assess_effectiveness(prepared_run: PreparedRun,
             return "unknown", (*evidence.reasons, "evidence_prepared_run_mismatch")
         if evidence.reasons or evidence.provenance_ref is None:
             return "unknown", evidence.reasons or ("execution_provenance_missing",)
-        base, changed, repaired = evidence.arm("baseline"), evidence.arm(role), evidence.arm("repair")
-        if green(base, target=True):
-            return "refuted", ("baseline_target_already_green",)
-        if not red(base):
-            return "unknown", ("baseline_assertion_red_unproved", *base.reasons)
-        if red(changed):
-            return "refuted", ("changed_target_assertion_still_red",)
-        if not green(changed):
-            return "unknown", ("changed_green_unproved", *changed.reasons)
-        if not green(repaired, target=True):
-            return "unknown", ("repair_target_green_unproved", *repaired.reasons)
-        return "confirmed", ("bound_assertion_red_to_green_with_repair_calibration",)
+        return assess_bound_change(profile, evidence.arm("baseline"), evidence.arm(role), evidence.arm("repair"))
     attack, attack_reasons = assess("attack")
     twin, twin_reasons = assess("twin") if "twin" in binding["arms"] else (None, ())
     return EffectivenessAssessment(evidence.case_id, attack, twin, attack_reasons, twin_reasons)

@@ -29,6 +29,7 @@ def digest(data: bytes) -> str:
 def main(*, workload_name: str = "execution-verdict-verify",
          focused_paths: tuple[str, ...] | None = None,
          heading: str = "SmallestLie execution verdict regression",
+         focused_timeout: int = 300,
          full_timeout: int = 1200) -> int:
     required = ("EC_WORKLOAD_SOURCE", "EC_WORKLOAD_OUT", "EC_WORKLOAD_WORK", "EC_WORKLOAD_SHA")
     if any(not os.environ.get(key) for key in required):
@@ -141,7 +142,7 @@ def main(*, workload_name: str = "execution-verdict-verify",
 
     if not problems:
         phases = [
-            ("focused", 300, list(focused_paths) if focused_paths is not None else ["tests/unit/test_execution_verdict.py",
+            ("focused", focused_timeout, list(focused_paths) if focused_paths is not None else ["tests/unit/test_execution_verdict.py",
                               "tests/unit/test_execution_binding.py", "tests/unit/test_checkwash_adapter.py",
                               "tests/integration/test_execution_failures.py", "tests/unit/test_comparator.py"]),
             ("full", full_timeout, ["tests"]),

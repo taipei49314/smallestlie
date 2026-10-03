@@ -13,6 +13,11 @@ and source/dependency eligibility, without runner/verifier semantic views,
 adjudication or recording authority. The existing v1 map and its exact-type
 consumers are unchanged. No public v2 campaign/replay/minimize gate is enabled.
 
+The separate [multi-dispatch semantic consumer](campaign-multi-dispatch-semantics.md)
+now defines fresh per-action runner/verifier semantics, independent exact reviews
+and full-denominator adjudication. It does not turn this source carrier into a
+legacy envelope or enable recording/replay/public gates.
+
 ## External configuration and common session
 
 The trusted caller imports one exact final `EcReceiptStore`, a

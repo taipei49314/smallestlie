@@ -1,6 +1,14 @@
 {
   "schema_version": 1,
   "workloads": {
+    "m12-multi-dispatch-semantics-verify": {
+      "description": "M12 multi-dispatch own-source runner/verifier semantics, exact independent reviews, full frozen rows, honest DEF kills and qualified detectable twins plus complete existing regression on LAPTOP-50KP71KA; synthetic records only, no formal W3, real runner/collector adoption, measurement or engine re-pin.",
+      "entry": "workloads/m12_multi_dispatch_semantics_verify/run.py",
+      "profile": "profile-ec-integrity",
+      "timeout_minutes": 50,
+      "cache": false,
+      "parameters": {}
+    },
     "m12-adjudication-verify": {
       "description": "M12 slice-C raw observation/review qualification, paired case counts and additive finding preservation plus existing full-suite regression on LAPTOP-50KP71KA; synthetic records only, no W3 evaluation, runner adoption, measurement or engine re-pin.",
       "entry": "workloads/m12_adjudication_verify/run.py",

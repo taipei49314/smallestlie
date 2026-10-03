@@ -88,12 +88,14 @@ slots retain their states, captures and reasons alongside unrelated valid facts.
 
 `MappedObservationSnapshot.validation_sha256` binds the entire schema, request,
 lock, plan, index, source roles, all action references/dispositions and all case
-results. Later recording/review must bind this summary plus case/twin identity
-through a separately versioned contract. Neither this digest nor constructing
+results. Mapped recording/review binds this summary plus case/twin identity
+through the separately versioned [mapped adjudication contract](campaign-mapped-adjudication.md).
+Neither this digest nor constructing
 the dataclass supplies source authority by itself.
 
-This slice does not activate `FormalLifecycle`, `_EligibleAuthority`, launch,
-CLI, adjudication, ledger recording, report headlines or witness integration.
+The snapshot reader itself does not activate `FormalLifecycle`, `_EligibleAuthority`,
+launch, CLI or witness integration. The linked mapped adjudication contract now
+supplies separate review, follow-up recording and complete case counts.
 Legacy runner/verifier validators continue rejecting mapped carriers. It does
 not establish formal human Phase 1, execute W3, adopt real runners/collectors/
 publishers/storage/coordinators or repair missing historical rt4 red-side logs.

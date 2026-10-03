@@ -146,8 +146,10 @@ def make_multi_map(make_map, monkeypatch, multi_map_templates):
     monkeypatch.setattr(v1_fixture, "publish_action", lambda child, first, identity:
                         original_publish_action(child, 1, identity))
 
-    def make(*, selected=DEFAULT_SLOTS, incomplete=None, mutate_native=None):
-        reusable = selected == DEFAULT_SLOTS and incomplete is None and mutate_native is None
+    def make(*, selected=DEFAULT_SLOTS, incomplete=None, mutate_native=None,
+             semantic=False, mutate_inputs=None):
+        reusable = (selected == DEFAULT_SLOTS and incomplete is None and mutate_native is None
+                    and semantic is False and mutate_inputs is None)
         if reusable and "default" in multi_map_templates:
             return deepcopy(multi_map_templates["default"])
 
@@ -183,7 +185,8 @@ def make_multi_map(make_map, monkeypatch, multi_map_templates):
             if mutate_native:
                 mutate_native(child)
 
-        ctx = make_map(selected=selected, incomplete=incomplete, mutate_native=move)
+        ctx = make_map(selected=selected, incomplete=incomplete, mutate_native=move,
+                       semantic=semantic, mutate_inputs=mutate_inputs)
         ctx["legacy_authority"] = ctx["authority"]
         old_anchor = ctx["anchor"]
         # Preserve the original exact prefix from the session ledger.

@@ -8,7 +8,9 @@ import pytest
 
 from test_evidence_sources import ctx as ec_context, plan
 from test_source_map import make_map
-from test_multi_dispatch_sources import assemble, change_order, make_multi_map, multi_mapped, verify
+from test_multi_dispatch_sources import (
+    assemble, change_order, make_multi_map, multi_map_templates, multi_mapped, verify,
+)
 from smallestlie.campaign.preregistration import canonical_digest
 from smallestlie.campaign.provenance import ProvenanceError
 from smallestlie.campaign.publication_order import verify_publication_order

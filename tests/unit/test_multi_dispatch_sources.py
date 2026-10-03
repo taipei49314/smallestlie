@@ -133,14 +133,24 @@ def verify(ctx):
     return ctx["authority"].verify(ctx["plan"])
 
 
+@pytest.fixture(scope="module")
+def multi_map_templates():
+    """Reuse default sealed fixture bytes, never source verification results."""
+    return {}
+
+
 @pytest.fixture
-def make_multi_map(make_map, monkeypatch):
+def make_multi_map(make_map, monkeypatch, multi_map_templates):
     original_publish_action = v1_fixture.publish_action
     monkeypatch.setattr(v1_fixture, "republish", publish)
     monkeypatch.setattr(v1_fixture, "publish_action", lambda child, first, identity:
                         original_publish_action(child, 1, identity))
 
     def make(*, selected=DEFAULT_SLOTS, incomplete=None, mutate_native=None):
+        reusable = selected == DEFAULT_SLOTS and incomplete is None and mutate_native is None
+        if reusable and "default" in multi_map_templates:
+            return deepcopy(multi_map_templates["default"])
+
         def move(child):
             api, root = child["api"], child["root"]
             old = root.publications[0]
@@ -218,6 +228,12 @@ def make_multi_map(make_map, monkeypatch):
         ctx["files"]["archive/publisher.json"] = encoded({"schema_version": JOURNAL_SCHEMA,
             "session_sha256": canonical_digest(common), "epoch": "map-epoch", "events": events})
         assemble(ctx)
+        if reusable:
+            # Preserve graph aliases within a fixture, but isolate every API,
+            # store, authority, hook and mutable record between test cases.
+            # The recording session is only read after fixture construction.
+            multi_map_templates["default"] = deepcopy(ctx)
+            return deepcopy(multi_map_templates["default"])
         return ctx
     return make
 
@@ -225,6 +241,43 @@ def make_multi_map(make_map, monkeypatch):
 @pytest.fixture
 def multi_mapped(make_multi_map):
     return make_multi_map()
+
+
+def test_reused_template_isolates_native_objects_and_never_caches_verification(make_multi_map):
+    first, second = make_multi_map(), make_multi_map()
+    target = ("D", "runner_materialize", "baseline")
+    first_child, second_child = first["children"][target], second["children"][target]
+    assert first["api"] is not second["api"]
+    assert first["store"] is not second["store"]
+    assert second["authority"].archive is second["store"]
+    assert second["session"].prepared is second["plan"]
+    assert first_child["authority"] is not second_child["authority"]
+    assert second_child["authority"].store.transport is second["api"]
+    assert second_child["authority"].store.reader.transport is second["api"]
+    assert next(item for item in second["members"] if item.slot == target).authority is second_child["authority"]
+    assert second_child["files"] is not first_child["files"]
+    original_facts = second_child["files"]["action/facts.json"]
+    receipt = first_child["root"].publications[0]
+    first["api"].jobs[first_child["root"].repository, receipt.job_id]["status"] = "in_progress"
+    first_child["authority"].verify = lambda *args: pytest.fail("fixture hook copied to another case")
+    first_child["files"]["action/facts.json"] = b"changed fixture-local bytes"
+    assert second_child["files"]["action/facts.json"] == original_facts
+    changed = verify(first)
+    assert changed is not None
+    assert next(item for item in changed.actions if item.slot == target).state == "source_rejected"
+    second["api"].calls.clear()
+    original = verify(second)
+    assert original is not None
+    assert next(item for item in original.actions if item.slot == target).eligible
+    repo, calls = second_child["root"].repository, second["api"].calls
+    assert ("run", repo, receipt.run_id, receipt.attempt) in calls
+    assert ("job", repo, receipt.job_id) in calls
+    assert ("commit", repo, second_child["admission"].evidence_commit) in calls
+    assert ("commit", repo, receipt.receipt_commit) in calls
+    assert any(call[0] == "blob" for call in calls)
+    second["api"].jobs[second_child["root"].repository, receipt.job_id]["status"] = "in_progress"
+    reacquired = verify(second)
+    assert next(item for item in reacquired.actions if item.slot == target).state == "source_rejected"
 
 
 def test_distinct_terminal_dispatches_keep_original_sources_and_full_denominator(multi_mapped):

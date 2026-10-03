@@ -151,13 +151,34 @@ raw prefix/copy replacement and forbidden future anchor references. A final
 missing release is tested without fabricating a recovery ACK. These contracts
 are not actual action publication, operational admission or formal W3 evidence.
 
-NOT_RUN: work-machine rule (`POLICY work-machine-local`); no local product,
-pytest/collection, syntax probe, compilation, lint, typecheck, build or install.
 PR36's consumed exact source `6cfb6da2d1a1fa32e1c333f208a0f38c706679de`
 passed focused 222/full 964 and merged as
 `a098fbe47c459860c4e2d2a80103c4292e2f0bfe`. Those results do not test this new
-source. Its new bounded exact-source pool request must preserve all 964 prior
-test identities and independently inspect native receipt/JUnit/log bytes.
+source. PR37's first authorized source
+`1818998ddf2f7b00bbecbee23a342397fd0c5c24` ran once on host50 in
+[run 37128696841/1](https://github.com/taipei49314/estate-consolidation/actions/runs/37128696841).
+Focused 222 passed with zero failures/errors/skips. The full command timed out
+at its 1600-second bound, exit 124, without `full.xml`; partial progress dots
+cannot establish testcase identities, complete coverage or a passing result.
+The original failure remains in immutable receipt
+`c00bd028364558598c350b7e4800d89f51e95629`, tree
+`a93e94f8b76658d4683284b88f50a3a69cbc4746` (23 raw blobs).
+
+The test-fixture follow-up reuses a sealed default synthetic fixture once per
+module, returning a separate deep copy of its complete object graph for every
+case. Nondefault selections, incomplete actions and native mutators still build
+independently. No source-reader verification result is cached: API, stores,
+authorities and hooks are isolated, and every verification reacquires native
+objects as before. A separate isolation/reacquisition test changes one copy's
+job, hook and local files, then changes another copy's job after its first read.
+All previous testcase identities and assertions remain.
+
+NOT_RUN: work-machine rule (`POLICY work-machine-local`); the fixture follow-up
+has not run locally or on pool. Its effect on runtime is unmeasured. The first
+grant is consumed; a new bounded exact-source pool request must preserve all
+964 prior test identities and independently inspect native receipt/JUnit/log
+bytes. No local product, pytest/collection, syntax probe, compilation, lint,
+typecheck, build or install is performed.
 Workload declaration, dependencies, engine pins and existing five focused
 groups are unchanged.
 

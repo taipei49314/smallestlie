@@ -7,6 +7,11 @@ its own fresh snapshot and accepts only raw post-run reviews or explicit missing
 reviews. These are separate versioned consumers; the v1 readers and public gates
 retain their contracts.
 
+[J recording and evidence re-verification](campaign-multi-dispatch-recording.md)
+persist this complete report in a separately addressed journal and reacquire
+its original sources when verifying it. External J publication and public
+campaign execution still require their own integrations.
+
 ## Own original facts and complete denominator
 
 Every slot separates three views:
@@ -100,19 +105,22 @@ and effective threshold. An honest or repaired test is a separate control.
 
 ## Scope and verification status
 
-NOT_RUN: `POLICY work-machine-local`; source and synthetic tests were authored
-and read, without local import/collection, AST/syntax probe, compile, product
-execution, lint, typecheck, build or install. The proposed
-`m12-multi-dispatch-semantics-verify` workload requires a new human admission and
-one exact-source pool grant on LAPTOP-50KP71KA. It runs the original five focused
-groups plus the three new consumer modules, then the complete test suite.
+Exact-source pool qualification is recorded separately for each PR. The new
+recording source remains NOT_RUN under `POLICY work-machine-local`: no local
+import/collection, AST/syntax probe, compile, product execution, lint, typecheck,
+build or install. The admitted `m12-multi-dispatch-semantics-verify` workload
+requires a separate human exact-source grant on LAPTOP-50KP71KA. It keeps the
+original five focused groups plus the three consumer modules, then the complete
+test suite, including the new recording contracts.
 Bounds are focused 600 seconds, full 2000 seconds, outer 50 minutes; they are
 limits, not measured timings. No previous consumed grant validates this source.
 Verification must retain PR37's original full-suite testcase identities and
 multiplicities as well as every newly observed native testcase.
 
-This slice supplies no multi-dispatch follow-up recording/replay/witness/CLI
+The semantic consumer supplies no immutable J publication, witness/CLI
 integration, live coordinator enforcement, policy-resolver or real-runner
-adoption, actual semantic/human Phase1 approvals, or formal W3 run. Historical
+adoption, actual semantic/human Phase1 approvals, or formal W3 run. The separate
+J recording APIs provide local persistence and fresh evidence re-verification.
+Historical
 missing rt4 red-side logs remain missing. Checkwash and dependency pins are
 unchanged. Full M12 D remains unfinished.

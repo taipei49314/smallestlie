@@ -113,12 +113,14 @@ completion or releases the next ticket. Push success, local hash equality and
 test transport grants do not establish that production fact.
 
 The existing terminal-only readers remain unchanged. This cross-terminal
-single-action entry point cannot directly populate the current offline source
-map, which requires one dispatch across anchor/actions/final archive. It does
-not solve that live coordinator/publisher/aggregate mapping contract, provide
-actual external admission, execute a verifier, adopt Mocha/Vitest, or open the
-public v2 campaign/replay/minimize gates. Full M12 D and formal W3 remain
-unfinished. Agent framework merges do not supply the independent human Phase 1.
+single-action entry point cannot directly populate the original offline v1
+source map, which requires one dispatch across anchor/actions/final archive.
+The separate [cross-terminal v2 reader](campaign-multi-dispatch-sources.md)
+checks individually configured original terminal sources and a later archive.
+It adds no live coordinator/publisher or actual external admission, native
+verifier, Mocha/Vitest adoption or public v2 campaign/replay/minimize activation.
+Full M12 D and formal W3 remain unfinished. Agent framework merges do not
+supply the independent human Phase 1.
 
 ## Qualification
 

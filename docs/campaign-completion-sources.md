@@ -96,6 +96,12 @@ retains unsupported/unknown and makes no full paired-run, headline, real
 collector adoption or W3 claim. No alias, ancestor inference, retrospective
 ticket filling or weakened provenance guard hides that limitation.
 
+The [native single-action producer](campaign-native-producer.md) now authors
+local raw sources for one runner materialization or Windows CPython/pytest
+command and reacquires exact prior terminal materialization sources. It supplies
+no immutable publication ACK or actual admission and does not solve the live
+multi-action publication contract.
+
 The separate [offline source map](campaign-source-map.md) now checks distinct
 action receipts, one original locked anchor, a final raw archive and external
 mapping evidence. Its mapped carriers preserve per-command refs and complete

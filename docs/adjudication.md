@@ -7,7 +7,10 @@ then adjudicates once per case. It performs no filesystem or process operations;
 configured authorities may retrieve independently trusted evidence. No provider
 means unknown. This is a contract, not a production provenance implementation.
 Slice D must supply the independent providers and connect campaign/report/replay;
-the v2 execution gates remain closed in this PR.
+the v2 execution gates remain closed in this PR. The separately versioned
+[mapped review and follow-up recording contract](campaign-mapped-adjudication.md)
+now consumes per-action mapped sources without converting them into these
+legacy envelopes; actual launch/admission remains unfinished.
 
 No v1 `ComparisonResult`, false-accept count, exit code or campaign expectation
 changes. The Checkwash adapter adds `raw.findings_payload`, including attachments,

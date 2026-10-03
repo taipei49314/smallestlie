@@ -1,0 +1,133 @@
+"""Fresh follow-up recording and GET-only replay after an immutable F archive.
+
+J is independently addressed by its externally supplied raw digest. Neither
+J's hash chain nor its artifact store can supply an observation/review grant.
+No launch, subprocess, legacy ledger append or authority discovery occurs.
+"""
+
+from __future__ import annotations
+
+from dataclasses import asdict, dataclass
+import os
+from pathlib import Path
+from typing import Mapping
+
+from smallestlie.adjudication.engine import AdjudicationError
+from smallestlie.adjudication.mapped_engine import MappedAdjudicationReport, adjudicate_mapped_campaign
+from smallestlie.attacks.adjudication import sha256
+from smallestlie.campaign.lifecycle import ArtifactStore, _mkdir, _plain_path, _sync_directory, encoded
+from smallestlie.campaign.preregistration import PreparedRun, PreregistrationError, digest
+from smallestlie.campaign.source_map import EcLifecycleSourceMapAuthority
+from smallestlie.ledger.mapped_recording import journal_entry, read_mapped_journal
+
+
+@dataclass(frozen=True)
+class MappedRecording:
+    journal_sha256: str
+    report: MappedAdjudicationReport
+
+
+def _payloads(report, reviews):
+    snapshot = report.snapshot
+    items = [("mapped_recording_started", {
+        "case_ids": [item.case_id for item in report.cases],
+        "request_sha256": snapshot.request_sha256, "lock_digest": snapshot.lock_digest,
+        "snapshot_sha256": snapshot.validation_sha256,
+        "snapshot": ArtifactStore.reference(encoded(asdict(snapshot)))})]
+    artifacts = [encoded(asdict(snapshot))]
+    for row in report.cases:
+        raw = reviews.get(row.case_id)
+        validation, data = encoded(asdict(row.review)), encoded(row.to_dict())
+        artifacts.extend([raw, validation, data])
+        items.extend([
+            ("mapped_review_disposed", {"case_id": row.case_id,
+                "raw_review": ArtifactStore.reference(raw), "validation": ArtifactStore.reference(validation)}),
+            ("mapped_case_adjudicated", {"case_id": row.case_id, "row": ArtifactStore.reference(data)})])
+    data = encoded(report.to_dict())
+    artifacts.append(data)
+    items.append(("mapped_summary", {"report": ArtifactStore.reference(data)}))
+    return items, artifacts
+
+
+def _journal(items):
+    entries, previous = [], "0" * 64
+    for seq, (event, payload) in enumerate(items, 1):
+        row = journal_entry(seq, event, payload, previous)
+        entries.append(row)
+        previous = row["entry_sha256"]
+    return b"".join(encoded(row) + b"\n" for row in entries)
+
+
+def record_mapped_adjudication(root: str | Path, prepared: PreparedRun,
+                               reviews: Mapping[str, bytes | None], *,
+                               source_authority: EcLifecycleSourceMapAuthority,
+                               review_authority=None) -> MappedRecording:
+    """Compute all rows before creating a fresh single-writer follow-up root.
+
+    Refuse any existing root, including an interrupted prior recording. Each
+    artifact is synchronized and read back before the complete journal is
+    synchronized. Windows storage durability still requires external adoption.
+    """
+    root = Path(root).absolute()
+    _plain_path(root)
+    if root.exists():
+        raise PreregistrationError("mapped_recording_requires_fresh_root")
+    # Capture caller bytes once; no custom mapping can switch reviews after
+    # adjudication but before raw artifact persistence.
+    if not isinstance(reviews, Mapping):
+        raise AdjudicationError("mapped_reviews_require_raw_bytes_or_missing")
+    reviews = dict(reviews)
+    report = adjudicate_mapped_campaign(prepared, reviews,
+        source_authority=source_authority, review_authority=review_authority)
+    items, artifacts = _payloads(report, reviews)
+    data = _journal(items)
+    ArtifactStore.reference(data)
+    read_mapped_journal(data, [row.case_id for row in report.cases])
+    _mkdir(root, exist_ok=False)
+    store = ArtifactStore(root / "artifacts")
+    for raw in artifacts:
+        store.put(raw)
+    path = root / "journal.jsonl"
+    _plain_path(path)
+    with path.open("xb") as fh:
+        fh.write(data)
+        fh.flush()
+        os.fsync(fh.fileno())
+    _sync_directory(root)
+    if path.read_bytes() != data:
+        raise PreregistrationError("mapped_journal_durable_readback_mismatch")
+    return MappedRecording(digest(data), report)
+
+
+def verify_mapped_recording(root: str | Path, prepared: PreparedRun, *, expected_journal_sha256: str,
+                            source_authority: EcLifecycleSourceMapAuthority,
+                            review_authority=None) -> MappedRecording:
+    """Reacquire sources and compare every persisted artifact; never rerun work.
+
+    The expected digest must come from the trusted caller's external J
+    reference. Reading it from this journal or calculating it from the bundle
+    is not evidence of original raw-journal identity/publication acceptance.
+    """
+    sha256(expected_journal_sha256, "external exact mapped journal digest")
+    root = Path(root).absolute()
+    path = root / "journal.jsonl"
+    _plain_path(path)
+    with path.open("rb") as fh:
+        data = fh.read(10_000_001)
+    if digest(data) != expected_journal_sha256:
+        raise PreregistrationError("mapped_journal_external_raw_digest_mismatch")
+    ids = [case["case_id"] for case in prepared.lock()["cases"]]
+    entries = read_mapped_journal(data, ids)
+    store = ArtifactStore(root / "artifacts", create=False)
+    reviews = {cid: store.read(entries[1 + index * 2]["payload"]["raw_review"]) for index, cid in enumerate(ids)}
+    report = adjudicate_mapped_campaign(prepared, reviews,
+        source_authority=source_authority, review_authority=review_authority)
+    items, artifacts = _payloads(report, reviews)
+    if data != _journal(items):
+        raise PreregistrationError("mapped_recording_recomputed_journal_mismatch")
+    # Check raw content too: an intact chain cannot make a missing/swapped
+    # snapshot, raw review, validation, row or report file valid.
+    for raw in artifacts:
+        if store.read(ArtifactStore.reference(raw)) != raw:
+            raise PreregistrationError("mapped_recording_recomputed_artifact_mismatch")
+    return MappedRecording(expected_journal_sha256, report)

@@ -69,24 +69,37 @@ class AdjudicationReport:
 def _qualified_twin(prepared: PreparedRun, case_id: str, review: CaseReview,
                     assessments: dict[str, EffectivenessAssessment],
                     observations: dict[str, VerifierObservation]) -> tuple[bool, tuple[str, ...]]:
+    twin_id, reasons = twin_binding_effectiveness(prepared, case_id, assessments)
+    if twin_id is None:
+        return False, reasons
+    observed = observations[twin_id]
+    if observed.accepted is not False or observed.reasons or observed.provenance_ref is None:
+        return False, ("control_own_valid_verifier_block_required",)
+    return twin_finding_relation(prepared, case_id, review, observed)
+
+
+def twin_binding_effectiveness(prepared: PreparedRun, case_id: str, assessments: dict) -> tuple:
+    """Pure frozen near-shape identity and own effectiveness predicates."""
     parent = prepared.binding(case_id)
     twin_id = parent["twin_case_id"]
     if twin_id is None:
-        return False, ("no_preregistered_detectable_twin",)
+        return None, ("no_preregistered_detectable_twin",)
     twin = prepared.binding(twin_id)
     if (twin["preregistered_class"] != "CTL" or twin["control_role"] != "detectable_attack_control"
             or twin["twin_case_id"] is not None
             or parent["arms"]["twin"] != twin["arms"]["attack"]
             or any(parent["arms"][role] != twin["arms"][role] for role in ("baseline", "repair"))):
-        return False, ("twin_frozen_variant_or_role_mismatch",)
+        return None, ("twin_frozen_variant_or_role_mismatch",)
     if (assessments[case_id].twin != "confirmed" or assessments[twin_id].attack != "confirmed"):
-        return False, ("parent_twin_and_control_own_effectiveness_required",)
+        return None, ("parent_twin_and_control_own_effectiveness_required",)
     # Do not borrow a control's result solely because its fixture tree matches.
     if prepared.profile(case_id)["arms"]["twin"] != prepared.profile(twin_id)["arms"]["attack"]:
-        return False, ("twin_and_control_command_context_differ",)
-    observed = observations[twin_id]
-    if observed.accepted is not False or observed.reasons or observed.provenance_ref is None:
-        return False, ("control_own_valid_verifier_block_required",)
+        return None, ("twin_and_control_command_context_differ",)
+    return twin_id, ()
+
+
+def twin_finding_relation(prepared: PreparedRun, case_id: str, review, observed) -> tuple:
+    """Pure relevant-finding predicate; caller must authenticate observations."""
     if review.twin_relation != "confirmed":
         return False, ("near_shape_semantic_relation_unconfirmed",)
     declaration = frozen_spec(prepared, case_id)["adjudication"]["twin"]
@@ -141,35 +154,43 @@ def adjudicate_campaign(
                                       observation_refs, authority=review_authority)
         effect, observed = assessments[cid], verifier[cid]
         paired = False
-        reasons = []
-        if case["preregistered_class"] == "CTL":
-            verdict = ("control_rejected" if observed.accepted is False else
-                       "control_accepted" if observed.accepted is True else "unknown")
-            reasons.append("controls_are_retained_without_defect_credit")
-        elif effect.attack == "refuted":
-            verdict = "killed_candidate" if case["preregistered_class"] == "DEF" else "ineffective_candidate"
-            reasons.extend(effect.attack_reasons)
-        elif observed.accepted is False:
-            verdict = "attack_rejected"
-            reasons.append("valid_verifier_block_effectiveness_recorded_separately")
-        elif effect.attack != "confirmed" or observed.accepted is None:
-            verdict = "unknown"
-            reasons.extend((*effect.attack_reasons, *observed.reasons))
-        elif review.reasons or review.provenance_ref is None:
-            verdict = "unknown"
-            reasons.extend(review.reasons)
-        elif review.theater != "confirmed" or review.scope != "in_scope" or review.residual == "unresolved":
-            verdict = "boundary"
-            reasons.append("theater_scope_or_residual_coverage_not_eligible")
-        elif review.residual == "matched_residual":
-            verdict = "documented_residual"
-            reasons.append("effective_bypass_matches_reviewed_documented_residual")
-        else:
-            verdict = "confirmed_defect"
-            reasons.append("reviewed_reopened_closed_row" if review.residual == "reopened_closed"
-                           else "effective_in_scope_bypass_after_complete_source_review")
+        verdict, reasons = case_verdict(case, effect, observed, review,
+                                        review_trusted=review.provenance_ref is not None)
+        if verdict == "confirmed_defect":
             paired, twin_reasons = _qualified_twin(prepared, cid, review, assessments, verifier)
             reasons.extend(twin_reasons)
         rows.append(AdjudicatedCase(cid, case["preregistered_class"], verdict, paired, twin_id,
             tuple(reasons), effect, runner[cid], observed, review))
     return AdjudicationReport(lock["lock_digest"], tuple(rows))
+
+
+def case_verdict(case: dict, effect, observed, review, *, review_trusted: bool) -> tuple:
+    """Pure decision order, after each caller's version-specific authority gates."""
+    reasons = []
+    if case["preregistered_class"] == "CTL":
+        verdict = ("control_rejected" if observed.accepted is False else
+                   "control_accepted" if observed.accepted is True else "unknown")
+        reasons.append("controls_are_retained_without_defect_credit")
+    elif effect.attack == "refuted":
+        verdict = "killed_candidate" if case["preregistered_class"] == "DEF" else "ineffective_candidate"
+        reasons.extend(effect.attack_reasons)
+    elif observed.accepted is False:
+        verdict = "attack_rejected"
+        reasons.append("valid_verifier_block_effectiveness_recorded_separately")
+    elif effect.attack != "confirmed" or observed.accepted is None:
+        verdict = "unknown"
+        reasons.extend((*effect.attack_reasons, *observed.reasons))
+    elif not review_trusted or review.reasons:
+        verdict = "unknown"
+        reasons.extend(review.reasons)
+    elif review.theater != "confirmed" or review.scope != "in_scope" or review.residual == "unresolved":
+        verdict = "boundary"
+        reasons.append("theater_scope_or_residual_coverage_not_eligible")
+    elif review.residual == "matched_residual":
+        verdict = "documented_residual"
+        reasons.append("effective_bypass_matches_reviewed_documented_residual")
+    else:
+        verdict = "confirmed_defect"
+        reasons.append("reviewed_reopened_closed_row" if review.residual == "reopened_closed"
+                       else "effective_in_scope_bypass_after_complete_source_review")
+    return verdict, reasons

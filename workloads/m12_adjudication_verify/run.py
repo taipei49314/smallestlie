@@ -16,4 +16,8 @@ if __name__ == "__main__":
                        "tests/unit/test_runner_evidence.py", "tests/unit/test_residual_sources.py",
                        "tests/unit/test_execution_verdict.py"),
         heading="SmallestLie M12 research adjudication and finding preservation regression",
+        # PR34's full suite used 1082.641 of 1200 seconds. Keep the complete
+        # denominator and the EC outer 35-minute bound; allow this new slice
+        # 1600 seconds internally. Other workloads retain the default 1200.
+        full_timeout=1600,
     ))

@@ -1,0 +1,6 @@
+{
+  "sha": "d00c94afd5f9dad40d044b92b2e452962a52976b",
+  "merge_method": "merge",
+  "commit_title": "Merge PR #43: freeze human-approved W3 Phase1 source [skip ci]",
+  "commit_message": "Human explicitly approved exact HEAD d00c94afd5f9dad40d044b92b2e452962a52976b / manifest daf4497f252e141a5d13e2b1e8d461aa590b8089c3006b69703081b24c37c432, then instructed agent to merge and initiate W3. This is human-approved, agent-operated; preserve actual GitHub operator, not a claim that a human clicked Merge. Collector/cases remain NOT_RUN. Exact bounded launch/source/host/receipt prerequisites are separate and must be established before any formal execution."
+}

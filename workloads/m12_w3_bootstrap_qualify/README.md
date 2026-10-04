@@ -1,0 +1,15 @@
+# W3 bootstrap qualification
+
+This workload qualifies the missing restoration/private receiver/Git substrate before a formal W3 session. It is a disposable, tokenless single job on **LAPTOP-50KP71KA**, with a **35 minute** outer limit, `cache: false` and no parameters. The unchanged results-free Phase-1 merge is `f673f07110ba6e0b592e6e3ee1e69278ba05e731`.
+
+The trusted EC prefetch step reads the preparation receipt at `bd5717edac6bec5081dcbb56d4a6c9e1075c0753` as raw native Git objects, verifies its exact original tree, inventory and terminal native run/job identity, and places `raw/`, `proof/` and `preflight-input.json` under `EC_WORKLOAD_WORK/preparation-inputs`. No token reaches this entry. Original preparation artifacts remain immutable input provenance, not W3 observations or a new adoption grant.
+
+The entry independently checks frozen raw assets, ordered archive parts, whole ZIP identities, safe archive members and every restored regular file. It restores sealed images without downloading packages, reinstalling, resolving dependencies or regenerating locks. The private `python.exe -I -B` loader imports only the exact frozen product/collector source outside the restored prefix. Qualification captures actual private interpreter facts, native Node version and benign generation MinGit work, with original byte streams and complete before/after installation identities.
+
+The outputs retain original qualification captures, maps, native source proofs and explicit limits. Standard EC publication and cleanup apply; this workload creates no surviving campaign workspace. A successful qualification still does not accept filesystem durability, ACL/network isolation, launcher/collector/publisher/coordinator authority, private fresh-GET transport, or formal source mapping.
+
+For this workload, EC skips immediate job-directory cleanup if publication fails. Such unpublished residue is only best-effort: the next standard workload preparation may remove it. A failed publication is **NOT_DURABLE / NOT_QUALIFIED**, and this request permits no retry. Only an actual immutable publication and independent raw readback support qualification; the original preparation receipt remains a separate immutable input.
+
+Formal W3 subsequently needs an independently approved request, real locked ledger/prospective anchor, accepted serial session custody and a fresh original-source read channel. Each terminal action receives its own ticket and publication; the next release waits for independent native receipt qualification. The six frozen rows and missing/refuted cases stay in the denominator.
+
+This declaration is **not yet admitted** and the new source is **NOT_RUN**. Human admission and an exact-source one-dispatch gate precede execution. Neither the Phase-1 source approval nor the consumed preparation grant substitutes for that gate.

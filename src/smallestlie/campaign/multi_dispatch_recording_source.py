@@ -65,6 +65,14 @@ class PublishedMultiDispatchRecording:
     recording: MultiDispatchRecording
 
 
+@dataclass(frozen=True)
+class _VerifiedJMaterial:
+    """Private bytes from one completed acquisition; never an authority input."""
+    published: PublishedMultiDispatchRecording
+    journal: bytes
+    artifacts: tuple[tuple[str, bytes], ...]
+
+
 def _j_configuration(authority):
     if type(authority) is not EcMultiDispatchRecordingAuthority:
         raise ProvenanceError("exact external immutable J authority required")
@@ -165,6 +173,15 @@ def verify_published_multi_dispatch_recording(prepared: PreparedRun, *,
     The transport is the existing explicitly trusted integration boundary.
     Saved carriers, J hashes and publication success grant no semantic facts.
     """
+    return _acquire_verified_recording(prepared, recording_authority=recording_authority,
+        source_authority=source_authority, review_authority=review_authority).published
+
+
+def _acquire_verified_recording(prepared: PreparedRun, *,
+        recording_authority: EcMultiDispatchRecordingAuthority,
+        source_authority: EcMultiDispatchSourceMapAuthority,
+        review_authority=None) -> _VerifiedJMaterial:
+    """Share one fresh acquisition with export; preserve its exact raw closure."""
     if type(prepared) is not PreparedRun or type(source_authority) is not EcMultiDispatchSourceMapAuthority:
         raise ProvenanceError("exact frozen preparation and original source authority required")
     configured = (_j_configuration(recording_authority), _configuration(source_authority),
@@ -205,6 +222,9 @@ def verify_published_multi_dispatch_recording(prepared: PreparedRun, *,
     _check_roles(prepared, store, sources, reviews, result.report)
     require_unchanged()
     publication = receipt.grant
-    return PublishedMultiDispatchRecording(root.repository, root.repository_id, publication.receipt_commit,
+    published = PublishedMultiDispatchRecording(root.repository, root.repository_id, publication.receipt_commit,
         publication.run_id, publication.attempt, publication.job_id, publication.publication_sha256,
         publication.acceptance_ref, location, result)
+    closure = tuple((path.removeprefix(artifacts.prefix), artifacts.files[path])
+                    for path in sorted(artifacts.used))
+    return _VerifiedJMaterial(published, data, closure)

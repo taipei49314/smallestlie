@@ -1,6 +1,14 @@
 {
   "schema_version": 1,
   "workloads": {
+    "m12-portable-witness-verify": {
+      "description": "M12 portable raw J witness export and always-unverified offline inspection contracts plus the original eight focused groups and full frozen regression on LAPTOP-50KP71KA; synthetic records only, no formal W3, live runner/publisher/collector adoption, CLI measurement or engine re-pin. Separate human EC admission and exact-source execution required.",
+      "entry": "workloads/m12_portable_witness_verify/run.py",
+      "profile": "profile-ec-integrity",
+      "timeout_minutes": 60,
+      "cache": false,
+      "parameters": {}
+    },
     "m12-multi-dispatch-semantics-verify": {
       "description": "M12 multi-dispatch own-source runner/verifier semantics, exact independent reviews, full frozen rows, honest DEF kills and qualified detectable twins plus complete existing regression on LAPTOP-50KP71KA; synthetic records only, no formal W3, real runner/collector adoption, measurement or engine re-pin.",
       "entry": "workloads/m12_multi_dispatch_semantics_verify/run.py",

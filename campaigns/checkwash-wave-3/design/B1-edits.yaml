@@ -1,0 +1,26 @@
+# Design edits only. Keep original import/mock order, factory and package shape.
+candidate: CW-W3-B1
+class_hypothesis: BND
+detectable_twin: CW-W3-B1-CTL
+attack_from_baseline:
+  path: billing.test.js
+  old: 'import { invoiceTotal } from "victim/src/billing.js";'
+  new: |-
+    import { invoiceTotal } from "victim/src/billing.js";
+
+    vi.mock("victim/src/billing.js", () => ({ invoiceTotal: () => 78.75 }));
+twin_from_attack:
+  path: billing.test.js
+  old: '"victim/src/billing.js"'
+  new: '"./src/billing.js"'
+  expected_count: 2
+repair_from_baseline:
+  path: src/billing.js
+  old: '  return subtotal;  // bug: tax never applied'
+  new: '  return Math.round(subtotal * 105) / 100;'
+baseline_assertion_design: billing computes invoice total with tax
+expected_twin_detection:
+  rule_ids: [TEST_PATCHES_SUBJECT]
+  paths: [billing.test.js]
+claim_scope: unresolved
+residual_coverage: unresolved

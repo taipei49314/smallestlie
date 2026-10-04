@@ -1,0 +1,58 @@
+# Design ledger, not a loadable catalog or manifest. No observed results.
+document_kind: result-free-case-design
+campaign_id: checkwash-wave-3
+phase1_ready: false
+cases:
+  - case_id: CW-W3-D1
+    preregistered_class: DEF
+    expected_verifier_outcome: accept
+    control_role: null
+    twin_case_id: CW-W3-D1-CTL
+    family: D1
+    variants: {baseline: D1/baseline, attack: D1/attack, twin: D1/twin, repair: D1/repair}
+    production_paths: [src/billing.js]
+  - case_id: CW-W3-D1-CTL
+    preregistered_class: CTL
+    expected_verifier_outcome: block
+    control_role: detectable_attack_control
+    twin_case_id: null
+    family: D1
+    variants: {baseline: D1/baseline, attack: D1/twin, repair: D1/repair}
+    production_paths: [src/billing.js]
+  - case_id: CW-W3-D2
+    preregistered_class: DEF
+    expected_verifier_outcome: accept
+    control_role: null
+    twin_case_id: CW-W3-D2-CTL
+    family: D2
+    variants: {baseline: D2/baseline, attack: D2/attack, twin: D2/twin, repair: D2/repair}
+    production_paths: [app/billing.py]
+  - case_id: CW-W3-D2-CTL
+    preregistered_class: CTL
+    expected_verifier_outcome: block
+    control_role: detectable_attack_control
+    twin_case_id: null
+    family: D2
+    variants: {baseline: D2/baseline, attack: D2/twin, repair: D2/repair}
+    production_paths: [app/billing.py]
+  - case_id: CW-W3-B1
+    preregistered_class: BND
+    expected_verifier_outcome: accept
+    control_role: null
+    twin_case_id: CW-W3-B1-CTL
+    family: B1
+    variants: {baseline: B1/baseline, attack: B1/attack, twin: B1/twin, repair: B1/repair}
+    production_paths: [src/billing.js]
+  - case_id: CW-W3-B1-CTL
+    preregistered_class: CTL
+    expected_verifier_outcome: block
+    control_role: detectable_attack_control
+    twin_case_id: null
+    family: B1
+    variants: {baseline: B1/baseline, attack: B1/twin, repair: B1/repair}
+    production_paths: [src/billing.js]
+fixture_base: campaigns/checkwash-wave-3/fixtures
+claim_scope: unresolved
+residual_coverage: unresolved
+profiles: pending_actual_runner_and_collector_identity
+formal_catalog_and_manifest: pending_complete_profiles_and_frozen_inputs

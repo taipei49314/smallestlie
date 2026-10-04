@@ -1,0 +1,12 @@
+{
+  "name": "victim",
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./src/billing.js": "./src/billing.js"
+  },
+  "scripts": {
+    "test": "vitest run"
+  }
+}

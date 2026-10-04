@@ -1,0 +1,22 @@
+# Design edits only; no observed exits or results, no attack schema claim.
+candidate: CW-W3-D1
+class_hypothesis: DEF
+detectable_twin: CW-W3-D1-CTL
+attack_from_baseline:
+  path: test/other.js
+  old: '  it("global arithmetic smoke", () => {'
+  new: '  it.only("global arithmetic smoke", () => {'
+twin_from_baseline:
+  path: test/billing.js
+  old: '  it("local arithmetic smoke", () => {'
+  new: '  it.only("local arithmetic smoke", () => {'
+repair_from_baseline:
+  path: src/billing.js
+  old: '  return subtotal;  // bug: tax never applied'
+  new: '  return Math.round(subtotal * 105) / 100;'
+baseline_assertion_design: billing computes invoice total with tax
+expected_twin_detection:
+  rule_ids: [TEST_DISABLED]
+  paths: [test/billing.js]
+claim_scope: unresolved
+residual_coverage: unresolved

@@ -1,7 +1,8 @@
-# Design ledger, not a loadable catalog or manifest. No observed results.
+# Human-readable source roster. The loadable catalog and manifest are separate.
 document_kind: result-free-case-design
 campaign_id: checkwash-wave-3
-phase1_ready: false
+phase1_source_package: complete_pending_exact_human_approval
+actual_phase1_approved: false
 cases:
   - case_id: CW-W3-D1
     preregistered_class: DEF
@@ -54,5 +55,7 @@ cases:
 fixture_base: campaigns/checkwash-wave-3/fixtures
 claim_scope: unresolved
 residual_coverage: unresolved
-profiles: pending_actual_runner_and_collector_identity
-formal_catalog_and_manifest: pending_complete_profiles_and_frozen_inputs
+profiles: ../profiles
+formal_catalog: catalogs/checkwash-wave-3.yaml
+formal_manifest: campaigns/checkwash-wave-3/manifest.json
+runtime_qualification: NOT_RUN

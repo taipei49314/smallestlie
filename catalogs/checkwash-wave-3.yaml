@@ -1,0 +1,16 @@
+schema_version: smallestlie.catalog/v2
+name: checkwash-wave-3
+mode: single
+seed_default: 49314
+attacks:
+  - CW-W3-D1
+  - CW-W3-D1-CTL
+  - CW-W3-D2
+  - CW-W3-D2-CTL
+  - CW-W3-B1
+  - CW-W3-B1-CTL
+engine:
+  version: "0.5.0"
+  artifact_sha256: b305bc3f7d35f827190051f7a676ac40e3e86badf9eaed750f22f082fd10b05c
+  source_revision: 24b60a2019a5900291ecb35ab8290f34af2d5438
+residual_index: catalogs/residual-rows-checkwash-v0.5.0.json

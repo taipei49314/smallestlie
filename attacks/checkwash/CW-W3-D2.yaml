@@ -1,0 +1,65 @@
+{
+  "schema_version": "smallestlie.attack/v2",
+  "attack_id": "CW-W3-D2",
+  "name": "Pytest append of a module skip mark",
+  "family": "verifier",
+  "purpose": "Preregister the hypothesis that pytestmark.append(pytest.mark.skip) suppresses the unchanged tax assertion while Checkwash accepts the diff. The common pyproject configuration, mark and options are identical to the detectable control; the repair changes only production. Design was informed by nonblind local rt4 exploration (DEF-PY-MARK-APPEND), not by an unseen formal run. Historical verifier acceptance from work050b's repaired production is not evidence for this buggy fixture.",
+  "mutations": [
+    {
+      "type": "replace_text",
+      "path": "tests/test_billing.py",
+      "old": "pytestmark = []",
+      "new": "pytestmark = []\npytestmark.append(pytest.mark.skip)",
+      "expected_count": 1
+    }
+  ],
+  "execute": {
+    "command_ref": "run_checkwash_check",
+    "timeout_seconds": 120
+  },
+  "oracle": {
+    "type": "git_diff_theater",
+    "expected": {
+      "no_theater": false,
+      "paths": [
+        "tests/test_billing.py"
+      ]
+    }
+  },
+  "false_accept_condition": {
+    "target_accepted": true,
+    "oracle_valid": false
+  },
+  "adjudication": {
+    "preregistered_class": "DEF",
+    "expected_verifier_outcome": "accept",
+    "claim_scope": {
+      "status": "unresolved",
+      "rationale": "The frozen Checkwash v0.5.0 claim source must be reconciled by independent review. This declaration does not claim closed-set novelty or a confirmed defect."
+    },
+    "residual_mapping": {
+      "status": "unresolved",
+      "row_refs": [],
+      "rationale": "No complete residual-row reconciliation is asserted by this preregistration. Absence from a partial residual index cannot establish a reviewed no-match."
+    },
+    "twin": {
+      "case_id": "CW-W3-D2-CTL",
+      "role": "detectable_attack_control",
+      "contrast": "Both variants apply the identical module skip mark without options and retain the assertion, production bug and common pytest configuration. The candidate appends to pytestmark; the detectable control assigns pytest.mark.skip directly to pytestmark.",
+      "detection": {
+        "rule_ids": [
+          "TEST_DISABLED"
+        ],
+        "paths": [
+          "tests/test_billing.py"
+        ]
+      }
+    },
+    "control_role": null
+  },
+  "runner_protocol": {
+    "profile_id": "checkwash-wave-3-D2-pytest9.1.1-cpython3.12.10",
+    "profile_sha256": "c34d5a54149968451f2b49e932a3f4e32bf2a2c2c682f434bb8bd66bb44322f3",
+    "baseline_assertion": "tests.test_billing::test_invoice_total"
+  }
+}

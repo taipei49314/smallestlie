@@ -1,0 +1,115 @@
+{
+  "schema_version": "smallestlie.runner-profile/v1",
+  "profile_id": "checkwash-wave-3-D1-mocha12.0.3-node24.19.0",
+  "baseline_assertion": "billing computes invoice total with tax",
+  "runner": {
+    "name": "mocha",
+    "version": "12.0.3",
+    "artifact_sha256": "27231ebe81adfe0f587f05ebd86feae47213217a034115d2c8d9a11c528ee5e8"
+  },
+  "runtime": {
+    "name": "node",
+    "version": "24.19.0",
+    "artifact_sha256": "3602f2bb1a10f2cbab4c36886218a33c1ab3db87290e73b033c46c77147d0237"
+  },
+  "dependencies": {
+    "lock_path": "campaigns/checkwash-wave-3/installations/js-package-lock.json",
+    "installed_sha256": "7851211ca941deae8fb7846150d2272ba682fa970460e6806f0ab895db136636"
+  },
+  "semantic_env": {
+    "CI": "1",
+    "NO_COLOR": "1",
+    "NODE_DISABLE_COMPILE_CACHE": "1"
+  },
+  "report_format": "mocha-json",
+  "assertion_failure": {
+    "message_contains": "expected 75 to equal 78.75"
+  },
+  "collector_path": "campaigns/checkwash-wave-3/contracts/w3_external_collector.py",
+  "collector_sha256": "ee972284ec1052937afb7ddf078da6e6a28a265e7fec318454ef0cf8eeb0fa29",
+  "arms": {
+    "baseline": {
+      "argv": [
+        "${RUNTIME}",
+        "../node_modules/mocha/bin/mocha.js",
+        "--no-config",
+        "--no-package",
+        "--timeout",
+        "5000",
+        "--reporter",
+        "json",
+        "--reporter-option",
+        "output=${WORKSPACE}/native-report.json",
+        "test/billing.js",
+        "test/other.js"
+      ],
+      "cwd": ".",
+      "config_paths": [
+        "package.json"
+      ]
+    },
+    "attack": {
+      "argv": [
+        "${RUNTIME}",
+        "../node_modules/mocha/bin/mocha.js",
+        "--no-config",
+        "--no-package",
+        "--timeout",
+        "5000",
+        "--reporter",
+        "json",
+        "--reporter-option",
+        "output=${WORKSPACE}/native-report.json",
+        "test/billing.js",
+        "test/other.js"
+      ],
+      "cwd": ".",
+      "config_paths": [
+        "package.json"
+      ]
+    },
+    "twin": {
+      "argv": [
+        "${RUNTIME}",
+        "../node_modules/mocha/bin/mocha.js",
+        "--no-config",
+        "--no-package",
+        "--timeout",
+        "5000",
+        "--reporter",
+        "json",
+        "--reporter-option",
+        "output=${WORKSPACE}/native-report.json",
+        "test/billing.js",
+        "test/other.js"
+      ],
+      "cwd": ".",
+      "config_paths": [
+        "package.json"
+      ]
+    },
+    "repair": {
+      "argv": [
+        "${RUNTIME}",
+        "../node_modules/mocha/bin/mocha.js",
+        "--no-config",
+        "--no-package",
+        "--timeout",
+        "5000",
+        "--reporter",
+        "json",
+        "--reporter-option",
+        "output=${WORKSPACE}/native-report.json",
+        "test/billing.js",
+        "test/other.js"
+      ],
+      "cwd": ".",
+      "config_paths": [
+        "package.json"
+      ]
+    }
+  },
+  "assertion_exit_codes": [
+    1
+  ]
+}

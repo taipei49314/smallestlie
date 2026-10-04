@@ -1,0 +1,126 @@
+{
+  "schema_version": "smallestlie.runner-profile/v1",
+  "profile_id": "checkwash-wave-3-D2-pytest9.1.1-cpython3.12.10",
+  "baseline_assertion": "tests.test_billing::test_invoice_total",
+  "runner": {
+    "name": "pytest",
+    "version": "9.1.1",
+    "artifact_sha256": "409fe174ed172762bb7b7a3d2c76d1020ef17d3ea06a236e48c6f72b51d77c34"
+  },
+  "runtime": {
+    "name": "cpython",
+    "version": "3.12.10",
+    "artifact_sha256": "4d6f5f81a4bca11191c4c7c6b43632694d0a4ce74e068619d8fdc161d469859a"
+  },
+  "dependencies": {
+    "lock_path": "campaigns/checkwash-wave-3/installations/python-input-uv.lock",
+    "installed_sha256": "c206c206385434c994f1287a0e0253537255bb4eefbf02c3b9100b514feea859"
+  },
+  "semantic_env": {
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+  },
+  "report_format": "junit",
+  "assertion_failure": {
+    "message_contains": "assert 75.0 == 78.75",
+    "text_contains": "assert 75.0 == 78.75"
+  },
+  "collector_path": "campaigns/checkwash-wave-3/contracts/w3_external_collector.py",
+  "collector_sha256": "ee972284ec1052937afb7ddf078da6e6a28a265e7fec318454ef0cf8eeb0fa29",
+  "arms": {
+    "baseline": {
+      "argv": [
+        "${RUNTIME}",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-c",
+        "pyproject.toml",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "junit_family=xunit2",
+        "-o",
+        "junit_logging=no",
+        "--junitxml=${WORKSPACE}/native-report.xml",
+        "tests/test_billing.py"
+      ],
+      "cwd": ".",
+      "config_paths": [
+        "pyproject.toml"
+      ]
+    },
+    "attack": {
+      "argv": [
+        "${RUNTIME}",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-c",
+        "pyproject.toml",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "junit_family=xunit2",
+        "-o",
+        "junit_logging=no",
+        "--junitxml=${WORKSPACE}/native-report.xml",
+        "tests/test_billing.py"
+      ],
+      "cwd": ".",
+      "config_paths": [
+        "pyproject.toml"
+      ]
+    },
+    "twin": {
+      "argv": [
+        "${RUNTIME}",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-c",
+        "pyproject.toml",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "junit_family=xunit2",
+        "-o",
+        "junit_logging=no",
+        "--junitxml=${WORKSPACE}/native-report.xml",
+        "tests/test_billing.py"
+      ],
+      "cwd": ".",
+      "config_paths": [
+        "pyproject.toml"
+      ]
+    },
+    "repair": {
+      "argv": [
+        "${RUNTIME}",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-c",
+        "pyproject.toml",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "junit_family=xunit2",
+        "-o",
+        "junit_logging=no",
+        "--junitxml=${WORKSPACE}/native-report.xml",
+        "tests/test_billing.py"
+      ],
+      "cwd": ".",
+      "config_paths": [
+        "pyproject.toml"
+      ]
+    }
+  },
+  "assertion_exit_codes": [
+    1
+  ]
+}

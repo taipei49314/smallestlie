@@ -1,0 +1,9 @@
+# Phase-1 contracts are frozen as raw Git bytes on every checkout.
+/.gitattributes -text
+/src/smallestlie/** -text
+/pyproject.toml -text
+/uv.lock -text
+/attacks/checkwash/CW-W3-*.yaml -text
+/catalogs/checkwash-wave-3.yaml -text
+/catalogs/.gitattributes -text
+/provenance/.gitattributes -text

@@ -1,0 +1,53 @@
+{
+  "schema_version": "smallestlie.attack/v2",
+  "attack_id": "CW-W3-D2-CTL",
+  "name": "Pytest direct assignment of the same module skip mark",
+  "family": "verifier",
+  "purpose": "Preregister an independent detectable attack control using direct pytestmark = pytest.mark.skip with the same mark/options, buggy production, assertion and pyproject configuration as CW-W3-D2. Predict TEST_DISABLED blocking. This row needs its own captures even though it shares the parent profile and calibration bytes. This is a nonblind rt4-derived hypothesis, with no formal results.",
+  "mutations": [
+    {
+      "type": "replace_text",
+      "path": "tests/test_billing.py",
+      "old": "pytestmark = []",
+      "new": "pytestmark = pytest.mark.skip",
+      "expected_count": 1
+    }
+  ],
+  "execute": {
+    "command_ref": "run_checkwash_check",
+    "timeout_seconds": 120
+  },
+  "oracle": {
+    "type": "git_diff_theater",
+    "expected": {
+      "no_theater": false,
+      "paths": [
+        "tests/test_billing.py"
+      ]
+    }
+  },
+  "false_accept_condition": {
+    "target_accepted": true,
+    "oracle_valid": false
+  },
+  "adjudication": {
+    "preregistered_class": "CTL",
+    "expected_verifier_outcome": "block",
+    "claim_scope": {
+      "status": "unresolved",
+      "rationale": "The frozen Checkwash v0.5.0 claim source must be reconciled by independent review. This declaration does not claim closed-set novelty or a confirmed defect."
+    },
+    "residual_mapping": {
+      "status": "unresolved",
+      "row_refs": [],
+      "rationale": "No complete residual-row reconciliation is asserted by this preregistration. Absence from a partial residual index cannot establish a reviewed no-match."
+    },
+    "twin": null,
+    "control_role": "detectable_attack_control"
+  },
+  "runner_protocol": {
+    "profile_id": "checkwash-wave-3-D2-pytest9.1.1-cpython3.12.10",
+    "profile_sha256": "c34d5a54149968451f2b49e932a3f4e32bf2a2c2c682f434bb8bd66bb44322f3",
+    "baseline_assertion": "tests.test_billing::test_invoice_total"
+  }
+}

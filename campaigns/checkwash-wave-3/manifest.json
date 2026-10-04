@@ -1,0 +1,1155 @@
+{
+  "schema_version": "smallestlie.preregistration/v1",
+  "campaign_id": "checkwash-wave-3",
+  "catalog_path": "catalogs/checkwash-wave-3.yaml",
+  "assets": {
+    ".gitattributes": {
+      "sha256": "d6bdcd786a40892063b2fec978c93d71af32cebd13548e9ee60a34f3934dec48",
+      "git_blob": "84689dc28cd7190e7bffd1010b00715aafc17f20"
+    },
+    "attacks/checkwash/CW-W3-B1-CTL.yaml": {
+      "sha256": "02604d38a4d39a1c6e19728c828573cd7f2a5d4c2b4f25c31abeadf90f0d07b6",
+      "git_blob": "758eb3d0d74cafa8697581f3b6586f014b033078"
+    },
+    "attacks/checkwash/CW-W3-B1.yaml": {
+      "sha256": "fa0388957fb93adfbde0556ebd076f57ec9b4b2135cb9a8825e360e4310036e0",
+      "git_blob": "4fa387a189880c92850c868c1d3c3b36dd9d5dcc"
+    },
+    "attacks/checkwash/CW-W3-D1-CTL.yaml": {
+      "sha256": "c125b2aab0bc60795c97e80f14f3f455558c9c3591cd308a63074935360b1094",
+      "git_blob": "2e5632eb42a566fc89451c9415e1e0424ce12f46"
+    },
+    "attacks/checkwash/CW-W3-D1.yaml": {
+      "sha256": "c69173b2e2c55d78e5803a97038a675af6587d7b2b0211fb9736a8a2c88bd6cb",
+      "git_blob": "972ed9e7dd6613d407bc764c596b001a05afd63c"
+    },
+    "attacks/checkwash/CW-W3-D2-CTL.yaml": {
+      "sha256": "c9c90b08ade5617ee08986da69e9f45d4838a56b60d222e09b1855c7ac1a6f40",
+      "git_blob": "3116abe7857f4a9da5a35a2a715e0de959709d86"
+    },
+    "attacks/checkwash/CW-W3-D2.yaml": {
+      "sha256": "83be97ba4ca57ec7d911383df6a5a57ea7a8d4c91083358815696e8ef2d177ea",
+      "git_blob": "0286044d0aaec1e19656a23f3c060b9cc96a8963"
+    },
+    "campaigns/checkwash-wave-3/.gitattributes": {
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da",
+      "git_blob": "fa1385d99a319b43c06f5309d1aae9fdd3adea46"
+    },
+    "campaigns/checkwash-wave-3/README.md": {
+      "sha256": "ddae7aaac1b7102b47438d790fe0458138dcf49ae0f57aadeb6ba471e33e4efe",
+      "git_blob": "dc0b38866d106a32647839d40160a8734bb767b2"
+    },
+    "campaigns/checkwash-wave-3/contracts/deployment.md": {
+      "sha256": "a7a4d7e56ea055e3332bc2a6916e830893dd9e96e68ebde6983cb4cb784ca787",
+      "git_blob": "394bad70a60bc2dae368519640e6e44d606e581d"
+    },
+    "campaigns/checkwash-wave-3/contracts/source-boundaries.md": {
+      "sha256": "e36610a2ce37f48c099d6cbe3ed282b7d1fd5a6c5962a3bc61e485b6628a0477",
+      "git_blob": "c72c234f4490f876b4e32aff93030460af7ce9fd"
+    },
+    "campaigns/checkwash-wave-3/contracts/verifier-environment.json": {
+      "sha256": "bfbe2754b99ffd3217de675ddef23e04e5f5e6978ba67d39fd8aa440974ca710",
+      "git_blob": "bcd63f57fa0d4b8538afe771a29c1ed3d70a3e5a"
+    },
+    "campaigns/checkwash-wave-3/contracts/w3_external_collector.py": {
+      "sha256": "ee972284ec1052937afb7ddf078da6e6a28a265e7fec318454ef0cf8eeb0fa29",
+      "git_blob": "53ba2e9112fb93c1de56e150772b474dce5abd5e"
+    },
+    "campaigns/checkwash-wave-3/design/B1-edits.yaml": {
+      "sha256": "e57315ec0cedc65e66a9d22d77d190241b1fcf9ca2509f56daffc1818af5abf7",
+      "git_blob": "36637b8d85ea021d84448af21fc74d0eaaeb4f82"
+    },
+    "campaigns/checkwash-wave-3/design/D1-edits.yaml": {
+      "sha256": "e2237d0bab1caa41422d6e14d65f7fdf3effeb44ddc6efc0c2adb759a714e7fd",
+      "git_blob": "412103a2cfa80f4717d43d30bcc9a89ceb98cb8e"
+    },
+    "campaigns/checkwash-wave-3/design/D2-edits.yaml": {
+      "sha256": "9263d1c4c9e7a33d33240aa4965129fd240e5af0fb93baf0a139b292dd8ac340",
+      "git_blob": "9e347aa78b7ad294b37ad4c973e6f1b95db26b66"
+    },
+    "campaigns/checkwash-wave-3/design/capture-requirements.md": {
+      "sha256": "f806d9834210374721161be3d84b2dbcf5372ff967e0d2ede987296f8ad975d9",
+      "git_blob": "16ad81bd036013ead2896643eac1dba61c3e254f"
+    },
+    "campaigns/checkwash-wave-3/design/roster.yaml": {
+      "sha256": "83833f61077d54c92a678911fc29fd9a80a450dd746d4620b94669528cf7f986",
+      "git_blob": "159251d469ad597f5fb5b26b5405603c1f5397de"
+    },
+    "campaigns/checkwash-wave-3/fixtures/B1/attack/billing.test.js": {
+      "sha256": "a2c1a65e8554923b7e99319885229aac7d69a0289fe1ef572017d196d6cbd34e",
+      "git_blob": "f48192be34ef1cac13880d14ec25e2755b777d8b"
+    },
+    "campaigns/checkwash-wave-3/fixtures/B1/attack/index.js": {
+      "sha256": "f615240bdf4b9ae589da60e1a702728dc65b34ae174ed23a9f07e61732232ec5",
+      "git_blob": "20568bbd1d6869e49717fa100b603c9ad1f14c4d"
+    },
+    "campaigns/checkwash-wave-3/fixtures/B1/attack/package.json": {
+      "sha256": "3e77caa3014c06498fa08dd11ee4d2f46df868184d0f97e0b29e0547e7ac73f6",
+      "git_blob": "a52380e5f3f5555e57a59d755d6c42a8edf16407"
+    },
+    "campaigns/checkwash-wave-3/fixtures/B1/attack/src/billing.js": {
+      "sha256": "c12c7cb44ba7becef39623a35305431b543e9d4e00f9dc5218a51acb3d81da0c",
+      "git_blob": "5ca122fef976eb050d066fdbe9391ecbcfd52494"
+    },
+    "campaigns/checkwash-wave-3/fixtures/B1/attack/vitest.config.mjs": {
+      "sha256": "efa8baff5002195f83ca8011f2c839d02e963562408e3d45c4590fb9f0494fa0",
+      "git_blob": "a3a36e2f38ceddf7ed7583453b145cbff434e5a0"
+    },
+    "campaigns/checkwash-wave-3/fixtures/B1/baseline/billing.test.js": {
+      "sha256": "1711895bb911516b92467c4a1f8d90a8bb7c0036747ec6e429edad1aa02858c7",
+      "git_blob": "20faa570c92225c30532203d7d225da3d96e8005"
+    },
+    "campaigns/checkwash-wave-3/fixtures/B1/baseline/index.js": {
+      "sha256": "f615240bdf4b9ae589da60e1a702728dc65b34ae174ed23a9f07e61732232ec5",
+      "git_blob": "20568bbd1d6869e49717fa100b603c9ad1f14c4d"
+    },
+    "campaigns/checkwash-wave-3/fixtures/B1/baseline/package.json": {
+      "sha256": "3e77caa3014c06498fa08dd11ee4d2f46df868184d0f97e0b29e0547e7ac73f6",
+      "git_blob": "a52380e5f3f5555e57a59d755d6c42a8edf16407"
+    },
+    "campaigns/checkwash-wave-3/fixtures/B1/baseline/src/billing.js": {
+      "sha256": "c12c7cb44ba7becef39623a35305431b543e9d4e00f9dc5218a51acb3d81da0c",
+      "git_blob": "5ca122fef976eb050d066fdbe9391ecbcfd52494"
+    },
+    "campaigns/checkwash-wave-3/fixtures/B1/baseline/vitest.config.mjs": {
+      "sha256": "efa8baff5002195f83ca8011f2c839d02e963562408e3d45c4590fb9f0494fa0",
+      "git_blob": "a3a36e2f38ceddf7ed7583453b145cbff434e5a0"
+    },
+    "campaigns/checkwash-wave-3/fixtures/B1/repair/billing.test.js": {
+      "sha256": "1711895bb911516b92467c4a1f8d90a8bb7c0036747ec6e429edad1aa02858c7",
+      "git_blob": "20faa570c92225c30532203d7d225da3d96e8005"
+    },
+    "campaigns/checkwash-wave-3/fixtures/B1/repair/index.js": {
+      "sha256": "f615240bdf4b9ae589da60e1a702728dc65b34ae174ed23a9f07e61732232ec5",
+      "git_blob": "20568bbd1d6869e49717fa100b603c9ad1f14c4d"
+    },
+    "campaigns/checkwash-wave-3/fixtures/B1/repair/package.json": {
+      "sha256": "3e77caa3014c06498fa08dd11ee4d2f46df868184d0f97e0b29e0547e7ac73f6",
+      "git_blob": "a52380e5f3f5555e57a59d755d6c42a8edf16407"
+    },
+    "campaigns/checkwash-wave-3/fixtures/B1/repair/src/billing.js": {
+      "sha256": "071da37aea3bb2e50416b04eb6d128764cb46de54d250894299a1595c7da14e1",
+      "git_blob": "ce121dca877e9bb8ba0ef2e5f61036134c2f9590"
+    },
+    "campaigns/checkwash-wave-3/fixtures/B1/repair/vitest.config.mjs": {
+      "sha256": "efa8baff5002195f83ca8011f2c839d02e963562408e3d45c4590fb9f0494fa0",
+      "git_blob": "a3a36e2f38ceddf7ed7583453b145cbff434e5a0"
+    },
+    "campaigns/checkwash-wave-3/fixtures/B1/twin/billing.test.js": {
+      "sha256": "edc11c4d8c7c5505d1fe707530a30710cd0c0de6d000994451249054d8e11acc",
+      "git_blob": "4df767cdb9af777245687bc9991a524f53bf8149"
+    },
+    "campaigns/checkwash-wave-3/fixtures/B1/twin/index.js": {
+      "sha256": "f615240bdf4b9ae589da60e1a702728dc65b34ae174ed23a9f07e61732232ec5",
+      "git_blob": "20568bbd1d6869e49717fa100b603c9ad1f14c4d"
+    },
+    "campaigns/checkwash-wave-3/fixtures/B1/twin/package.json": {
+      "sha256": "3e77caa3014c06498fa08dd11ee4d2f46df868184d0f97e0b29e0547e7ac73f6",
+      "git_blob": "a52380e5f3f5555e57a59d755d6c42a8edf16407"
+    },
+    "campaigns/checkwash-wave-3/fixtures/B1/twin/src/billing.js": {
+      "sha256": "c12c7cb44ba7becef39623a35305431b543e9d4e00f9dc5218a51acb3d81da0c",
+      "git_blob": "5ca122fef976eb050d066fdbe9391ecbcfd52494"
+    },
+    "campaigns/checkwash-wave-3/fixtures/B1/twin/vitest.config.mjs": {
+      "sha256": "efa8baff5002195f83ca8011f2c839d02e963562408e3d45c4590fb9f0494fa0",
+      "git_blob": "a3a36e2f38ceddf7ed7583453b145cbff434e5a0"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D1/attack/package.json": {
+      "sha256": "340e3ac720d652fc4919e54fb7bdc122896e067152af7b195375f370742ad63c",
+      "git_blob": "06ece723f0de81c41abdc71ee22b93e6b43931a0"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D1/attack/src/billing.js": {
+      "sha256": "c12c7cb44ba7becef39623a35305431b543e9d4e00f9dc5218a51acb3d81da0c",
+      "git_blob": "5ca122fef976eb050d066fdbe9391ecbcfd52494"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D1/attack/test/billing.js": {
+      "sha256": "225352e905521e0e2f39aa63c42ed0d99703179e4959da9ed6b7654ac45470d7",
+      "git_blob": "166ea4b1be95aaf40a9e714e02f7492f46baf23e"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D1/attack/test/other.js": {
+      "sha256": "da4ee6478dea3e84ae8638ce7fad61982895767d689b2f89b65126535f0588b4",
+      "git_blob": "577ebff3ddbee30b6d1242bda38dbeac37089dbd"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D1/baseline/package.json": {
+      "sha256": "340e3ac720d652fc4919e54fb7bdc122896e067152af7b195375f370742ad63c",
+      "git_blob": "06ece723f0de81c41abdc71ee22b93e6b43931a0"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D1/baseline/src/billing.js": {
+      "sha256": "c12c7cb44ba7becef39623a35305431b543e9d4e00f9dc5218a51acb3d81da0c",
+      "git_blob": "5ca122fef976eb050d066fdbe9391ecbcfd52494"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D1/baseline/test/billing.js": {
+      "sha256": "225352e905521e0e2f39aa63c42ed0d99703179e4959da9ed6b7654ac45470d7",
+      "git_blob": "166ea4b1be95aaf40a9e714e02f7492f46baf23e"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D1/baseline/test/other.js": {
+      "sha256": "bb247362958faff280e1d9f9376c2cdb96e38657d4f25b387441a7563f21dd36",
+      "git_blob": "148f17e82c3ef1155128b556bdf386e5668b8847"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D1/repair/package.json": {
+      "sha256": "340e3ac720d652fc4919e54fb7bdc122896e067152af7b195375f370742ad63c",
+      "git_blob": "06ece723f0de81c41abdc71ee22b93e6b43931a0"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D1/repair/src/billing.js": {
+      "sha256": "071da37aea3bb2e50416b04eb6d128764cb46de54d250894299a1595c7da14e1",
+      "git_blob": "ce121dca877e9bb8ba0ef2e5f61036134c2f9590"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D1/repair/test/billing.js": {
+      "sha256": "225352e905521e0e2f39aa63c42ed0d99703179e4959da9ed6b7654ac45470d7",
+      "git_blob": "166ea4b1be95aaf40a9e714e02f7492f46baf23e"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D1/repair/test/other.js": {
+      "sha256": "bb247362958faff280e1d9f9376c2cdb96e38657d4f25b387441a7563f21dd36",
+      "git_blob": "148f17e82c3ef1155128b556bdf386e5668b8847"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D1/twin/package.json": {
+      "sha256": "340e3ac720d652fc4919e54fb7bdc122896e067152af7b195375f370742ad63c",
+      "git_blob": "06ece723f0de81c41abdc71ee22b93e6b43931a0"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D1/twin/src/billing.js": {
+      "sha256": "c12c7cb44ba7becef39623a35305431b543e9d4e00f9dc5218a51acb3d81da0c",
+      "git_blob": "5ca122fef976eb050d066fdbe9391ecbcfd52494"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D1/twin/test/billing.js": {
+      "sha256": "79488ff09e064c8a3f94ee3500437194cf1f2b4c6380a5c4e635c60e6dafb185",
+      "git_blob": "01dbf7e1d3c559412b05a6a1917f53dcac72d995"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D1/twin/test/other.js": {
+      "sha256": "bb247362958faff280e1d9f9376c2cdb96e38657d4f25b387441a7563f21dd36",
+      "git_blob": "148f17e82c3ef1155128b556bdf386e5668b8847"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D2/attack/app/billing.py": {
+      "sha256": "163fb4796c52de3291d1920817726fc3e3b83c082660dccc3dc6c17dd93c01e7",
+      "git_blob": "b13b6a9a08172e67249cfa74411a0cc97b8de7c8"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D2/attack/pyproject.toml": {
+      "sha256": "e8c4628ed8f1f109ed9455dff39a67374c0711c7e24e6a5114517abe41fb61db",
+      "git_blob": "f0e4c8af8ec24d975c0d9a59e9e179c370c6c0a3"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D2/attack/tests/test_billing.py": {
+      "sha256": "60db0b0fc074c8f8a560a9f6a249b7235a060d241ff30455ceaf6979b955b98d",
+      "git_blob": "fc75bd0211d555e1d6dc2981b1e1e7d21617f8a2"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D2/baseline/app/billing.py": {
+      "sha256": "163fb4796c52de3291d1920817726fc3e3b83c082660dccc3dc6c17dd93c01e7",
+      "git_blob": "b13b6a9a08172e67249cfa74411a0cc97b8de7c8"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D2/baseline/pyproject.toml": {
+      "sha256": "e8c4628ed8f1f109ed9455dff39a67374c0711c7e24e6a5114517abe41fb61db",
+      "git_blob": "f0e4c8af8ec24d975c0d9a59e9e179c370c6c0a3"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D2/baseline/tests/test_billing.py": {
+      "sha256": "358ed48b851a78670df71c243152b89d578f036325423cfbf3b148eddd7fb43d",
+      "git_blob": "361026e73ecd903ede6f3af210657b19999e3a25"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D2/repair/app/billing.py": {
+      "sha256": "cd76e905a219b1386446de01f5b866c9d51162a57bbbcddbf2aa9bfe801b229d",
+      "git_blob": "7964be7e8016a6fbe1919f83f1f39c417482030c"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D2/repair/pyproject.toml": {
+      "sha256": "e8c4628ed8f1f109ed9455dff39a67374c0711c7e24e6a5114517abe41fb61db",
+      "git_blob": "f0e4c8af8ec24d975c0d9a59e9e179c370c6c0a3"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D2/repair/tests/test_billing.py": {
+      "sha256": "358ed48b851a78670df71c243152b89d578f036325423cfbf3b148eddd7fb43d",
+      "git_blob": "361026e73ecd903ede6f3af210657b19999e3a25"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D2/twin/app/billing.py": {
+      "sha256": "163fb4796c52de3291d1920817726fc3e3b83c082660dccc3dc6c17dd93c01e7",
+      "git_blob": "b13b6a9a08172e67249cfa74411a0cc97b8de7c8"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D2/twin/pyproject.toml": {
+      "sha256": "e8c4628ed8f1f109ed9455dff39a67374c0711c7e24e6a5114517abe41fb61db",
+      "git_blob": "f0e4c8af8ec24d975c0d9a59e9e179c370c6c0a3"
+    },
+    "campaigns/checkwash-wave-3/fixtures/D2/twin/tests/test_billing.py": {
+      "sha256": "e2b932dc26ab4fe532ed7425b54fc4a6659e9ccdc14b80225224143420dedc5d",
+      "git_blob": "9629027b76e9a53a9308ab9e56bfd87486413c2c"
+    },
+    "campaigns/checkwash-wave-3/installations/js-files.json": {
+      "sha256": "7f96af30b9f8b6d7d1a7cb7d5d32c88ba5c63ae295842d6bdb960ad1e7f4b139",
+      "git_blob": "6ebb3bdad2319d975c599d85c3b69ad2607ce268"
+    },
+    "campaigns/checkwash-wave-3/installations/js-package-lock.json": {
+      "sha256": "b2d89f262880a85d9d53cfe75d637cb6c2f98737f082cfbdf5d2e4c5ceee2cd2",
+      "git_blob": "d2532ba7b910b40a4902d9bb5cacd6502a5f7a78"
+    },
+    "campaigns/checkwash-wave-3/installations/js-package.json": {
+      "sha256": "47ea08a3d4e4f67c807bddf1931810f6be8d44d4c78044cc09c45dfd4344c196",
+      "git_blob": "32484f7f4c2b799e449f304a8bdf8fee05b63dbc"
+    },
+    "campaigns/checkwash-wave-3/installations/js-runner-package-files.json": {
+      "sha256": "71d83f57124f8b910a3116ac267338ad34a936399eb4227e055ce80ff0987a24",
+      "git_blob": "2aa4749a24c6ca50bbf9f49730d759b741485e1f"
+    },
+    "campaigns/checkwash-wave-3/installations/node-files.json": {
+      "sha256": "16473d0b52e6dfd9364956d23a4e9b85b7d8cfeccc25ab88590ec04d83336ae0",
+      "git_blob": "c2763d6bef76d17b6c0e261614d7f19f02916be4"
+    },
+    "campaigns/checkwash-wave-3/installations/node-version.stdout": {
+      "sha256": "bc697de995dc791df53d688ef69c08994cdffc8ce30c906b1ffc65b131ccd0eb",
+      "git_blob": "764cde6852628e2a3a2127074e923be9c41cb06f"
+    },
+    "campaigns/checkwash-wave-3/installations/provenance.json": {
+      "sha256": "7882d3b642a675379c126ad7b4f87cf09eb4ddac1d91237ca0b6ec107017418d",
+      "git_blob": "d7cb31a79e56ab08ea0d8b95e5e308c48f4478d5"
+    },
+    "campaigns/checkwash-wave-3/installations/pytest-package-files.json": {
+      "sha256": "3b8acda4fd85810e986647959339aff2076e266ed7ad9aa7cd4d128e9b1d4376",
+      "git_blob": "9e49d1897b0607b5f5e7e976dbc6064847293d1f"
+    },
+    "campaigns/checkwash-wave-3/installations/python-files.json": {
+      "sha256": "3a2cef311da838d267d3361bc6d819f59811a4cd8e3b75adb7a4067bcb3ecf85",
+      "git_blob": "65a50a6f6b40f0db63dc28631c910c70be609931"
+    },
+    "campaigns/checkwash-wave-3/installations/python-identity.json": {
+      "sha256": "e44475a1b22736fb88e0ea3e88676fa42e1d540c94c8608c1fa7d182ad424791",
+      "git_blob": "007efbc8b3c3606a16278a84e47e7fb695aa3d93"
+    },
+    "campaigns/checkwash-wave-3/installations/python-input-uv.lock": {
+      "sha256": "c09258281d58dd19d6ed19e60d2fc14ef783d4f63df8ca171548e399ec055b48",
+      "git_blob": "920017fd19653301d4d0b85dba31232eacc82482"
+    },
+    "campaigns/checkwash-wave-3/installations/python-wheels.json": {
+      "sha256": "cab16c36cf3cb5708cbc04d0d7cfd09b47cd69007c710c204c90f2482852786e",
+      "git_blob": "a7237cff2b8101e2d56c155bf2d95b03cbc124a2"
+    },
+    "campaigns/checkwash-wave-3/profiles/B1.json": {
+      "sha256": "613be61b7be79e9b2984fe6debd135eb2bcc602801deaea57730a34212257b93",
+      "git_blob": "21e3ad295e8a69945f8302431676606c4fc5e68c"
+    },
+    "campaigns/checkwash-wave-3/profiles/D1.json": {
+      "sha256": "9b4b27af1bb61c610e9f91adafd28dfafb6ceb1817ba123c1a10c257669ec2ee",
+      "git_blob": "2b9d89f201107f427aace219f05546eec03365b8"
+    },
+    "campaigns/checkwash-wave-3/profiles/D2.json": {
+      "sha256": "c34d5a54149968451f2b49e932a3f4e32bf2a2c2c682f434bb8bd66bb44322f3",
+      "git_blob": "7de15b7f37906e39c8764322519c9638fac8874b"
+    },
+    "catalogs/.gitattributes": {
+      "sha256": "b1f982c34d9f205cd6ee787d2417b9b0d7e7591ddcc9305c552d8936804c650c",
+      "git_blob": "9d54acd9389fa59e927462cad9e070657478994f"
+    },
+    "catalogs/checkwash-wave-3.yaml": {
+      "sha256": "ec7326ad7c9f3c5b28b13db7aabf6e4f8b516404f36ffbffe006226123d5ad11",
+      "git_blob": "ce73240d02eefb71868ef661b46f2594b60cc9eb"
+    },
+    "catalogs/residual-rows-checkwash-v0.5.0.json": {
+      "sha256": "fc8bab95563fd3b38ae8eb1e6949d38429aecc0ecc4f9625c5d2371344c90bdf",
+      "git_blob": "01e7aaa0ebb254249cd6a9f204ed8f0fa2381181"
+    },
+    "provenance/.gitattributes": {
+      "sha256": "b7f414c758ef86c5b4da41a1e92ebcb49f22649a1f1b5aec8101f875717aeb1b",
+      "git_blob": "41c8bca442372fec34d638a98a65eb5f7d25c44c"
+    },
+    "provenance/checkwash-v0.5.0/SPEC.md": {
+      "sha256": "84dbfd719be56c8a8de59c84c6c34160c74d933ea1cda81623790486583c36e3",
+      "git_blob": "647195b30423fa988eefebbaa528155e353288e5"
+    },
+    "provenance/checkwash-v0.5.0/THREATMODEL.md": {
+      "sha256": "7ab08e84cec01b9be3e6a683ef17dc68a9fa98b318ef94484ede467aaefe11e9",
+      "git_blob": "eca177da1d353ba76f7f65854b9bc41dd77aa978"
+    },
+    "pyproject.toml": {
+      "sha256": "a3dc11b4afbd5952f104220e429facad64c96c810c8e3ba160e8e36f571225c8",
+      "git_blob": "a0da5e09bbe856ffef0f125702510643a6c03584"
+    },
+    "src/smallestlie/__init__.py": {
+      "sha256": "6b5680f3cccc8265b284e8b92d9d118fc852fd7b17e95bafac49d485d4a5e40c",
+      "git_blob": "8da1fa214a28db55ff8ac048ac685d99b258adc8"
+    },
+    "src/smallestlie/__main__.py": {
+      "sha256": "e060304dd4bccac68779878eb13d8cfc9b7ad27ddcad91242a39dc31c78cb936",
+      "git_blob": "a5aceb1d36c86d0807b18bf6cb41358a7a568e09"
+    },
+    "src/smallestlie/adapters/__init__.py": {
+      "sha256": "8e44264a630c8ecf9e3f0f86cbd1297a3fa8ac57eaaeca4c625adad4cdaec0ee",
+      "git_blob": "d4131b3ca71d5159e9d69029f2399aa27aaa48ce"
+    },
+    "src/smallestlie/adapters/base.py": {
+      "sha256": "bb8778c587830595a3dfd481503e16fe15440658e35e4f17423afa34029b6ed8",
+      "git_blob": "311d880e719d7a2c95c3f24176da2d9283a5a8c9"
+    },
+    "src/smallestlie/adapters/checkwash.py": {
+      "sha256": "1cc5a243e11497cd515a223bd0263872abd630d8a869dfecbe5f82526766bd64",
+      "git_blob": "2460651fa500ddf8b73aeb13d3b6d3ae422080a4"
+    },
+    "src/smallestlie/adapters/fixture_gate.py": {
+      "sha256": "d13f09c20c35eff3ce4d6a38e7e62107fb476a179fe03d19e308f310f0d21a02",
+      "git_blob": "cb52ca330db75852706d8bfbac8240233527897a"
+    },
+    "src/smallestlie/adapters/greenwash.py": {
+      "sha256": "a43eccabc697022858701a287c871e9c0fe9e877c48568a5b323aa9fbbb58531",
+      "git_blob": "931c9f7f6a5df3897d2f1c1d2d74c79c574f8093"
+    },
+    "src/smallestlie/adjudication/__init__.py": {
+      "sha256": "c3ab7dfc2a5c0d3790307cddce2dcf4c27d768256b4b591d82e62822ec86000f",
+      "git_blob": "553be305d98bacfcd189abc34fd03953e6b99c5d"
+    },
+    "src/smallestlie/adjudication/engine.py": {
+      "sha256": "fe5788c48ba43a06a4841f8bd494becdb8cd315676c916161a1a5a870724661a",
+      "git_blob": "cf16d976c63cbb048582d7bd89bbec527282ee13"
+    },
+    "src/smallestlie/adjudication/mapped_engine.py": {
+      "sha256": "383d8a562cf8d72788952627ef28d75a2a9c25a4a0ea5d163567a80500059f96",
+      "git_blob": "3af18b94e8a96f445a51db7bbc5b7c7a528ed6b5"
+    },
+    "src/smallestlie/adjudication/mapped_reviews.py": {
+      "sha256": "69e86e113ce3ce2b9d4d68996c5d586b7085b4d4b1cc7f1b7f51cfd588d23478",
+      "git_blob": "bea616e05ac9abb734e77543938c707f8ee1e1a7"
+    },
+    "src/smallestlie/adjudication/multi_dispatch_engine.py": {
+      "sha256": "381e1650fbe4adf5cdf8a77727c337b4964a891027bcd9e08430d327f33f85bc",
+      "git_blob": "277f05189e20c0fbfebb8992b3e4ed0294aa8482"
+    },
+    "src/smallestlie/adjudication/multi_dispatch_reviews.py": {
+      "sha256": "1f6b122e34cf3e5fedf8da328296a18d5b49916e829be252551e7ac7949f87ba",
+      "git_blob": "6cb7e15b55a886ac59180785efdba69d2378e080"
+    },
+    "src/smallestlie/adjudication/observations.py": {
+      "sha256": "067874fcccd28ddb4f08cabaefe179c5c536628d0319e4f30a8bc9ec2339693a",
+      "git_blob": "da0c83a7aa90dd4b1f0e7ca539487aec67c33dae"
+    },
+    "src/smallestlie/adjudication/residuals.py": {
+      "sha256": "452811366072108f0733f7cde2c3a0b859f398c86d184ef42516bb94b1a11fa1",
+      "git_blob": "625bf5f994beb525bedc1d6dcbe9463383a8dc37"
+    },
+    "src/smallestlie/adjudication/reviews.py": {
+      "sha256": "62a1a1013e51baa82848c893c77db24c0ee281f5f76027925ba152a453ed3a4c",
+      "git_blob": "6a0b4a68f6f27f06b9b4e05b98c772492b8f88f2"
+    },
+    "src/smallestlie/attacks/__init__.py": {
+      "sha256": "a87b0cf500d58b8908c03e40f433b79b91caba0e130d00bab96d877564c59caa",
+      "git_blob": "bc82f4beda6d4b05f9e0544e8701ceaa54509729"
+    },
+    "src/smallestlie/attacks/adjudication.py": {
+      "sha256": "80a5140d043facd36d518933490c7d42c21f2dcee6e2c0c332be8194c3aa2d76",
+      "git_blob": "418d3540a22b0a16bb546296382ce7cd88c41886"
+    },
+    "src/smallestlie/attacks/catalog.py": {
+      "sha256": "1e689ff4f27ca9ab76163fa17bf97790eb685904314f67a937f79915f3364cb6",
+      "git_blob": "ea34512322a53572e3d3a5144110a704a3aa4ae1"
+    },
+    "src/smallestlie/attacks/composition.py": {
+      "sha256": "655bf078c762b24675bed100456d8b7ca8614d36b6be6075539e6f8b0f34970e",
+      "git_blob": "d0bd2b01a0a01e748aa19d017d3ba3e3fa70959f"
+    },
+    "src/smallestlie/attacks/planner.py": {
+      "sha256": "8f94590854a28770382a116ba1ca3012473c1052a84a3173a93dc3618f829521",
+      "git_blob": "c2557d0537b250141bca1861f567e96d0265c10e"
+    },
+    "src/smallestlie/attacks/primitives.py": {
+      "sha256": "9ad69160e137385d529ef457700a00e3e24bdd7607af29145007bc05f68f1fd8",
+      "git_blob": "eb67fb49413279eeb0c62cdc7685b0bc3c459b3b"
+    },
+    "src/smallestlie/attacks/schema.py": {
+      "sha256": "e7f9733206c3800b2fe2bf14cba12a6bfd6be6322f9f75636a6844cc3886cd58",
+      "git_blob": "3248717e7705339196269ebb07ff60cf96a5ddb8"
+    },
+    "src/smallestlie/baseline/__init__.py": {
+      "sha256": "17f0bd6b95b57c5abcea6ff3635472847a532da3551abc416473bc10dd20472c",
+      "git_blob": "cbc2fe13b0c86c7bc6cbb0e8cfae137f50464c1d"
+    },
+    "src/smallestlie/baseline/capture.py": {
+      "sha256": "1657d1ce45a0b6a29014381d48042fb3b88bd9e19863fc9acfa0cf0ba5dc8f01",
+      "git_blob": "019402557e9a2f1c741b7ca89b2788ccf9410e53"
+    },
+    "src/smallestlie/baseline/inventory.py": {
+      "sha256": "9e32ce449a634b2ed8ca8942404cfa9dcb9f0a45288ff02d8cc9e15e1e59d649",
+      "git_blob": "6f0d50b77ee539157cc408096a19c4b83b5bdf22"
+    },
+    "src/smallestlie/campaign/__init__.py": {
+      "sha256": "c17d375ddc016e48fa38f1b81f6f24bf37acd0fc322cf2b31875e1e1ac34b54e",
+      "git_blob": "d8411a93c382be4d8ffb2d12f164336313068b20"
+    },
+    "src/smallestlie/campaign/batch.py": {
+      "sha256": "61fd636d92e7ffc14e868a98273dfa710944c84394a8466242b661c439dde466",
+      "git_blob": "0003bdfd5f2da762cf05f78c55115793ff382a41"
+    },
+    "src/smallestlie/campaign/completion_source.py": {
+      "sha256": "746a0f3902cec93aa4b82eabd5165c9d1e12689925580e83fbb44e49ba854f87",
+      "git_blob": "4e142a68cb96af3d1abd9d96033e0f95147b4707"
+    },
+    "src/smallestlie/campaign/evidence_sources.py": {
+      "sha256": "a747edd2860485a868b9bfb9ba2c5ed7ef7b5b8dc3407ecebcf1b6806b69a220",
+      "git_blob": "2e2af74942b56ec4211e8a08bc1a387d6e6fc43e"
+    },
+    "src/smallestlie/campaign/lifecycle.py": {
+      "sha256": "b28a1fdf2c4bf300e8813c18209938de43597f0f47634d6bf8fd68cd39cdca40",
+      "git_blob": "11a65f2e2409c19a14da055f25d200b9fc6ef438"
+    },
+    "src/smallestlie/campaign/mapped_observations.py": {
+      "sha256": "422c3ef0d5a3fb46c9289f436a4d419e8dd66fccb393fccec84bb7f53d6e80cc",
+      "git_blob": "d05ee381538026748e5271178f465d3f8f4d2d06"
+    },
+    "src/smallestlie/campaign/mapped_recording.py": {
+      "sha256": "1c4df52117e6b20ea38093dfd62c78d91c3b84ec3d3789a3c78b517adac28ed5",
+      "git_blob": "2b1ae51d7a23a247515da6d43458289aad9b1871"
+    },
+    "src/smallestlie/campaign/mapped_review_source.py": {
+      "sha256": "1a0832da312e2334266e5cf6c1a3743c5e3173f8002aec460beb8efdc5d7ea8e",
+      "git_blob": "47e30c3edda749b9a7fc75e0e7e30df49170839d"
+    },
+    "src/smallestlie/campaign/multi_dispatch_observations.py": {
+      "sha256": "21ce13eb1e25186d949c5806fd502a34fbd165607d1efc69754bbe0424f355fc",
+      "git_blob": "5c406051a2d55eb5664ecf3288d778d7e0e93fe4"
+    },
+    "src/smallestlie/campaign/multi_dispatch_recording.py": {
+      "sha256": "4e9104382ef05af639783457ed69399a946188ef3aaad761cf03f493b053adf3",
+      "git_blob": "f8fb7a5a348630f4c2f6582e62d5e196ad676fd9"
+    },
+    "src/smallestlie/campaign/multi_dispatch_recording_source.py": {
+      "sha256": "f5de5bf2a45d7da77e23b599eabb0774bb4d947c085da916d97202757ae2e927",
+      "git_blob": "81ff67063e5a95bbe9ebc71f10e33212ff6fb83d"
+    },
+    "src/smallestlie/campaign/multi_dispatch_review_source.py": {
+      "sha256": "fb97117dc3f89ed5de948caa1f8b0dba170cbd466842856bbd1436e6c7cf6c69",
+      "git_blob": "c1b77cacaaf80ecfcc07b6a0d9c99e5c149e9982"
+    },
+    "src/smallestlie/campaign/multi_dispatch_sources.py": {
+      "sha256": "fd18496e6d2370e81c60196edea4600467d8b72f12a2c30d1d770f217264aeb6",
+      "git_blob": "0661d6c46382a702a13471447a19aba1e8461b45"
+    },
+    "src/smallestlie/campaign/native_producer.py": {
+      "sha256": "dba18406270e5d0a1c0281e888c35aea77fafbef6e353785d5dc3e3695b79880",
+      "git_blob": "e208dbc051d468b916f1d5decd2ec91368b1c131"
+    },
+    "src/smallestlie/campaign/nightly.py": {
+      "sha256": "392a17f199e38cbe31d7cf6cc466bd48f686ece2d2126d49a7bb1573e05c4ab3",
+      "git_blob": "456946af93b34916d5c16398f19a4cfdff9a898c"
+    },
+    "src/smallestlie/campaign/preregistration.py": {
+      "sha256": "2fbe2b16fd634940eefd233d8efc506e2f12c477f0a699b34a763d65dc7f4772",
+      "git_blob": "ce4fe46e1c24aef93e8fc0b2dd2d6ed37b148205"
+    },
+    "src/smallestlie/campaign/provenance.py": {
+      "sha256": "33d541c682c4110a675ba296e91f01739e30b246014aa5f834c5f15be5b590b6",
+      "git_blob": "41e940824bb8f0b2f4f0effde6981bcd0fb31458"
+    },
+    "src/smallestlie/campaign/publication_order.py": {
+      "sha256": "90daf0c53fb44d239cfe12683b014cca6a3d8e607316faff59b3a6d06ceed541",
+      "git_blob": "6b7405e805c2d03e65f0ee9db5d413a42440496c"
+    },
+    "src/smallestlie/campaign/review_source.py": {
+      "sha256": "a3856d6832e7e0c8f5c6b7e9c704419886896705f5bb691a66debd919ee748a9",
+      "git_blob": "779b26e596292d76b56ba1f09409ff3e805e2aaa"
+    },
+    "src/smallestlie/campaign/runner.py": {
+      "sha256": "7508f41407a41d6a3aee7ae97b7c1e9d34670870f74d714ff9baa16f8783eaa8",
+      "git_blob": "bffbc2d39821ce295d94facd33be70cd9f18f655"
+    },
+    "src/smallestlie/campaign/source_map.py": {
+      "sha256": "377d2d4b7e0d8eac1ac9d6739402e6120eb22cb0f3c806a60b3162fc700eeea6",
+      "git_blob": "eed38cd0a55d473ff13a591ea4f74d0134d21c2a"
+    },
+    "src/smallestlie/ci/__init__.py": {
+      "sha256": "a38e6eade0816772d0a8fe9dc0b65af7ec1fe54ed9912c6082ccf1c1e5198926",
+      "git_blob": "a72d1170be5195875f014e970ba9e527ae2f9f24"
+    },
+    "src/smallestlie/ci/baseline.py": {
+      "sha256": "3503f0b4020893fb5ee50c783a6ef15afc80a6e6b86592e094feb1bbb9a5b2c5",
+      "git_blob": "fcd3f3b720fc3d4d54ee1593c0eba49e863bd95c"
+    },
+    "src/smallestlie/ci/diff_select.py": {
+      "sha256": "2d3d5f0c71e309bf3cea63f1967c149d6e400d19e995de5e1a21fd7bfa2ce412",
+      "git_blob": "9b222ed43191c701731a000b8ec36ae38c550da7"
+    },
+    "src/smallestlie/ci/gate.py": {
+      "sha256": "956047835f990d967db5bfb7584eaf9ad97002e752c64c59309207b4545086e6",
+      "git_blob": "8208ead6c979da388cefffbf124d9dba1f5893c5"
+    },
+    "src/smallestlie/ci/status.py": {
+      "sha256": "285e17eaecfa6be2651b6a5931b3d7c342a0d7aaaf97122bfcf20dcba4526f64",
+      "git_blob": "af731fd63b0c199f684cd12024f246aa103ae245"
+    },
+    "src/smallestlie/ci/summary.py": {
+      "sha256": "69a4a61e43f16cf8db56752f5880da4f7a65e2dbfcc3f76c4fbb7696921f76a4",
+      "git_blob": "b34c2e7e89934be12fee95fac71ef4cd8012f471"
+    },
+    "src/smallestlie/cli.py": {
+      "sha256": "13a229424db523a1d1b1219990d10f21eff1da7c33d959be378697c6041686e4",
+      "git_blob": "81f1555e896e0de1140522cd9a6db65b8fcd77e4"
+    },
+    "src/smallestlie/ledger/__init__.py": {
+      "sha256": "880d60e1009bfc53de3064d759f257a5ac12fc0588c8e6f43f9a01eaa07d4dec",
+      "git_blob": "5e64e605da886e0aa445733719c857b6d667c207"
+    },
+    "src/smallestlie/ledger/chain.py": {
+      "sha256": "8e1dfb9b71fd43666e0939d7d7701dda4ea1206b98ae0ea24e6e3fcd1aaddf13",
+      "git_blob": "b360f873a95bdb771b936e0d4419328e19d9f2d6"
+    },
+    "src/smallestlie/ledger/events.py": {
+      "sha256": "1dfa386b7e601fe16f0e8257eea7cce13746161c1102b81e45f6793f5489ab68",
+      "git_blob": "11936644b403da2a76059c5fc85556aca908f7c4"
+    },
+    "src/smallestlie/ledger/lifecycle.py": {
+      "sha256": "947d6f84a428b5d873297312003ec064dd00b8a40a0e76dd9cba8ab4493fe18c",
+      "git_blob": "ac0e46096c90952162f4b1ec33042fb74f511192"
+    },
+    "src/smallestlie/ledger/mapped_recording.py": {
+      "sha256": "4260750008788900747fb2327cc1fdca8b11800dbbf0e1fe0bb161325ddf0727",
+      "git_blob": "d492ce9867b8b88849865ea29e4c04dba8bf5019"
+    },
+    "src/smallestlie/ledger/multi_dispatch_recording.py": {
+      "sha256": "b86f9a3b83ead27eece9486a44f41af6f0896637e4d7eaefa53267b37b881d6b",
+      "git_blob": "b94d97e2ae8b0426242bc1e3fdb2d364b2309301"
+    },
+    "src/smallestlie/ledger/protocol.py": {
+      "sha256": "08c1f82dc3b71206a9213fabfca943e077f015e028c55dba4c673b63e9f34ac8",
+      "git_blob": "009ea84d6d912b6b143dde2187c195f11baf7271"
+    },
+    "src/smallestlie/ledger/verify.py": {
+      "sha256": "a0fa14177cb9420afc6725a8e4dcd35014e8a9e1e825ac3c3924e2a372a10a00",
+      "git_blob": "4769760ee2d5bbf0e524b94ed7c9c2ad24f4ddfd"
+    },
+    "src/smallestlie/meters/__init__.py": {
+      "sha256": "0e39efd5466fa456d034293a7e5a9bf7a16a02a79278661c72c0e4aeae22eb97",
+      "git_blob": "405b44b87f1567b5b496c80433943d90e66b076d"
+    },
+    "src/smallestlie/meters/blindspots.py": {
+      "sha256": "7a271ee8a9b115c16c5db738f3d7ec1aa94953d947819a81eb565f2df849ba60",
+      "git_blob": "a998f8ad877378926f16131091ca3f96157c4ea4"
+    },
+    "src/smallestlie/meters/campaign_meter.py": {
+      "sha256": "5e2967fba0e9c62065e18853f3e1a70c8e6a03544854a7d26d9e6509c616beb1",
+      "git_blob": "45f3ad852b1af75d911f3d03be74512add04af04"
+    },
+    "src/smallestlie/meters/catalog_meter.py": {
+      "sha256": "b2ddaac622606efcfd6b729dba38843eb93e2180fe9fb204ac51586b8ec1812c",
+      "git_blob": "75593ebf5ce8934ed30a15d4b359140025eb414b"
+    },
+    "src/smallestlie/meters/ci_meter.py": {
+      "sha256": "51eedac587482bfb54a87391ac94150f14fed60d5c69a22628be0be3a953d2f5",
+      "git_blob": "a8a1770d5a8d8788f371038532611279e936774f"
+    },
+    "src/smallestlie/meters/claims_registry.py": {
+      "sha256": "79ed74c6c74ee045691fb9019801de31fc982f844a0e42d78a7d07214233cacf",
+      "git_blob": "fa2558d5ce041b8dd25cbd6350299b9be64cda25"
+    },
+    "src/smallestlie/meters/containment_meter.py": {
+      "sha256": "b52648134878195831280fc9f049524640dc70068d2e02a90ba7bce0463f0430",
+      "git_blob": "8786999f6c1c87d68e87d7368785030bb98a663d"
+    },
+    "src/smallestlie/meters/fixture_meter.py": {
+      "sha256": "34582a65e89f10a45306edfc724e8fc84025557233223ecc3e59ef7cd35bc98a",
+      "git_blob": "dbe186e2a50d9f69dc0843c28741e02a3f18771d"
+    },
+    "src/smallestlie/meters/inventory_meter.py": {
+      "sha256": "74303de1523ae21eefa0ced7ee2175d92d14b0c9a04d4e5f41c136f852b53b37",
+      "git_blob": "2e5b4a76431b5c1450dd581a265f237a69e4e4bd"
+    },
+    "src/smallestlie/meters/models.py": {
+      "sha256": "29be88086f7e062eacbbb105d0ba0cfbeba94335e4d6909610809ce1476c42dd",
+      "git_blob": "5b2e8546730e31e336e241e57bd8daba3d77da44"
+    },
+    "src/smallestlie/meters/oracle_meter.py": {
+      "sha256": "f07c5fb1e75882f18c527935a93b557863f741a32f08a1b2f2c91d37997b6a3d",
+      "git_blob": "990e2038f2e2cb3317e26b95e9b27480ddd78fec"
+    },
+    "src/smallestlie/meters/suite.py": {
+      "sha256": "5e083f21b08e8bfe2f5ea8f711d8875c48450732698ee9046160511f3494299e",
+      "git_blob": "0023042ecae30e99e5c96a8423936f78847c900d"
+    },
+    "src/smallestlie/minimize/__init__.py": {
+      "sha256": "a843a6beec2ee5e74ca0bb756328acc0a1ac9aec2d38cf6d07f74267568031bf",
+      "git_blob": "3435fbb8304c2ad291f5407a671b9ebffd85d4e9"
+    },
+    "src/smallestlie/minimize/ddmin.py": {
+      "sha256": "880d4215c7c74fe2d6e9ede94209fd2288464ece335812cee1f3fdcddc6caa40",
+      "git_blob": "5f14fe309ddfc34c5d574c4a85a73a4b85445fe2"
+    },
+    "src/smallestlie/minimize/replay_check.py": {
+      "sha256": "d8dc84bb8396c0a2e9750d0e08dae7e4e450df793d60e3345e299bb84f1c6576",
+      "git_blob": "5c38077f8046f4e78bbf4fc78c89514e5fb3bffd"
+    },
+    "src/smallestlie/models.py": {
+      "sha256": "5705c4673278f0c56b53867f3030e3c391f340f23f90a71da663ec52d8f0102e",
+      "git_blob": "ccd3644ffdf5c4c4f1c03e85c9eba579d7299656"
+    },
+    "src/smallestlie/oracle/__init__.py": {
+      "sha256": "d7ce08a1955725dd64260d77afa63d07dd5fbf7d6682726e26ef5f3f9a687a93",
+      "git_blob": "5896cae1774087a951b7b974670a69610df212c2"
+    },
+    "src/smallestlie/oracle/artifact_hash.py": {
+      "sha256": "7a601bb2168b6cd54ff49bdf0ab1eecd14dddf0b594cb0d261fbeab57d46ce95",
+      "git_blob": "3887a13cb5025464675619e11cc8fde516bb4b6d"
+    },
+    "src/smallestlie/oracle/authority.py": {
+      "sha256": "6c0edf297daed7032de454468abff70ab2c393c3d3f34e3ef82d47a8c6c2b268",
+      "git_blob": "61d66a4565ffcfdd8fb7b1602909b8dd06602858"
+    },
+    "src/smallestlie/oracle/base.py": {
+      "sha256": "47bacd0ed12f60d40f06c650a9d68b3a609ce6786c99dcc7c9c5195b193a24f4",
+      "git_blob": "3c1fe85c38efbe5abb0dbf515fe6cab8343b6fb6"
+    },
+    "src/smallestlie/oracle/discovery.py": {
+      "sha256": "1104d00f2d6cdb6ccd2c85eb91489fbe80a79c65a110a86af2c17b984bec6243",
+      "git_blob": "db782b8a20fdc09db3039f3988913cdc3c11f9ed"
+    },
+    "src/smallestlie/oracle/execution_trace.py": {
+      "sha256": "252f9a05f12fc3ec4d1ad3a4da788f8a2fb10a61e770a651d086d75777b0d785",
+      "git_blob": "cab3e84cb65fe5f905a4dc7bf16b458905cb1838"
+    },
+    "src/smallestlie/oracle/git_diff.py": {
+      "sha256": "daa3f44cb9b4bae9b7c3c056cb05eb3393cbe1a8a6f16ce44dd843a597f3a184",
+      "git_blob": "a60212ce6832f21e248ffe1b8093a14b3c46a638"
+    },
+    "src/smallestlie/oracle/path_canonical.py": {
+      "sha256": "75a330f2b06dd3670ee231258aab91c5dbd98c342f5af564c35c3bb9ec7544ab",
+      "git_blob": "3154c0ef3aa65a8440a5a655e0166fd841c8030b"
+    },
+    "src/smallestlie/oracle/policy_presence.py": {
+      "sha256": "9f5f4e51fbffcc370178d796660feffdc12043cc0f9646e558b0cddc86fea832",
+      "git_blob": "917d56d76172874643087e83c5ec1487ba9218ca"
+    },
+    "src/smallestlie/oracle/protected_identity.py": {
+      "sha256": "016727dae6e809f9fbfb52989f18d56180c2af31a19a2bfe9c94df52436eff8f",
+      "git_blob": "03f653f0a57fb9afb334504ab11ef13399ef6e6a"
+    },
+    "src/smallestlie/oracle/report_exit.py": {
+      "sha256": "6f4bc765fdc11cd115642c8ca8cbb0906688590af68e714d40efeb0909d8eaf0",
+      "git_blob": "13f887c65cf1c90a95419aa15ddc45d0244496ca"
+    },
+    "src/smallestlie/oracle/revision_binding.py": {
+      "sha256": "20ffe8a1cb4de850bbf05183487e17112e4d20e0552e099c8b496aa29c0c2a70",
+      "git_blob": "ebfc004f5d6018a502da8c578d7257194942a2f2"
+    },
+    "src/smallestlie/oracle/runner_evidence.py": {
+      "sha256": "9328e414d077591be32517e8558b769bbca465742428927482633e1d3f27cb86",
+      "git_blob": "2bad46c48f314f9877cd28c8c1d3fb6b2461ab51"
+    },
+    "src/smallestlie/oracle/semantic_policy.py": {
+      "sha256": "e730c82d08c6c16c01838f5ae7758fc53e180c891b2b896d9f025618e5288adf",
+      "git_blob": "4657ed598d2be8e06bc5f055215167a92e20df2c"
+    },
+    "src/smallestlie/oracle/theater.py": {
+      "sha256": "273a73c13e1562beff975b5d5bf97f2855bb7ef8336d44d3545592195db82a6e",
+      "git_blob": "0e5e162429cbbda91668203b562b67987066418c"
+    },
+    "src/smallestlie/oracle/verifier_rules.py": {
+      "sha256": "4214376a1079a128e3dbf1b7e4ffd551075679a5194d23334bcf68b883d96f90",
+      "git_blob": "a0f9ed245dfb82faa77d6e5d24738ae84dae33aa"
+    },
+    "src/smallestlie/oracle/workflow.py": {
+      "sha256": "9a6cd4577c95dd402b5e122c1b547d63159b2c9944268976ea7d09672f37616e",
+      "git_blob": "9b455241354b6111ec1ec29ad8073edb2f8b36c2"
+    },
+    "src/smallestlie/policy/__init__.py": {
+      "sha256": "d5077c5a397ea7eb8e9477a1589021a2ff5c987154a66828a0d13955b9efc3e2",
+      "git_blob": "de5e6b4af5495c95d75c9f7dd49ba002ee377f20"
+    },
+    "src/smallestlie/policy/authorization.py": {
+      "sha256": "ae788f28e0aa438862ab38c6b2b939817379103a8537be30c46f80bb5f5ed4fc",
+      "git_blob": "1eb6c87aeb3c07dcbd0248f5063dc8b5d5ebadc1"
+    },
+    "src/smallestlie/policy/command_allowlist.py": {
+      "sha256": "728e1bc3296f7b6ec1c21e95d31b87ffe55ff3762d4a28a567f58b99aa525e31",
+      "git_blob": "3e4910cb1811fe70c8ba4e712f8913da29cf5dd7"
+    },
+    "src/smallestlie/policy/network_policy.py": {
+      "sha256": "05454dc673627a453939d147b849f65cfb6b994d8dcd5584079a6c11e2612044",
+      "git_blob": "fd06371e09b9858accdf9dec5bbccaebcd51ba64"
+    },
+    "src/smallestlie/policy/path_guard.py": {
+      "sha256": "020c152c3fe8add5291d072983b3a15656b9857f417fc64d1577a3fb52c1bbe2",
+      "git_blob": "d153c4485111e5d1a5cf39a123c3ebe4c7fcc428"
+    },
+    "src/smallestlie/report/__init__.py": {
+      "sha256": "ba3a6b6d378629b68808fe9fc81105be5636a834f034e41113ce138e97f34339",
+      "git_blob": "da5c58522a1cc7d43a07923930c9eb651f4c2c26"
+    },
+    "src/smallestlie/report/json_report.py": {
+      "sha256": "109c41d36c0b01f53ecea4d0d7773a2463d1f367ea61dc7e3317a16f85302e4d",
+      "git_blob": "42da8850a27ecfaa9e3444826856e6466c136c5e"
+    },
+    "src/smallestlie/report/markdown_report.py": {
+      "sha256": "b926cc34777d3c50bc8e1d0e3d4ac08fa6fea269aaf79377869ffddd755049a2",
+      "git_blob": "d320269818895d463512f204df4ab00c92231c01"
+    },
+    "src/smallestlie/report/multi_dispatch_witness.py": {
+      "sha256": "58242bfaaa9bf9f583d40cdb2798ccf891406e4611d5f933e7b187dc7e592601",
+      "git_blob": "b4987c2698c3d7bb900e35ead9400c2141b69dcb"
+    },
+    "src/smallestlie/report/multi_dispatch_witness_view.py": {
+      "sha256": "60d4df3228892ad9196285fbcbdef58f8bcba3531178308e19ad4cc407a80a60",
+      "git_blob": "8d324a4531e791f15ee4976d9f0463677c4aa013"
+    },
+    "src/smallestlie/report/regression.py": {
+      "sha256": "a0b7117ab9396e4dbb80706ece86a6a10f3b84c290bedfbeb28968878e08c406",
+      "git_blob": "3e435cbfbce67127ac53caeda4b1b00389c1eb27"
+    },
+    "src/smallestlie/report/replay_bundle.py": {
+      "sha256": "5032726315a0d32cb72e204e139a7a8c8553454b823ff6769b02b242c02c0a23",
+      "git_blob": "d980cdee76cf2b35f089996d550cc8c322ab9df5"
+    },
+    "src/smallestlie/sandbox/__init__.py": {
+      "sha256": "277e054947a7b96dfdf438b9241ddd3f06853194b28713112a087993788eddb4",
+      "git_blob": "dda78a4e10b68153e47248aafd4e86ef5ab3da33"
+    },
+    "src/smallestlie/sandbox/capture.py": {
+      "sha256": "6f4f87b64830eb3c553173ce2b382cc048e6f328dbe73aeafb2f23df78c9954f",
+      "git_blob": "39eba3efcb87c414241817e50ef11ae50301dcd3"
+    },
+    "src/smallestlie/sandbox/executor.py": {
+      "sha256": "175a8ff9ef1198d4e8564c9acfde31ae8b9ea24dca98bafb415bab24e0d33504",
+      "git_blob": "7728c57af1a1b96ef972358ade12f471806ce605"
+    },
+    "src/smallestlie/sandbox/fixture_binding.py": {
+      "sha256": "2a8fee9c2b82e1dd389ca9986792e3ac6c6e82d513f272fddf43ad781aa1f0f4",
+      "git_blob": "b7e859c589189e7165cee8c28a15849b1bd67be2"
+    },
+    "src/smallestlie/sandbox/limits.py": {
+      "sha256": "7ca893780d7592249bb9dcb4e1f25a1359cfdda28dc1e540b79b3e4115567a44",
+      "git_blob": "2ed53aa6b9afa8a0d4e8f895a2ab281fd8a64c3f"
+    },
+    "src/smallestlie/sandbox/windows_capture.py": {
+      "sha256": "66111d1da9cfa88b9c316e0162b731499232ba62c2c38256d1e228017c7a0169",
+      "git_blob": "a4195fc366641deb752bfbe308f0f0ac448dcbdd"
+    },
+    "src/smallestlie/sandbox/workspace.py": {
+      "sha256": "16226899e9c1898ef5a9c5da3f3dbe90fc9a75cb46ffe717aac2f7bde6cca4ca",
+      "git_blob": "fca5bcf27a67ec54ebd539101ac628b7b81b569d"
+    },
+    "src/smallestlie/verdict/__init__.py": {
+      "sha256": "71725808d125c7e75451a228681226e2e63e5a06e618180426be099ee92c2b7c",
+      "git_blob": "af6bc2a7ffc49d1027e2a41b9145b4debf170112"
+    },
+    "src/smallestlie/verdict/compare.py": {
+      "sha256": "63e053fe700981f411bdfcb51d497aacda4669980062a21539af121a1259dae3",
+      "git_blob": "541c1175b68563840730f7f073d42a24dd8fc072"
+    },
+    "src/smallestlie/verdict/json_input.py": {
+      "sha256": "8ad6a43a7543e5a465c2e29a50c98be13601e1309a44b65b2c8a828b05cd823e",
+      "git_blob": "798d544181faa099e82d98bec388024ec6e22606"
+    },
+    "src/smallestlie/verdict/normalize.py": {
+      "sha256": "b7c4e7e192a3ff699b995b96f82bc94ce8e4b5184bc75ab99b7cfe62cdab03ef",
+      "git_blob": "45587d0639f8b3444ecc4796bc7e305a62c4d040"
+    },
+    "uv.lock": {
+      "sha256": "c09258281d58dd19d6ed19e60d2fc14ef783d4f63df8ca171548e399ec055b48",
+      "git_blob": "920017fd19653301d4d0b85dba31232eacc82482"
+    },
+    "verifiers/checkwash.pyz": {
+      "sha256": "b305bc3f7d35f827190051f7a676ac40e3e86badf9eaed750f22f082fd10b05c",
+      "git_blob": "1bb9edd26c06573a5aae5da348448f591f004934"
+    }
+  },
+  "closed_roots": [
+    "src/smallestlie",
+    "campaigns/checkwash-wave-3/contracts",
+    "campaigns/checkwash-wave-3/profiles",
+    "campaigns/checkwash-wave-3/installations",
+    "campaigns/checkwash-wave-3/design",
+    "provenance/checkwash-v0.5.0",
+    "campaigns/checkwash-wave-3/fixtures/D1/baseline",
+    "campaigns/checkwash-wave-3/fixtures/D1/attack",
+    "campaigns/checkwash-wave-3/fixtures/D1/twin",
+    "campaigns/checkwash-wave-3/fixtures/D1/repair",
+    "campaigns/checkwash-wave-3/fixtures/D2/baseline",
+    "campaigns/checkwash-wave-3/fixtures/D2/attack",
+    "campaigns/checkwash-wave-3/fixtures/D2/twin",
+    "campaigns/checkwash-wave-3/fixtures/D2/repair",
+    "campaigns/checkwash-wave-3/fixtures/B1/baseline",
+    "campaigns/checkwash-wave-3/fixtures/B1/attack",
+    "campaigns/checkwash-wave-3/fixtures/B1/twin",
+    "campaigns/checkwash-wave-3/fixtures/B1/repair"
+  ],
+  "cases": [
+    {
+      "case_id": "CW-W3-D1",
+      "spec_path": "attacks/checkwash/CW-W3-D1.yaml",
+      "profile_path": "campaigns/checkwash-wave-3/profiles/D1.json",
+      "variants": {
+        "baseline": {
+          "root": "campaigns/checkwash-wave-3/fixtures/D1/baseline",
+          "production_paths": [
+            "src/billing.js"
+          ]
+        },
+        "attack": {
+          "root": "campaigns/checkwash-wave-3/fixtures/D1/attack",
+          "production_paths": [
+            "src/billing.js"
+          ]
+        },
+        "twin": {
+          "root": "campaigns/checkwash-wave-3/fixtures/D1/twin",
+          "production_paths": [
+            "src/billing.js"
+          ]
+        },
+        "repair": {
+          "root": "campaigns/checkwash-wave-3/fixtures/D1/repair",
+          "production_paths": [
+            "src/billing.js"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "CW-W3-D1-CTL",
+      "spec_path": "attacks/checkwash/CW-W3-D1-CTL.yaml",
+      "profile_path": "campaigns/checkwash-wave-3/profiles/D1.json",
+      "variants": {
+        "baseline": {
+          "root": "campaigns/checkwash-wave-3/fixtures/D1/baseline",
+          "production_paths": [
+            "src/billing.js"
+          ]
+        },
+        "attack": {
+          "root": "campaigns/checkwash-wave-3/fixtures/D1/twin",
+          "production_paths": [
+            "src/billing.js"
+          ]
+        },
+        "repair": {
+          "root": "campaigns/checkwash-wave-3/fixtures/D1/repair",
+          "production_paths": [
+            "src/billing.js"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "CW-W3-D2",
+      "spec_path": "attacks/checkwash/CW-W3-D2.yaml",
+      "profile_path": "campaigns/checkwash-wave-3/profiles/D2.json",
+      "variants": {
+        "baseline": {
+          "root": "campaigns/checkwash-wave-3/fixtures/D2/baseline",
+          "production_paths": [
+            "app/billing.py"
+          ]
+        },
+        "attack": {
+          "root": "campaigns/checkwash-wave-3/fixtures/D2/attack",
+          "production_paths": [
+            "app/billing.py"
+          ]
+        },
+        "twin": {
+          "root": "campaigns/checkwash-wave-3/fixtures/D2/twin",
+          "production_paths": [
+            "app/billing.py"
+          ]
+        },
+        "repair": {
+          "root": "campaigns/checkwash-wave-3/fixtures/D2/repair",
+          "production_paths": [
+            "app/billing.py"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "CW-W3-D2-CTL",
+      "spec_path": "attacks/checkwash/CW-W3-D2-CTL.yaml",
+      "profile_path": "campaigns/checkwash-wave-3/profiles/D2.json",
+      "variants": {
+        "baseline": {
+          "root": "campaigns/checkwash-wave-3/fixtures/D2/baseline",
+          "production_paths": [
+            "app/billing.py"
+          ]
+        },
+        "attack": {
+          "root": "campaigns/checkwash-wave-3/fixtures/D2/twin",
+          "production_paths": [
+            "app/billing.py"
+          ]
+        },
+        "repair": {
+          "root": "campaigns/checkwash-wave-3/fixtures/D2/repair",
+          "production_paths": [
+            "app/billing.py"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "CW-W3-B1",
+      "spec_path": "attacks/checkwash/CW-W3-B1.yaml",
+      "profile_path": "campaigns/checkwash-wave-3/profiles/B1.json",
+      "variants": {
+        "baseline": {
+          "root": "campaigns/checkwash-wave-3/fixtures/B1/baseline",
+          "production_paths": [
+            "src/billing.js"
+          ]
+        },
+        "attack": {
+          "root": "campaigns/checkwash-wave-3/fixtures/B1/attack",
+          "production_paths": [
+            "src/billing.js"
+          ]
+        },
+        "twin": {
+          "root": "campaigns/checkwash-wave-3/fixtures/B1/twin",
+          "production_paths": [
+            "src/billing.js"
+          ]
+        },
+        "repair": {
+          "root": "campaigns/checkwash-wave-3/fixtures/B1/repair",
+          "production_paths": [
+            "src/billing.js"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "CW-W3-B1-CTL",
+      "spec_path": "attacks/checkwash/CW-W3-B1-CTL.yaml",
+      "profile_path": "campaigns/checkwash-wave-3/profiles/B1.json",
+      "variants": {
+        "baseline": {
+          "root": "campaigns/checkwash-wave-3/fixtures/B1/baseline",
+          "production_paths": [
+            "src/billing.js"
+          ]
+        },
+        "attack": {
+          "root": "campaigns/checkwash-wave-3/fixtures/B1/twin",
+          "production_paths": [
+            "src/billing.js"
+          ]
+        },
+        "repair": {
+          "root": "campaigns/checkwash-wave-3/fixtures/B1/repair",
+          "production_paths": [
+            "src/billing.js"
+          ]
+        }
+      }
+    }
+  ],
+  "engine_path": "verifiers/checkwash.pyz",
+  "residual_index_path": "catalogs/residual-rows-checkwash-v0.5.0.json",
+  "contract_paths": [
+    "campaigns/checkwash-wave-3/contracts/deployment.md",
+    "campaigns/checkwash-wave-3/contracts/source-boundaries.md",
+    "campaigns/checkwash-wave-3/contracts/verifier-environment.json",
+    "campaigns/checkwash-wave-3/contracts/w3_external_collector.py",
+    "src/smallestlie/__init__.py",
+    "src/smallestlie/__main__.py",
+    "src/smallestlie/adapters/__init__.py",
+    "src/smallestlie/adapters/base.py",
+    "src/smallestlie/adapters/checkwash.py",
+    "src/smallestlie/adapters/fixture_gate.py",
+    "src/smallestlie/adapters/greenwash.py",
+    "src/smallestlie/adjudication/__init__.py",
+    "src/smallestlie/adjudication/engine.py",
+    "src/smallestlie/adjudication/mapped_engine.py",
+    "src/smallestlie/adjudication/mapped_reviews.py",
+    "src/smallestlie/adjudication/multi_dispatch_engine.py",
+    "src/smallestlie/adjudication/multi_dispatch_reviews.py",
+    "src/smallestlie/adjudication/observations.py",
+    "src/smallestlie/adjudication/residuals.py",
+    "src/smallestlie/adjudication/reviews.py",
+    "src/smallestlie/attacks/__init__.py",
+    "src/smallestlie/attacks/adjudication.py",
+    "src/smallestlie/attacks/catalog.py",
+    "src/smallestlie/attacks/composition.py",
+    "src/smallestlie/attacks/planner.py",
+    "src/smallestlie/attacks/primitives.py",
+    "src/smallestlie/attacks/schema.py",
+    "src/smallestlie/baseline/__init__.py",
+    "src/smallestlie/baseline/capture.py",
+    "src/smallestlie/baseline/inventory.py",
+    "src/smallestlie/campaign/__init__.py",
+    "src/smallestlie/campaign/batch.py",
+    "src/smallestlie/campaign/completion_source.py",
+    "src/smallestlie/campaign/evidence_sources.py",
+    "src/smallestlie/campaign/lifecycle.py",
+    "src/smallestlie/campaign/mapped_observations.py",
+    "src/smallestlie/campaign/mapped_recording.py",
+    "src/smallestlie/campaign/mapped_review_source.py",
+    "src/smallestlie/campaign/multi_dispatch_observations.py",
+    "src/smallestlie/campaign/multi_dispatch_recording.py",
+    "src/smallestlie/campaign/multi_dispatch_recording_source.py",
+    "src/smallestlie/campaign/multi_dispatch_review_source.py",
+    "src/smallestlie/campaign/multi_dispatch_sources.py",
+    "src/smallestlie/campaign/native_producer.py",
+    "src/smallestlie/campaign/nightly.py",
+    "src/smallestlie/campaign/preregistration.py",
+    "src/smallestlie/campaign/provenance.py",
+    "src/smallestlie/campaign/publication_order.py",
+    "src/smallestlie/campaign/review_source.py",
+    "src/smallestlie/campaign/runner.py",
+    "src/smallestlie/campaign/source_map.py",
+    "src/smallestlie/ci/__init__.py",
+    "src/smallestlie/ci/baseline.py",
+    "src/smallestlie/ci/diff_select.py",
+    "src/smallestlie/ci/gate.py",
+    "src/smallestlie/ci/status.py",
+    "src/smallestlie/ci/summary.py",
+    "src/smallestlie/cli.py",
+    "src/smallestlie/ledger/__init__.py",
+    "src/smallestlie/ledger/chain.py",
+    "src/smallestlie/ledger/events.py",
+    "src/smallestlie/ledger/lifecycle.py",
+    "src/smallestlie/ledger/mapped_recording.py",
+    "src/smallestlie/ledger/multi_dispatch_recording.py",
+    "src/smallestlie/ledger/protocol.py",
+    "src/smallestlie/ledger/verify.py",
+    "src/smallestlie/meters/__init__.py",
+    "src/smallestlie/meters/blindspots.py",
+    "src/smallestlie/meters/campaign_meter.py",
+    "src/smallestlie/meters/catalog_meter.py",
+    "src/smallestlie/meters/ci_meter.py",
+    "src/smallestlie/meters/claims_registry.py",
+    "src/smallestlie/meters/containment_meter.py",
+    "src/smallestlie/meters/fixture_meter.py",
+    "src/smallestlie/meters/inventory_meter.py",
+    "src/smallestlie/meters/models.py",
+    "src/smallestlie/meters/oracle_meter.py",
+    "src/smallestlie/meters/suite.py",
+    "src/smallestlie/minimize/__init__.py",
+    "src/smallestlie/minimize/ddmin.py",
+    "src/smallestlie/minimize/replay_check.py",
+    "src/smallestlie/models.py",
+    "src/smallestlie/oracle/__init__.py",
+    "src/smallestlie/oracle/artifact_hash.py",
+    "src/smallestlie/oracle/authority.py",
+    "src/smallestlie/oracle/base.py",
+    "src/smallestlie/oracle/discovery.py",
+    "src/smallestlie/oracle/execution_trace.py",
+    "src/smallestlie/oracle/git_diff.py",
+    "src/smallestlie/oracle/path_canonical.py",
+    "src/smallestlie/oracle/policy_presence.py",
+    "src/smallestlie/oracle/protected_identity.py",
+    "src/smallestlie/oracle/report_exit.py",
+    "src/smallestlie/oracle/revision_binding.py",
+    "src/smallestlie/oracle/runner_evidence.py",
+    "src/smallestlie/oracle/semantic_policy.py",
+    "src/smallestlie/oracle/theater.py",
+    "src/smallestlie/oracle/verifier_rules.py",
+    "src/smallestlie/oracle/workflow.py",
+    "src/smallestlie/policy/__init__.py",
+    "src/smallestlie/policy/authorization.py",
+    "src/smallestlie/policy/command_allowlist.py",
+    "src/smallestlie/policy/network_policy.py",
+    "src/smallestlie/policy/path_guard.py",
+    "src/smallestlie/report/__init__.py",
+    "src/smallestlie/report/json_report.py",
+    "src/smallestlie/report/markdown_report.py",
+    "src/smallestlie/report/multi_dispatch_witness.py",
+    "src/smallestlie/report/multi_dispatch_witness_view.py",
+    "src/smallestlie/report/regression.py",
+    "src/smallestlie/report/replay_bundle.py",
+    "src/smallestlie/sandbox/__init__.py",
+    "src/smallestlie/sandbox/capture.py",
+    "src/smallestlie/sandbox/executor.py",
+    "src/smallestlie/sandbox/fixture_binding.py",
+    "src/smallestlie/sandbox/limits.py",
+    "src/smallestlie/sandbox/windows_capture.py",
+    "src/smallestlie/sandbox/workspace.py",
+    "src/smallestlie/verdict/__init__.py",
+    "src/smallestlie/verdict/compare.py",
+    "src/smallestlie/verdict/json_input.py",
+    "src/smallestlie/verdict/normalize.py"
+  ]
+}

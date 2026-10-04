@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, replace
 
-from smallestlie.attacks.adjudication import sha256
+from smallestlie.attacks.adjudication import DeclarationError, sha256
 from smallestlie.campaign.evidence_sources import EcReceiptStore, _artifact_path
 from smallestlie.campaign.lifecycle import ArtifactStore
 from smallestlie.campaign.multi_dispatch_observations import _configuration, _stable_authority
@@ -30,9 +30,12 @@ class MultiDispatchRecordingLocation:
     artifacts_prefix: str
 
     def __post_init__(self):
-        _artifact_path(self.journal_path)
-        _artifact_path(self.artifacts_prefix)
-        sha256(self.journal_sha256, "externally accepted raw J digest")
+        try:
+            _artifact_path(self.journal_path)
+            _artifact_path(self.artifacts_prefix)
+            sha256(self.journal_sha256, "externally accepted raw J digest")
+        except DeclarationError as exc:
+            raise ProvenanceError("invalid independently configured immutable J location") from exc
         prefix = self.artifacts_prefix.casefold()
         if (self.journal_path.casefold() in {"ec-publication.json", "ec-workload.json", prefix}
                 or self.journal_path.casefold().startswith(prefix + "/")

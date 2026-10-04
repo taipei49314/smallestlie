@@ -6,6 +6,12 @@ publication through a separately configured exact `EcReceiptStore`. Its
 content-addressed artifacts prefix. J and F use separate publication registries;
 the existing duplicate request/lock prohibition is retained.
 
+Invalid paths and raw digest declarations at this configuration boundary raise
+`ProvenanceError` (a `PreregistrationError`), preserving the underlying lexical
+`DeclarationError` as the cause. Rejected traversal stays rejected; callers can
+handle both lexical and role separation failures through the same public error
+family.
+
 The reader calls the fresh original class implementation of `EcReceiptStore.read`,
 which verifies immutable Git bytes, the complete publication inventory and J's
 own run/attempt/job, source, workflow, collector, host, generation and workload

@@ -39,7 +39,10 @@ change. Publication acceptance does not promote unknown evidence to confirmed.
 
 This API performs GETs and computations only. It writes no local recording,
 launches no work, creates no tickets, and appends no F/coordinator/legacy journal.
-Portable witnesses and public verify/report integration remain later cuts;
+The separate portable witness API copies one completed raw acquisition and
+provides explicitly unverified offline inspection; see
+[`campaign-multi-dispatch-witness.md`](campaign-multi-dispatch-witness.md).
+Public verify/report integration remains a later cut;
 legacy run/replay/minimize gates remain closed under their existing contracts.
 Actual human Phase1, semantic approval, runner/collector/coordinator/storage
 adoption, live J publisher admission, formal W3 and full M12 D remain unfinished.

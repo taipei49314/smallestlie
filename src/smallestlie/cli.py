@@ -12,6 +12,7 @@ from smallestlie import __version__
 from smallestlie.attacks.catalog import load_catalog
 from smallestlie.campaign.batch import load_batch_config, run_batch
 from smallestlie.campaign.nightly import run_nightly
+from smallestlie.campaign.preregistration import PreregistrationError
 from smallestlie.campaign.runner import run_campaign
 from smallestlie.ci.baseline import compare_to_baseline, load_summary
 from smallestlie.ci.diff_select import (
@@ -23,6 +24,11 @@ from smallestlie.ci.gate import CiGateConfig, run_ci_gate
 from smallestlie.ledger.verify import verify_ledger
 from smallestlie.meters.suite import run_measurement_suite
 from smallestlie.models import ExitCode
+from smallestlie.report.multi_dispatch_witness import inspect_multi_dispatch_witness
+from smallestlie.report.multi_dispatch_witness_view import (
+    SCHEMA as WITNESS_VIEW_SCHEMA,
+    render_unverified_multi_dispatch_witness,
+)
 from smallestlie.policy.authorization import (
     AuthorizationError,
     default_fixture_authorization,
@@ -103,6 +109,14 @@ def main(argv: list[str] | None = None) -> int:
     p_report = sub.add_parser("report", help="Print campaign summary path / status")
     p_report.add_argument("campaign_dir")
 
+    p_witness = sub.add_parser("witness", help="Read portable saved witness claims")
+    witness_sub = p_witness.add_subparsers(dest="witness_cmd", required=True)
+    p_witness_inspect = witness_sub.add_parser(
+        "inspect", help="Inspect offline saved claims; exit 0 means structural read only",
+        description="Inspect unverified saved claims offline; exit 0 means structural read only.",
+    )
+    p_witness_inspect.add_argument("bundle_dir", help="Portable witness directory; remains unverified")
+
     p_inspect = sub.add_parser("inspect-target", help="Inspect a local target")
     p_inspect.add_argument("--target", required=True)
     p_inspect.add_argument("--adapter", default="fixture_gate")
@@ -181,6 +195,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_ledger_verify(args.campaign_dir)
     if args.command == "report":
         return cmd_report(args.campaign_dir)
+    if args.command == "witness" and args.witness_cmd == "inspect":
+        return cmd_witness_inspect(args)
     if args.command == "inspect-target":
         return cmd_inspect(args, root)
     if args.command == "ci-gate":
@@ -210,6 +226,25 @@ def _project_root() -> Path:
     if (candidate / "pyproject.toml").is_file():
         return candidate
     return cwd
+
+
+def cmd_witness_inspect(args: argparse.Namespace) -> int:
+    """A zero exit reports only successful offline structural inspection."""
+    try:
+        # Keep lexical links/reparse paths visible to the strict inspector.
+        value = inspect_multi_dispatch_witness(args.bundle_dir)
+        report = render_unverified_multi_dispatch_witness(value)
+    except (PreregistrationError, OSError, TypeError, ValueError) as exc:
+        print(json.dumps({
+            "schema_version": WITNESS_VIEW_SCHEMA,
+            "structural_status": "rejected",
+            "verification_status": "unverified",
+            "error_code": "witness_inspection_rejected",
+            "reason": str(exc),
+        }, ensure_ascii=True, sort_keys=True))
+        return int(ExitCode.INVALID_CONFIG)
+    print(json.dumps(report, ensure_ascii=True, indent=2, sort_keys=True))
+    return 0
 
 
 def cmd_doctor(root: Path) -> int:

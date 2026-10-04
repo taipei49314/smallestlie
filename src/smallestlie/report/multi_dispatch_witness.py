@@ -57,6 +57,7 @@ class UnverifiedMultiDispatchWitness:
     claimed_review_validations: tuple[dict, ...]
     claimed_rows: tuple[dict, ...]
     claimed_report: dict
+    manifest_sha256: str
 
     @property
     def verification_status(self) -> str:
@@ -302,4 +303,5 @@ def _inspect_raw_witness(root):
     if used != set(by_hash):
         raise PreregistrationError("multi_dispatch_witness_unreferenced_artifact")
     return UnverifiedMultiDispatchWitness(digest(files["journal.jsonl"]), tuple(ids), manifest["selected_case_id"],
-        manifest["source_hint"], snapshot, tuple(reviews), tuple(validations), tuple(rows), report)
+        manifest["source_hint"], snapshot, tuple(reviews), tuple(validations), tuple(rows), report,
+        digest(files["manifest.json"]))

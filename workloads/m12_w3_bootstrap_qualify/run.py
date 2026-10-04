@@ -117,6 +117,33 @@ def write_new(path, raw):
     # This readback is local persistence. No power-loss approval is claimed.
 
 
+class PrivateProgress:
+    """Bounded diagnostic observations, never execution/adoption authority."""
+
+    def __init__(self, out):
+        self.root = out / "private-progress"
+        self.started = time.monotonic()
+        self.sequence = 0
+
+    def emit(self, stage, **observations):
+        if not re.fullmatch(r"[a-z0-9-]{1,80}", stage) or self.sequence >= 1024:
+            raise ProposalRefusal("private progress exceeds fixed diagnostic budget")
+        self.sequence += 1
+        record = {**observations, "document_kind": "private-bootstrap-progress-observation",
+                  "sequence": self.sequence, "stage": stage,
+                  "seconds": time.monotonic() - self.started, "formal_execution": False}
+        raw = canonical(record)
+        if len(raw) > 4096:
+            raise ProposalRefusal("private progress record exceeds fixed byte budget")
+        write_new(self.root / (f"{self.sequence:04d}-" + stage + ".json"), raw)
+
+    def measure(self, stage, operation):
+        self.emit(stage + "-started")
+        value = operation()
+        self.emit(stage + "-completed", files=len(value))
+        return value
+
+
 def expected_map(raw, bound):
     mapping = json_object(raw)
     aliases, total_keys = set(), 0
@@ -360,22 +387,29 @@ def private_qualification(source, work, out, generation):
     """Actual native bootstrap experiments; no W3 fixture/engine/lifecycle."""
     if os.name != "nt" or os.environ.get("COMPUTERNAME", "").upper() != HOST:
         raise ProposalRefusal("qualification host mismatch")
+    progress = PrivateProgress(out)
+    progress.emit("private-loader-entered")
     private = plain(work / "images/python").resolve()
     if (not sys.flags.isolated or not sys.flags.no_user_site or not sys.dont_write_bytecode
             or Path(sys.prefix).resolve() != private or Path(sys.base_prefix).resolve() != private
             or Path(sys.executable).resolve() != private / "python.exe"):
         raise ProposalRefusal("sealed private -I -B loader did not activate")
+    progress.emit("collector-load-started")
     collector, manifest = load_qualification_collector(source)
+    progress.emit("collector-load-completed")
     installation = source / "campaigns/checkwash-wave-3/installations"
     python_map = expected_map(read(installation / "python-files.json", 10_000_000), IMAGE_BOUNDS["python"])
     node_map = expected_map(read(installation / "node-files.json", 10_000_000), IMAGE_BOUNDS["node"])
     js_map = expected_map(read(installation / "js-files.json", 10_000_000), IMAGE_BOUNDS["js"])
-    if collector.measure_tree(private, IMAGE_BOUNDS["python"]) != python_map:
+    if progress.measure("initial-python-map", lambda: collector.measure_tree(
+            private, IMAGE_BOUNDS["python"])) != python_map:
         raise ProposalRefusal("private prefix raw identity differs")
     node_root, js_root = work / "images/node", work / "images/js"
-    if collector._image_tree(node_root, maximum=IMAGE_BOUNDS["node"]) != node_map:
+    if progress.measure("initial-node-map", lambda: collector._image_tree(
+            node_root, maximum=IMAGE_BOUNDS["node"])) != node_map:
         raise ProposalRefusal("actual collector Node map rejects/differs from original")
-    if collector._image_tree(js_root, maximum=IMAGE_BOUNDS["js"]) != js_map:
+    if progress.measure("initial-js-map", lambda: collector._image_tree(
+            js_root, maximum=IMAGE_BOUNDS["js"])) != js_map:
         raise ProposalRefusal("actual collector JS map rejects/differs from original")
     literal = json_object(read(source / "campaigns/checkwash-wave-3/contracts/verifier-environment.json", 10_000_000))
     if canonical(literal) != canonical({"semantic_env": collector.VERIFIER_ENV}):
@@ -393,13 +427,19 @@ def private_qualification(source, work, out, generation):
     if not mingit.is_file():
         raise ProposalRefusal("generation MinGit two-level layout missing")
     git_root = mingit.parent.parent
-    git_map = collector._image_tree(git_root, maximum=256 * 1024 * 1024)
+    git_map = progress.measure("initial-mingit-map", lambda: collector._image_tree(
+        git_root, maximum=256 * 1024 * 1024))
     def protected_maps():
-        py = collector.measure_tree(private, IMAGE_BOUNDS["python"])
-        node = collector._image_tree(node_root, maximum=IMAGE_BOUNDS["node"])
-        js = collector._image_tree(js_root, maximum=IMAGE_BOUNDS["js"])
-        git = collector._image_tree(git_root, maximum=256 * 1024 * 1024)
-        _, sources = qualification_source_closure(source)
+        py = progress.measure("protected-python-map", lambda: collector.measure_tree(
+            private, IMAGE_BOUNDS["python"]))
+        node = progress.measure("protected-node-map", lambda: collector._image_tree(
+            node_root, maximum=IMAGE_BOUNDS["node"]))
+        js = progress.measure("protected-js-map", lambda: collector._image_tree(
+            js_root, maximum=IMAGE_BOUNDS["js"]))
+        git = progress.measure("protected-mingit-map", lambda: collector._image_tree(
+            git_root, maximum=256 * 1024 * 1024))
+        sources = progress.measure("protected-frozen-source-map", lambda:
+            qualification_source_closure(source)[1])
         if py != python_map or node != node_map or js != js_map or git != git_map:
             raise ProposalRefusal("actual protected image drift during qualification")
         return {"python": py, "node": node, "js": js, "mingit": git, "frozen_sources": sources}
@@ -416,20 +456,29 @@ def private_qualification(source, work, out, generation):
     def capture(label, argv, cwd=probe):
         if len(captures) >= 24:
             raise ProposalRefusal("qualification native child budget exceeded")
+        progress.emit("capture-started", label=label)
+        progress.emit("capture-premap-started", label=label)
         before = protected_maps()
+        progress.emit("capture-premap-completed", label=label)
+        progress.emit("capture-child-started", label=label)
         result = capture_windows(tuple(map(str, argv)), cwd, env=env, timeout_seconds=30,
                                  max_output_bytes=1_000_000, cleanup_seconds=5)
         write_new(out / "native" / (label + ".stdout.raw"), result.stdout)
         write_new(out / "native" / (label + ".stderr.raw"), result.stderr)
         write_new(out / "native" / (label + ".capture.json"), canonical(result.metadata()))
+        progress.emit("capture-child-returned", label=label,
+                      exit_code=result.exit_code, termination_kind=result.termination_kind)
+        progress.emit("capture-postmap-started", label=label)
         after = protected_maps()
         metadata = {**result.metadata(), "protected_before_sha256": sha(canonical(before)),
                     "protected_after_sha256": sha(canonical(after))}
         write_new(out / "native" / (label + ".metadata.json"), canonical(metadata))
+        progress.emit("capture-postmap-completed", label=label)
         captures.append(label)
         if (result.termination_kind != "completed" or result.exit_code != 0
                 or not result.output_complete or not result.descendants_reaped):
             raise ProposalRefusal("actual native qualification child did not complete")
+        progress.emit("capture-completed", label=label)
         return result.stdout
     binary = capture("private-binary", [sys.executable, "-I", "-B", "-c",
         "import os;os.write(1,bytes([0,255,13,10]));os.write(2,b'raw-stderr\\r\\n')"])
@@ -479,9 +528,12 @@ def private_qualification(source, work, out, generation):
     if collector._image_tree(probe, maximum=10_000_000, git_admin=True) != {"bootstrap.txt": sha(second)}:
         raise ProposalRefusal("benign actual worktree full map differs")
     # Full installation/source closure after native children; no post-filtering.
-    if (collector.measure_tree(private, IMAGE_BOUNDS["python"]) != python_map
-            or collector._image_tree(node_root, maximum=IMAGE_BOUNDS["node"]) != node_map
-            or collector._image_tree(js_root, maximum=IMAGE_BOUNDS["js"]) != js_map):
+    if (progress.measure("final-python-map", lambda: collector.measure_tree(
+            private, IMAGE_BOUNDS["python"])) != python_map
+            or progress.measure("final-node-map", lambda: collector._image_tree(
+                node_root, maximum=IMAGE_BOUNDS["node"])) != node_map
+            or progress.measure("final-js-map", lambda: collector._image_tree(
+                js_root, maximum=IMAGE_BOUNDS["js"])) != js_map):
         raise ProposalRefusal("sealed private/Node/JS installation changed during qualification")
     after_maps = protected_maps()
     write_new(out / "protected-after.json", canonical(after_maps))
@@ -496,6 +548,7 @@ def private_qualification(source, work, out, generation):
         "base_commit": base, "head_commit": head,
         "formal_execution": False, "collector_adoption": False,
         "host_storage_adoption": False, "OS_network_adoption": False}))
+    progress.emit("private-qualification-completed")
     return 0
 
 
@@ -576,22 +629,28 @@ def _bootstrap_qualification_entry():
                str(source), str(work), str(out), str(generation)]
     started = time.monotonic()
     code, note = None, None
+    termination_kind, streams = "unavailable", {}
     try:
         with (out / "private-loader.stdout.raw").open("xb") as stdout, (out / "private-loader.stderr.raw").open("xb") as stderr:
-            result = subprocess.run(command, cwd=work, env=child_env, stdout=stdout, stderr=stderr,
-                                    timeout=1200, check=False)
-            stdout.flush(); os.fsync(stdout.fileno())
-            stderr.flush(); os.fsync(stderr.fileno())
-        code = result.returncode
+            try:
+                result = subprocess.run(command, cwd=work, env=child_env, stdout=stdout, stderr=stderr,
+                                        timeout=1200, check=False)
+                code, termination_kind = result.returncode, "completed"
+            except subprocess.TimeoutExpired:
+                termination_kind = "timeout"
+                note = "private qualification exceeded bounded 1200-second loader interval"
+            finally:
+                stdout.flush(); os.fsync(stdout.fileno())
+                stderr.flush(); os.fsync(stderr.fileno())
         for path in (out / "private-loader.stdout.raw", out / "private-loader.stderr.raw"):
-            read(path, 1_000_000)
+            raw = read(path, 1_000_000)
+            streams[path.name] = {"bytes": len(raw), "sha256": sha(raw)}
         if code == 0:
             read(out / "qualification.json", 1_000_000)
-    except subprocess.TimeoutExpired:
-        note = "private qualification exceeded bounded 1200-second loader interval"
     finally:
         write_new(out / "bootstrap-result.json", canonical({"document_kind": "bootstrap-entry-observation",
             "argv": command, "exit_code": code, "note": note,
+            "termination_kind": termination_kind, "stream_readback": streams,
             "seconds": time.monotonic() - started, "formal_execution": False,
             "collector_adoption": False, "host_storage_adoption": False}))
     return code if type(code) is int and code != 0 else (0 if code == 0 else 1)

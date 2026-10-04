@@ -43,8 +43,9 @@ row/summary artifact must retain its exact raw size, digest and bytes.
 
 The returned local digest addresses content. It does not establish immutable J
 publication, collector/publisher admission or actual human/semantic approval.
-An external J publication reader, portable witness and public GET-only report
-gates remain later integrations. Legacy v1 and public v2 run/replay/minimize
+The [external J publication reader](campaign-multi-dispatch-recording-source.md)
+uses the same private raw verification core. Portable witness and public GET-only
+report gates remain later integrations. Legacy v1 and public v2 run/replay/minimize
 gates retain their existing contracts. Actual human Phase1, adopted runner/
 verifier/coordinator/storage, formal W3 and full M12 D remain unfinished.
 

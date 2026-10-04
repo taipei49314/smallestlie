@@ -1,0 +1,12 @@
+{
+  "base_prefix": "C:\\Users\\a\\AppData\\Local\\EC\\w\\37207000468-1\\work\\w3-freeze\\python",
+  "executable": "C:\\Users\\a\\AppData\\Local\\EC\\w\\37207000468-1\\work\\w3-freeze\\python\\python.exe",
+  "machine": "AMD64",
+  "prefix": "C:\\Users\\a\\AppData\\Local\\EC\\w\\37207000468-1\\work\\w3-freeze\\python",
+  "pytest": "9.1.1",
+  "version": [
+    3,
+    12,
+    10
+  ]
+}

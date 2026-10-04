@@ -1,0 +1,53 @@
+{
+  "schema_version": "smallestlie.attack/v2",
+  "attack_id": "CW-W3-D1-CTL",
+  "name": "Mocha same-file focus on a passing smoke",
+  "family": "verifier",
+  "purpose": "Preregister an independent detectable attack control with the same buggy production and same focus cheating: focus the passing local smoke in test/billing.js. Predict TEST_DISABLED blocking. The tax assertion, global smoke, profile and calibration arms match CW-W3-D1; this row needs its own captures. This is a nonblind rt4-derived hypothesis, with no formal results.",
+  "mutations": [
+    {
+      "type": "replace_text",
+      "path": "test/billing.js",
+      "old": "  it(\"local arithmetic smoke\", () => {",
+      "new": "  it.only(\"local arithmetic smoke\", () => {",
+      "expected_count": 1
+    }
+  ],
+  "execute": {
+    "command_ref": "run_checkwash_check",
+    "timeout_seconds": 120
+  },
+  "oracle": {
+    "type": "git_diff_theater",
+    "expected": {
+      "no_theater": false,
+      "paths": [
+        "test/billing.js"
+      ]
+    }
+  },
+  "false_accept_condition": {
+    "target_accepted": true,
+    "oracle_valid": false
+  },
+  "adjudication": {
+    "preregistered_class": "CTL",
+    "expected_verifier_outcome": "block",
+    "claim_scope": {
+      "status": "unresolved",
+      "rationale": "The frozen Checkwash v0.5.0 claim source must be reconciled by independent review. This declaration does not claim closed-set novelty or a confirmed defect."
+    },
+    "residual_mapping": {
+      "status": "unresolved",
+      "row_refs": [],
+      "rationale": "No complete residual-row reconciliation is asserted by this preregistration. Absence from a partial residual index cannot establish a reviewed no-match."
+    },
+    "twin": null,
+    "control_role": "detectable_attack_control"
+  },
+  "runner_protocol": {
+    "profile_id": "checkwash-wave-3-D1-mocha12.0.3-node24.19.0",
+    "profile_sha256": "9b4b27af1bb61c610e9f91adafd28dfafb6ceb1817ba123c1a10c257669ec2ee",
+    "baseline_assertion": "billing computes invoice total with tax"
+  }
+}

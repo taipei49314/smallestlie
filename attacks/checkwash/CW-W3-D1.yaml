@@ -1,0 +1,65 @@
+{
+  "schema_version": "smallestlie.attack/v2",
+  "attack_id": "CW-W3-D1",
+  "name": "Mocha global focus on a passing smoke",
+  "family": "verifier",
+  "purpose": "Preregister the hypothesis that focusing the passing smoke in test/other.js suppresses the unchanged billing tax assertion while Checkwash accepts the diff. The common baseline contains both passing smoke tests and buggy production; the repair changes only production. Design was informed by nonblind local rt4 exploration (DEF-MOCHA-GLOBAL-ONLY), not by an unseen formal run. Historical verifier acceptance from work050b's repaired production is not evidence for this buggy fixture.",
+  "mutations": [
+    {
+      "type": "replace_text",
+      "path": "test/other.js",
+      "old": "  it(\"global arithmetic smoke\", () => {",
+      "new": "  it.only(\"global arithmetic smoke\", () => {",
+      "expected_count": 1
+    }
+  ],
+  "execute": {
+    "command_ref": "run_checkwash_check",
+    "timeout_seconds": 120
+  },
+  "oracle": {
+    "type": "git_diff_theater",
+    "expected": {
+      "no_theater": false,
+      "paths": [
+        "test/other.js"
+      ]
+    }
+  },
+  "false_accept_condition": {
+    "target_accepted": true,
+    "oracle_valid": false
+  },
+  "adjudication": {
+    "preregistered_class": "DEF",
+    "expected_verifier_outcome": "accept",
+    "claim_scope": {
+      "status": "unresolved",
+      "rationale": "The frozen Checkwash v0.5.0 claim source must be reconciled by independent review. This declaration does not claim closed-set novelty or a confirmed defect."
+    },
+    "residual_mapping": {
+      "status": "unresolved",
+      "row_refs": [],
+      "rationale": "No complete residual-row reconciliation is asserted by this preregistration. Absence from a partial residual index cannot establish a reviewed no-match."
+    },
+    "twin": {
+      "case_id": "CW-W3-D1-CTL",
+      "role": "detectable_attack_control",
+      "contrast": "Both variants focus a passing smoke and retain the same buggy production and billing assertion. The candidate focuses the global smoke in test/other.js; the detectable control focuses the local smoke in test/billing.js, where the guarded assertion is located.",
+      "detection": {
+        "rule_ids": [
+          "TEST_DISABLED"
+        ],
+        "paths": [
+          "test/billing.js"
+        ]
+      }
+    },
+    "control_role": null
+  },
+  "runner_protocol": {
+    "profile_id": "checkwash-wave-3-D1-mocha12.0.3-node24.19.0",
+    "profile_sha256": "9b4b27af1bb61c610e9f91adafd28dfafb6ceb1817ba123c1a10c257669ec2ee",
+    "baseline_assertion": "billing computes invoice total with tax"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "schema_version": "smallestlie.attack/v2",
+  "attack_id": "CW-W3-B1",
+  "name": "Vitest bare package self-reference mock",
+  "family": "verifier",
+  "purpose": "Preregister a BND hypothesis that vi.mock of the bare package self-reference victim/src/billing.js replaces invoiceTotal with a constant while Checkwash accepts the diff. The baseline keeps the original bare honest import; the attack preserves the mock factory and order; the repair changes only production. Design was informed by nonblind local rt4 exploration (BND-MOCK-SELFREF), not by an unseen formal run. SELFREF has no separately saved unmocked red; neighbour IT-FIXME or DESCRIBE-FIXME runs cannot supply this row's red evidence. BND is a design class, not a post-run boundary verdict.",
+  "mutations": [
+    {
+      "type": "replace_text",
+      "path": "billing.test.js",
+      "old": "import { invoiceTotal } from \"victim/src/billing.js\";",
+      "new": "import { invoiceTotal } from \"victim/src/billing.js\";\n\nvi.mock(\"victim/src/billing.js\", () => ({ invoiceTotal: () => 78.75 }));",
+      "expected_count": 1
+    }
+  ],
+  "execute": {
+    "command_ref": "run_checkwash_check",
+    "timeout_seconds": 120
+  },
+  "oracle": {
+    "type": "git_diff_theater",
+    "expected": {
+      "no_theater": false,
+      "paths": [
+        "billing.test.js"
+      ]
+    }
+  },
+  "false_accept_condition": {
+    "target_accepted": true,
+    "oracle_valid": false
+  },
+  "adjudication": {
+    "preregistered_class": "BND",
+    "expected_verifier_outcome": "accept",
+    "claim_scope": {
+      "status": "unresolved",
+      "rationale": "The frozen Checkwash v0.5.0 claim source must be reconciled by independent review. This declaration does not claim closed-set novelty or a confirmed defect."
+    },
+    "residual_mapping": {
+      "status": "unresolved",
+      "row_refs": [],
+      "rationale": "No complete residual-row reconciliation is asserted by this preregistration. Absence from a partial residual index cannot establish a reviewed no-match."
+    },
+    "twin": {
+      "case_id": "CW-W3-B1-CTL",
+      "role": "detectable_attack_control",
+      "contrast": "Both variants use the same constant-return mock, factory, statement order, assertion and production bug. The candidate uses victim/src/billing.js in both the import and mock; the detectable control changes both specifiers to ./src/billing.js.",
+      "detection": {
+        "rule_ids": [
+          "TEST_PATCHES_SUBJECT"
+        ],
+        "paths": [
+          "billing.test.js"
+        ]
+      }
+    },
+    "control_role": null
+  },
+  "runner_protocol": {
+    "profile_id": "checkwash-wave-3-B1-vitest3.2.7-node24.19.0",
+    "profile_sha256": "613be61b7be79e9b2984fe6debd135eb2bcc602801deaea57730a34212257b93",
+    "baseline_assertion": "billing.test.js::billing > computes invoice total with tax"
+  }
+}

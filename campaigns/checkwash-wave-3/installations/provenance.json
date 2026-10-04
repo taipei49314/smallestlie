@@ -1,0 +1,374 @@
+{
+  "document_kind": "preparation-input-provenance",
+  "purpose": "Restoration and input identity only; no W3 observations or case outcomes",
+  "repository": "taipei49314/estate-consolidation",
+  "immutable_ref": "sweep-receipts/37207000468/1/workload-m12-w3-freeze-prepare",
+  "commit": "bd5717edac6bec5081dcbb56d4a6c9e1075c0753",
+  "tree": "db7d46cbddbe1855c1faccca932d22a3dae514f1",
+  "product_source": "67cdb081fd023a30a1cfa126c54cc9037ba86c00",
+  "ec_source": "3cce1bc37ae830fce9f64a748f7392659f5b6698",
+  "host": "LAPTOP-50KP71KA",
+  "run_id": 37207000468,
+  "attempt": 1,
+  "job_id": 111450166389,
+  "original_maps": {
+    "python-files.json": {
+      "receipt_path": "w3-freeze/python-files.json",
+      "bytes": 203658,
+      "sha256": "3a2cef311da838d267d3361bc6d819f59811a4cd8e3b75adb7a4067bcb3ecf85",
+      "git_blob": "65a50a6f6b40f0db63dc28631c910c70be609931"
+    },
+    "node-files.json": {
+      "receipt_path": "w3-freeze/node-files.json",
+      "bytes": 259049,
+      "sha256": "16473d0b52e6dfd9364956d23a4e9b85b7d8cfeccc25ab88590ec04d83336ae0",
+      "git_blob": "c2763d6bef76d17b6c0e261614d7f19f02916be4"
+    },
+    "js-files.json": {
+      "receipt_path": "w3-freeze/js-files.json",
+      "bytes": 164232,
+      "sha256": "7f96af30b9f8b6d7d1a7cb7d5d32c88ba5c63ae295842d6bdb960ad1e7f4b139",
+      "git_blob": "6ebb3bdad2319d975c599d85c3b69ad2607ce268"
+    },
+    "pytest-package-files.json": {
+      "receipt_path": "w3-freeze/pytest-package-files.json",
+      "bytes": 7450,
+      "sha256": "3b8acda4fd85810e986647959339aff2076e266ed7ad9aa7cd4d128e9b1d4376",
+      "git_blob": "9e49d1897b0607b5f5e7e976dbc6064847293d1f"
+    },
+    "js-runner-package-files.json": {
+      "receipt_path": "w3-freeze/js-runner-package-files.json",
+      "bytes": 17513,
+      "sha256": "71d83f57124f8b910a3116ac267338ad34a936399eb4227e055ce80ff0987a24",
+      "git_blob": "2aa4749a24c6ca50bbf9f49730d759b741485e1f"
+    },
+    "python-identity.json": {
+      "receipt_path": "w3-freeze/python-identity.json",
+      "bytes": 382,
+      "sha256": "e44475a1b22736fb88e0ea3e88676fa42e1d540c94c8608c1fa7d182ad424791",
+      "git_blob": "007efbc8b3c3606a16278a84e47e7fb695aa3d93"
+    },
+    "node-version.stdout": {
+      "receipt_path": "w3-freeze/node-version.stdout",
+      "bytes": 10,
+      "sha256": "bc697de995dc791df53d688ef69c08994cdffc8ce30c906b1ffc65b131ccd0eb",
+      "git_blob": "764cde6852628e2a3a2127074e923be9c41cb06f"
+    },
+    "python-input-uv.lock": {
+      "receipt_path": "w3-freeze/python-input-uv.lock",
+      "bytes": 18350,
+      "sha256": "c09258281d58dd19d6ed19e60d2fc14ef783d4f63df8ca171548e399ec055b48",
+      "git_blob": "920017fd19653301d4d0b85dba31232eacc82482"
+    },
+    "python-wheels.json": {
+      "receipt_path": "w3-freeze/python-wheels.json",
+      "bytes": 2920,
+      "sha256": "cab16c36cf3cb5708cbc04d0d7cfd09b47cd69007c710c204c90f2482852786e",
+      "git_blob": "a7237cff2b8101e2d56c155bf2d95b03cbc124a2"
+    },
+    "js-package.json": {
+      "receipt_path": "w3-freeze/js-package.json",
+      "bytes": 171,
+      "sha256": "47ea08a3d4e4f67c807bddf1931810f6be8d44d4c78044cc09c45dfd4344c196",
+      "git_blob": "32484f7f4c2b799e449f304a8bdf8fee05b63dbc"
+    },
+    "js-package-lock.json": {
+      "receipt_path": "w3-freeze/js-package-lock.json",
+      "bytes": 60150,
+      "sha256": "b2d89f262880a85d9d53cfe75d637cb6c2f98737f082cfbdf5d2e4c5ceee2cd2",
+      "git_blob": "d2532ba7b910b40a4902d9bb5cacd6502a5f7a78"
+    }
+  },
+  "images": {
+    "js": {
+      "archive_sha256": "eb2c4249970a74b6e9ee9f67164cf9a99cfa82e78dd62b7013fce805e01d0cce",
+      "chunks": [
+        {
+          "bytes": 8388608,
+          "path": "js-0000.zip.part",
+          "sha256": "f709089e67458019a0b95cdaf9f4de186c77b08696c7478a38d121a6806ec9bd"
+        },
+        {
+          "bytes": 3745495,
+          "path": "js-0001.zip.part",
+          "sha256": "d0b06093d5618373d6b9d6a00e2e943f88c448f1d7ad59cda678890a1d734dc6"
+        }
+      ],
+      "files_sha256": "7851211ca941deae8fb7846150d2272ba682fa970460e6806f0ab895db136636",
+      "raw_zip_bytes": 12134103,
+      "reassembly": "ordered byte concatenation; do not decode",
+      "restore_equals_full_source": true
+    },
+    "node": {
+      "archive_sha256": "9b4a7ef02bf6cb7fde6305af8b4aa4cad7d1b6b144feaaa9f1a53b30f3622e20",
+      "chunks": [
+        {
+          "bytes": 8388608,
+          "path": "node-0000.zip.part",
+          "sha256": "ba4ce36d2135b6907509a2c12227eeef7a08abd7c96e30802cc23f1c978489ea"
+        },
+        {
+          "bytes": 8388608,
+          "path": "node-0001.zip.part",
+          "sha256": "e5a15aa8feabaf54789e3bd68ae51630ffdae032fa4f75878bc8809efd62fcd7"
+        },
+        {
+          "bytes": 8388608,
+          "path": "node-0002.zip.part",
+          "sha256": "13489a15a777284f17582caed6da09856c5a1aa6449324442f79d4c16451173d"
+        },
+        {
+          "bytes": 8388608,
+          "path": "node-0003.zip.part",
+          "sha256": "03b4ab8a2b024adddd95f932ba92d27bad2ee05fb4457e49f8abbedca6709468"
+        },
+        {
+          "bytes": 5457863,
+          "path": "node-0004.zip.part",
+          "sha256": "72d5879b38d755e4f18befd3257b972c6c3adab1620b975466abfcaf51a6dc9d"
+        }
+      ],
+      "files_sha256": "5fb25cfcd9cc38f01b3ad9171ab9f0e429206cbc6e8e530d973529a6302ed6c7",
+      "raw_zip_bytes": 39012295,
+      "reassembly": "ordered byte concatenation; do not decode",
+      "restore_equals_full_source": true
+    },
+    "profile_inputs": {
+      "js_installed_sha256": "7851211ca941deae8fb7846150d2272ba682fa970460e6806f0ab895db136636",
+      "mocha_runner_sha256": "27231ebe81adfe0f587f05ebd86feae47213217a034115d2c8d9a11c528ee5e8",
+      "node_runtime_sha256": "3602f2bb1a10f2cbab4c36886218a33c1ab3db87290e73b033c46c77147d0237",
+      "pytest_runner_sha256": "409fe174ed172762bb7b7a3d2c76d1020ef17d3ea06a236e48c6f72b51d77c34",
+      "python_installed_sha256": "c206c206385434c994f1287a0e0253537255bb4eefbf02c3b9100b514feea859",
+      "python_runtime_sha256": "4d6f5f81a4bca11191c4c7c6b43632694d0a4ce74e068619d8fdc161d469859a",
+      "vitest_runner_sha256": "32d4215bc7142ac083217a755b6126a1bedb90881341d970068f59dbfac5968a"
+    },
+    "python": {
+      "archive_sha256": "f126c042a5392c8f6c85833b260eed4d8243d4e98ed4b1994bfec3be0360e8bb",
+      "chunks": [
+        {
+          "bytes": 8388608,
+          "path": "python-0000.zip.part",
+          "sha256": "a9c9a1aa149911265caac2066a7a4c1b2dd8c992155cc1ca7ff414a15af0b377"
+        },
+        {
+          "bytes": 8082105,
+          "path": "python-0001.zip.part",
+          "sha256": "f3047249c8f13637dd4e422c9b1047a0d447d2c249531715fd31da8bef54e862"
+        }
+      ],
+      "files_sha256": "c206c206385434c994f1287a0e0253537255bb4eefbf02c3b9100b514feea859",
+      "raw_zip_bytes": 16470713,
+      "reassembly": "ordered byte concatenation; do not decode",
+      "restore_equals_full_source": true
+    }
+  },
+  "original_archives": {
+    "colorama-wheel": {
+      "archive_sha256": "4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6",
+      "chunks": [
+        {
+          "bytes": 25335,
+          "path": "colorama-wheel-0000.zip.part",
+          "sha256": "4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"
+        }
+      ],
+      "raw_zip_bytes": 25335,
+      "reassembly": "ordered byte concatenation; do not decode"
+    },
+    "iniconfig-wheel": {
+      "archive_sha256": "f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12",
+      "chunks": [
+        {
+          "bytes": 7484,
+          "path": "iniconfig-wheel-0000.zip.part",
+          "sha256": "f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12"
+        }
+      ],
+      "raw_zip_bytes": 7484,
+      "reassembly": "ordered byte concatenation; do not decode"
+    },
+    "node-download": {
+      "archive_sha256": "57f71ab3652e797d84acddc79c81cc9ff1c6ddb2a1974cdb83f00fee9bff4c73",
+      "chunks": [
+        {
+          "bytes": 8388608,
+          "path": "node-download-0000.zip.part",
+          "sha256": "5fa8b67ee0a6209c06027b080bbd8739c2e12d22203cedd14557f5d968b06234"
+        },
+        {
+          "bytes": 8388608,
+          "path": "node-download-0001.zip.part",
+          "sha256": "34c2f2197b5ec0a5ee11ad1c430c5cbb0d2a1d56431a15f8ec290b8cce2ccaa7"
+        },
+        {
+          "bytes": 8388608,
+          "path": "node-download-0002.zip.part",
+          "sha256": "69bfe5849d60f43afcf1f428360a919d09a3146e52cf9af9cdfe43786f440527"
+        },
+        {
+          "bytes": 8388608,
+          "path": "node-download-0003.zip.part",
+          "sha256": "b73075394d267e96997fab92c02ab10ebda8a7a7ef33ebd337c1e0c69ef0a1c4"
+        },
+        {
+          "bytes": 3749920,
+          "path": "node-download-0004.zip.part",
+          "sha256": "fdf4d948487c651d4f07ee9d5e614d2360c36b02e78a1a1900123aec7d80c762"
+        }
+      ],
+      "raw_zip_bytes": 37304352,
+      "reassembly": "ordered byte concatenation; do not decode"
+    },
+    "packaging-wheel": {
+      "archive_sha256": "d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c",
+      "chunks": [
+        {
+          "bytes": 129956,
+          "path": "packaging-wheel-0000.zip.part",
+          "sha256": "d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c"
+        }
+      ],
+      "raw_zip_bytes": 129956,
+      "reassembly": "ordered byte concatenation; do not decode"
+    },
+    "pluggy-wheel": {
+      "archive_sha256": "e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746",
+      "chunks": [
+        {
+          "bytes": 20538,
+          "path": "pluggy-wheel-0000.zip.part",
+          "sha256": "e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746"
+        }
+      ],
+      "raw_zip_bytes": 20538,
+      "reassembly": "ordered byte concatenation; do not decode"
+    },
+    "pygments-wheel": {
+      "archive_sha256": "81a9e26dd42fd28a23a2d169d86d7ac03b46e2f8b59ed4698fb4785f946d0176",
+      "chunks": [
+        {
+          "bytes": 1231151,
+          "path": "pygments-wheel-0000.zip.part",
+          "sha256": "81a9e26dd42fd28a23a2d169d86d7ac03b46e2f8b59ed4698fb4785f946d0176"
+        }
+      ],
+      "raw_zip_bytes": 1231151,
+      "reassembly": "ordered byte concatenation; do not decode"
+    },
+    "pytest-timeout-wheel": {
+      "archive_sha256": "c42667e5cdadb151aeb5b26d114aff6bdf5a907f176a007a30b940d3d865b5c2",
+      "chunks": [
+        {
+          "bytes": 14382,
+          "path": "pytest-timeout-wheel-0000.zip.part",
+          "sha256": "c42667e5cdadb151aeb5b26d114aff6bdf5a907f176a007a30b940d3d865b5c2"
+        }
+      ],
+      "raw_zip_bytes": 14382,
+      "reassembly": "ordered byte concatenation; do not decode"
+    },
+    "pytest-wheel": {
+      "archive_sha256": "37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c",
+      "chunks": [
+        {
+          "bytes": 386536,
+          "path": "pytest-wheel-0000.zip.part",
+          "sha256": "37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c"
+        }
+      ],
+      "raw_zip_bytes": 386536,
+      "reassembly": "ordered byte concatenation; do not decode"
+    },
+    "python-download": {
+      "archive_sha256": "0eb85c2dfccccf1b17352de4c397f69194035b7d37149eacc16f1147d93de3b8",
+      "chunks": [
+        {
+          "bytes": 8388608,
+          "path": "python-download-0000.zip.part",
+          "sha256": "eba394e0b283cef1880d67ad0418cbaa9be49b70d32375cdafe693bf4232c5a6"
+        },
+        {
+          "bytes": 6126825,
+          "path": "python-download-0001.zip.part",
+          "sha256": "9d1e89f959f8df5b9439c9d47dd41bd83daea32531655bdffdb87a9a156b7ebd"
+        }
+      ],
+      "raw_zip_bytes": 14515433,
+      "reassembly": "ordered byte concatenation; do not decode"
+    },
+    "pyyaml-wheel": {
+      "archive_sha256": "5fcd34e47f6e0b794d17de1b4ff496c00986e1c83f7ab2fb8fcfe9616ff7477b",
+      "chunks": [
+        {
+          "bytes": 154003,
+          "path": "pyyaml-wheel-0000.zip.part",
+          "sha256": "5fcd34e47f6e0b794d17de1b4ff496c00986e1c83f7ab2fb8fcfe9616ff7477b"
+        }
+      ],
+      "raw_zip_bytes": 154003,
+      "reassembly": "ordered byte concatenation; do not decode"
+    }
+  },
+  "downloads": [
+    {
+      "bytes": 14515433,
+      "path": "python.nupkg",
+      "sha256": "0eb85c2dfccccf1b17352de4c397f69194035b7d37149eacc16f1147d93de3b8",
+      "url": "https://api.nuget.org/v3-flatcontainer/python/3.12.10/python.3.12.10.nupkg"
+    },
+    {
+      "bytes": 37304352,
+      "path": "node.zip",
+      "sha256": "57f71ab3652e797d84acddc79c81cc9ff1c6ddb2a1974cdb83f00fee9bff4c73",
+      "url": "https://nodejs.org/dist/v24.19.0/node-v24.19.0-win-x64.zip"
+    },
+    {
+      "bytes": 25335,
+      "path": "colorama.whl",
+      "sha256": "4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6",
+      "url": "https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl"
+    },
+    {
+      "bytes": 7484,
+      "path": "iniconfig.whl",
+      "sha256": "f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12",
+      "url": "https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl"
+    },
+    {
+      "bytes": 129956,
+      "path": "packaging.whl",
+      "sha256": "d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c",
+      "url": "https://files.pythonhosted.org/packages/63/34/ba1c580383c9eada3711951fef0795c80b829a078d72188184bcab9dd527/packaging-26.3-py3-none-any.whl"
+    },
+    {
+      "bytes": 20538,
+      "path": "pluggy.whl",
+      "sha256": "e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746",
+      "url": "https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl"
+    },
+    {
+      "bytes": 1231151,
+      "path": "pygments.whl",
+      "sha256": "81a9e26dd42fd28a23a2d169d86d7ac03b46e2f8b59ed4698fb4785f946d0176",
+      "url": "https://files.pythonhosted.org/packages/f4/7e/a72dd26f3b0f4f2bf1dd8923c85f7ceb43172af56d63c7383eb62b332364/pygments-2.20.0-py3-none-any.whl"
+    },
+    {
+      "bytes": 386536,
+      "path": "pytest.whl",
+      "sha256": "37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c",
+      "url": "https://files.pythonhosted.org/packages/24/25/1de2678b631f5a49215c6c96fff41ba892b0a34df68d6d80292b1b48aa7f/pytest-9.1.1-py3-none-any.whl"
+    },
+    {
+      "bytes": 14382,
+      "path": "pytest-timeout.whl",
+      "sha256": "c42667e5cdadb151aeb5b26d114aff6bdf5a907f176a007a30b940d3d865b5c2",
+      "url": "https://files.pythonhosted.org/packages/fa/b6/3127540ecdf1464a00e5a01ee60a1b09175f6913f0644ac748494d9c4b21/pytest_timeout-2.4.0-py3-none-any.whl"
+    },
+    {
+      "bytes": 154003,
+      "path": "pyyaml.whl",
+      "sha256": "5fcd34e47f6e0b794d17de1b4ff496c00986e1c83f7ab2fb8fcfe9616ff7477b",
+      "url": "https://files.pythonhosted.org/packages/86/bf/899e81e4cce32febab4fb42bb97dcdf66bc135272882d1987881a4b519e9/pyyaml-6.0.3-cp312-cp312-win_amd64.whl"
+    }
+  ]
+}

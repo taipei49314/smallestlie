@@ -190,6 +190,107 @@ def full_map(root, bound):
     return result
 
 
+def scan_plain(path):
+    """Fresh lstat at each original ancestor/leaf checkpoint; no stat cache.
+
+    This qualification-only reader also rejects hardlinked files. It is not
+    a replacement binding for any frozen collector function or formal action.
+    """
+    path = Path(path)
+    if not path.is_absolute() or ".." in path.parts:
+        raise ProposalRefusal("scanner requires an absolute confined path")
+    leaf = None
+    for item in (*reversed(path.parents), path):
+        info = os.lstat(item)
+        if (stat.S_ISLNK(info.st_mode)
+                or getattr(info, "st_file_attributes", 0) & 0x400
+                or not (stat.S_ISDIR(info.st_mode) or stat.S_ISREG(info.st_mode))
+                or (stat.S_ISREG(info.st_mode) and info.st_nlink != 1)):
+            raise ProposalRefusal("scanner linked/reparse/hardlinked/nonregular input")
+        if item != path and not stat.S_ISDIR(info.st_mode):
+            raise ProposalRefusal("scanner ancestor is not a directory")
+        leaf = info
+    return leaf
+
+
+def scan_read(path, maximum):
+    """Preserve walk-time and open-time checks, then check the opened identity.
+
+    Raw EOF bytes set the quota. The post-read check detects observed changes;
+    this path-based sample does not establish atomic filesystem custody.
+    """
+    before = scan_plain(path)
+    if not stat.S_ISREG(before.st_mode):
+        raise ProposalRefusal("scanner input is not a regular file")
+    def identity(info):
+        if (not stat.S_ISREG(info.st_mode) or info.st_nlink != 1
+                or not info.st_ino or getattr(info, "st_file_attributes", 0) & 0x400):
+            raise ProposalRefusal("scanner opened linked/nonregular/unidentified input")
+        return (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns)
+    original = identity(before)
+    with Path(path).open("rb") as stream:
+        if identity(os.fstat(stream.fileno())) != original:
+            raise ProposalRefusal("scanner opened identity differs from fresh leaf")
+        raw = stream.read(maximum + 1)
+        if len(raw) > maximum:
+            raise ProposalRefusal("scanner file exceeds byte quota")
+        if identity(os.fstat(stream.fileno())) != original:
+            raise ProposalRefusal("scanner opened file changed during read")
+    if identity(os.lstat(path)) != original:
+        raise ProposalRefusal("scanner path identity changed during read")
+    return raw
+
+
+def scan_image(root, *, maximum, path_rule, file_maximum=256 * 1024 * 1024,
+               file_count=50_000, physical=True):
+    """Full fresh qualification image map, with no expected-path projection.
+
+    Frozen initial/final utility measurements independently cross-check normal
+    raw identities; they do not prove equivalent rejection/race semantics.
+    """
+    if (type(maximum) is not int or maximum < 1 or type(file_maximum) is not int
+            or file_maximum < 1 or type(file_count) is not int or file_count < 1):
+        raise ProposalRefusal("positive scanner bounds required")
+    root = Path(root)
+    if any(part.endswith((".", " ")) or ":" in part for part in root.parts[1:]):
+        raise ProposalRefusal("ambiguous scanner root")
+    scan_plain(root)
+    root = root.resolve(strict=True)
+    if not stat.S_ISDIR(scan_plain(root).st_mode):
+        raise ProposalRefusal("scanner root is not a directory")
+    result, aliases, observed_dirs, total = {}, set(), set(), 0
+    def failed(error):
+        raise error
+    for current, directories, files in os.walk(root, followlinks=False, onerror=failed):
+        if not stat.S_ISDIR(scan_plain(Path(current)).st_mode):
+            raise ProposalRefusal("scanner walk directory changed")
+        for name in (*directories, *files):
+            path = Path(current) / name
+            key = path_rule(path.relative_to(root).as_posix())
+            if key.casefold() in aliases:
+                raise ProposalRefusal("scanner casefold file/directory alias")
+            aliases.add(key.casefold())
+            info = scan_plain(path)
+            expected_directory = name in directories
+            if expected_directory != stat.S_ISDIR(info.st_mode):
+                raise ProposalRefusal("scanner enumerated entry changed type")
+            if expected_directory:
+                observed_dirs.add(key)
+        for name in sorted(files):
+            path = Path(current) / name
+            key = path_rule(path.relative_to(root).as_posix())
+            if len(result) >= file_count:
+                raise ProposalRefusal("scanner file count exceeds quota")
+            raw = scan_read(path, min(file_maximum, maximum - total))
+            total += len(raw)
+            result[key] = sha(raw)
+    implied_dirs = {"/".join(name.split("/")[:i]) for name in result
+                    for i in range(1, len(name.split("/")))}
+    if physical and observed_dirs != implied_dirs:
+        raise ProposalRefusal("scanner empty or unbound physical directory")
+    return dict(sorted(result.items()))
+
+
 def reassemble(original_root, record, destination):
     """The original_root must first be fetched/verified by trusted EC control.
 
@@ -429,15 +530,17 @@ def private_qualification(source, work, out, generation):
     git_root = mingit.parent.parent
     git_map = progress.measure("initial-mingit-map", lambda: collector._image_tree(
         git_root, maximum=256 * 1024 * 1024))
+    progress.emit("qualification-image-scanner-selected", reader="fresh-lstat-image-v1")
     def protected_maps():
-        py = progress.measure("protected-python-map", lambda: collector.measure_tree(
-            private, IMAGE_BOUNDS["python"]))
-        node = progress.measure("protected-node-map", lambda: collector._image_tree(
-            node_root, maximum=IMAGE_BOUNDS["node"]))
-        js = progress.measure("protected-js-map", lambda: collector._image_tree(
-            js_root, maximum=IMAGE_BOUNDS["js"]))
-        git = progress.measure("protected-mingit-map", lambda: collector._image_tree(
-            git_root, maximum=256 * 1024 * 1024))
+        py = progress.measure("protected-python-map", lambda: scan_image(
+            private, maximum=IMAGE_BOUNDS["python"], path_rule=collector._artifact_path,
+            file_maximum=10_000_000, file_count=20_000, physical=False))
+        node = progress.measure("protected-node-map", lambda: scan_image(
+            node_root, maximum=IMAGE_BOUNDS["node"], path_rule=collector._installation_path))
+        js = progress.measure("protected-js-map", lambda: scan_image(
+            js_root, maximum=IMAGE_BOUNDS["js"], path_rule=collector._installation_path))
+        git = progress.measure("protected-mingit-map", lambda: scan_image(
+            git_root, maximum=256 * 1024 * 1024, path_rule=collector._installation_path))
         sources = progress.measure("protected-frozen-source-map", lambda:
             qualification_source_closure(source)[1])
         if py != python_map or node != node_map or js != js_map or git != git_map:
@@ -533,8 +636,10 @@ def private_qualification(source, work, out, generation):
             or progress.measure("final-node-map", lambda: collector._image_tree(
                 node_root, maximum=IMAGE_BOUNDS["node"])) != node_map
             or progress.measure("final-js-map", lambda: collector._image_tree(
-                js_root, maximum=IMAGE_BOUNDS["js"])) != js_map):
-        raise ProposalRefusal("sealed private/Node/JS installation changed during qualification")
+                js_root, maximum=IMAGE_BOUNDS["js"])) != js_map
+            or progress.measure("final-mingit-map", lambda: collector._image_tree(
+                git_root, maximum=256 * 1024 * 1024)) != git_map):
+        raise ProposalRefusal("sealed Python/Node/JS/MinGit installation changed during qualification")
     after_maps = protected_maps()
     write_new(out / "protected-after.json", canonical(after_maps))
     write_new(out / "qualification.json", canonical({
@@ -542,6 +647,7 @@ def private_qualification(source, work, out, generation):
         "scope": "restoration/private-loader/raw-capture/Node-version/benign-MinGit-range only",
         "host": HOST, "generation": generation.name,
         "collector_sha256": COLLECTOR_SHA256, "native_capture_labels": captures,
+        "protected_image_reader": "qualification-only/fresh-lstat-image-v1",
         "python_prefix_sha256": sha(canonical(python_map)), "node_tree_sha256": sha(canonical(node_map)),
         "js_tree_sha256": sha(canonical(js_map)), "mingit_tree_sha256": sha(canonical(git_map)),
         "mingit_executable_sha256": sha(read(mingit, 256 * 1024 * 1024)),

@@ -14,6 +14,7 @@ import stat
 import sys
 import tempfile
 import unittest
+from unittest import mock
 import zipfile
 
 ENTRY = Path(sys.argv.pop(1)).resolve()
@@ -146,6 +147,183 @@ class RestorationGuards(unittest.TestCase):
         (raw_root / "file.raw").write_bytes(b"changed original")
         with self.assertRaisesRegex(subject.ProposalRefusal, "raw member differs"):
             subject.verify_original_publication(raw_root)
+
+
+class ImageScannerGuards(unittest.TestCase):
+    # This independent class uses only the common temp setup, not a product
+    # importer, frozen utility binding, native runner or formal fixture.
+    setUp = RestorationGuards.setUp
+    tearDown = RestorationGuards.tearDown
+
+    def scan(self, root, **bounds):
+        return subject.scan_image(root, maximum=bounds.pop("maximum", 100_000),
+                                  path_rule=subject.relative, **bounds)
+
+    def image(self):
+        root = self.root / "scanner-image"
+        leaf = root / "node_modules/@scope/pkg/file with space.bin"
+        leaf.parent.mkdir(parents=True)
+        leaf.write_bytes(b"\x00\xff\r\n")
+        return root, leaf
+
+    def test_scanner_scoped_raw_map_and_extra_member(self):
+        root, leaf = self.image()
+        expected = {leaf.relative_to(root).as_posix(): subject.sha(b"\x00\xff\r\n")}
+        self.assertEqual(self.scan(root), expected)
+        (root / "extra.raw").write_bytes(b"extra")
+        self.assertEqual(self.scan(root), {**expected, "extra.raw": subject.sha(b"extra")})
+
+    def test_scanner_rejects_byte_and_file_count_quota(self):
+        root, _ = self.image()
+        with self.assertRaisesRegex(subject.ProposalRefusal, "byte quota"):
+            self.scan(root, maximum=2)
+        (root / "extra.raw").write_bytes(b"x")
+        with self.assertRaisesRegex(subject.ProposalRefusal, "file count"):
+            self.scan(root, file_count=1)
+
+    def test_scanner_physical_empty_directory_refused(self):
+        root, _ = self.image()
+        (root / "unbound").mkdir()
+        with self.assertRaisesRegex(subject.ProposalRefusal, "unbound"):
+            self.scan(root)
+        self.assertTrue(self.scan(root, physical=False))
+
+    def test_scanner_native_hardlink_refused(self):
+        root, leaf = self.image()
+        os.link(leaf, root / "hardlinked.raw")
+        with self.assertRaisesRegex(subject.ProposalRefusal, "hardlinked"):
+            self.scan(root)
+
+    def test_scanner_fresh_reparse_and_symlink_metadata_refused(self):
+        root, leaf = self.image()
+        original = subject.os.lstat
+        for changed in ({"st_file_attributes": 0x400}, {"st_mode": stat.S_IFLNK | 0o777}):
+            def hostile(path, *args, **kwargs):
+                value = original(path, *args, **kwargs)
+                if Path(path) != leaf:
+                    return value
+                fields = {name: getattr(value, name) for name in
+                          ("st_mode", "st_nlink", "st_ino", "st_dev", "st_size", "st_mtime_ns")}
+                return type("ObservedUnsafeMetadata", (), {**fields, **changed})()
+            with mock.patch.object(subject.os, "lstat", side_effect=hostile):
+                with self.assertRaisesRegex(subject.ProposalRefusal, "linked/reparse"):
+                    self.scan(root)
+
+    def test_scanner_opened_identity_mismatch_refused(self):
+        _, leaf = self.image()
+        original = subject.os.fstat
+        def other_identity(fd):
+            value = original(fd)
+            fields = {name: getattr(value, name) for name in
+                      ("st_mode", "st_nlink", "st_ino", "st_dev", "st_size", "st_mtime_ns")}
+            return type("ObservedOtherFile", (), {**fields, "st_ino": value.st_ino + 1})()
+        with mock.patch.object(subject.os, "fstat", side_effect=other_identity):
+            with self.assertRaisesRegex(subject.ProposalRefusal, "identity differs"):
+                subject.scan_read(leaf, 100_000)
+
+    def test_scanner_walk_removal_and_type_replacement_refused(self):
+        root, leaf = self.image()
+        original = subject.os.walk
+        for operation in ("remove", "directory"):
+            def changed_walk(*args, **kwargs):
+                for current, directories, files in original(*args, **kwargs):
+                    if Path(current) == leaf.parent:
+                        leaf.unlink()
+                        if operation == "directory":
+                            leaf.mkdir()
+                    yield current, directories, files
+            with mock.patch.object(subject.os, "walk", side_effect=changed_walk):
+                with self.assertRaises((subject.ProposalRefusal, FileNotFoundError)):
+                    self.scan(root)
+            if leaf.is_dir():
+                leaf.rmdir()
+            leaf.write_bytes(b"\x00\xff\r\n")
+
+    def test_scanner_walk_error_is_not_ignored(self):
+        root, _ = self.image()
+        def denied_walk(*args, **kwargs):
+            kwargs["onerror"](PermissionError("observed denied directory"))
+            yield root, [], []
+        with mock.patch.object(subject.os, "walk", side_effect=denied_walk):
+            with self.assertRaises(PermissionError):
+                self.scan(root)
+
+    def test_scanner_casefold_alias_refused(self):
+        root, leaf = self.image()
+        original = subject.os.walk
+        def duplicate_walk(*args, **kwargs):
+            for current, directories, files in original(*args, **kwargs):
+                if Path(current) == leaf.parent:
+                    files = [*files, leaf.name.upper()]
+                yield current, directories, files
+        with mock.patch.object(subject.os, "walk", side_effect=duplicate_walk):
+            with self.assertRaisesRegex(subject.ProposalRefusal, "casefold"):
+                self.scan(root)
+
+    def test_scanner_changed_opened_metadata_refused(self):
+        _, leaf = self.image()
+        original = subject.os.fstat
+        seen = []
+        def changed_metadata(fd):
+            value = original(fd)
+            seen.append(fd)
+            if len(seen) == 1:
+                return value
+            fields = {name: getattr(value, name) for name in
+                      ("st_mode", "st_nlink", "st_ino", "st_dev", "st_size", "st_mtime_ns")}
+            return type("ObservedChangedFile", (), {**fields, "st_size": value.st_size + 1})()
+        with mock.patch.object(subject.os, "fstat", side_effect=changed_metadata):
+            with self.assertRaisesRegex(subject.ProposalRefusal, "changed during read"):
+                subject.scan_read(leaf, 100_000)
+
+    def test_scanner_post_read_path_identity_mismatch_refused(self):
+        _, leaf = self.image()
+        original = subject.os.lstat
+        seen = []
+        def replaced_path(path, *args, **kwargs):
+            value = original(path, *args, **kwargs)
+            if Path(path) != leaf:
+                return value
+            seen.append(path)
+            if len(seen) == 1:
+                return value
+            fields = {name: getattr(value, name) for name in
+                      ("st_mode", "st_nlink", "st_ino", "st_dev", "st_size", "st_mtime_ns")}
+            return type("ObservedReplacedPath", (), {**fields, "st_ino": value.st_ino + 1})()
+        with mock.patch.object(subject.os, "lstat", side_effect=replaced_path):
+            with self.assertRaisesRegex(subject.ProposalRefusal, "path identity changed"):
+                subject.scan_read(leaf, 100_000)
+
+    def test_scanner_unidentified_handle_refused(self):
+        _, leaf = self.image()
+        original = subject.os.fstat
+        def unidentified(fd):
+            value = original(fd)
+            fields = {name: getattr(value, name) for name in
+                      ("st_mode", "st_nlink", "st_ino", "st_dev", "st_size", "st_mtime_ns")}
+            return type("ObservedUnidentifiedHandle", (), {**fields, "st_ino": 0})()
+        with mock.patch.object(subject.os, "fstat", side_effect=unidentified):
+            with self.assertRaisesRegex(subject.ProposalRefusal, "unidentified"):
+                subject.scan_read(leaf, 100_000)
+
+    def test_scanner_ancestor_reparse_is_checked_again_at_open(self):
+        _, leaf = self.image()
+        original = subject.os.lstat
+        seen = []
+        def changed_ancestor(path, *args, **kwargs):
+            value = original(path, *args, **kwargs)
+            if Path(path) != leaf.parent:
+                return value
+            seen.append(path)
+            if len(seen) == 1:
+                return value
+            fields = {name: getattr(value, name) for name in
+                      ("st_mode", "st_nlink", "st_ino", "st_dev", "st_size", "st_mtime_ns")}
+            return type("ObservedChangedAncestor", (), {**fields, "st_file_attributes": 0x400})()
+        with mock.patch.object(subject.os, "lstat", side_effect=changed_ancestor):
+            subject.scan_plain(leaf)
+            with self.assertRaisesRegex(subject.ProposalRefusal, "linked/reparse"):
+                subject.scan_read(leaf, 100_000)
 
 
 if __name__ == "__main__":

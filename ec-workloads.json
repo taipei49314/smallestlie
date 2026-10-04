@@ -1,6 +1,14 @@
 {
   "schema_version": 1,
   "workloads": {
+    "m12-w3-freeze-prepare": {
+      "description": "W3 results-free Phase1 input preparation on LAPTOP-50KP71KA only: download hash-pinned private CPython3.12.10 and Node24.19.0 archives plus uv.lock wheels; resolve exact Mocha12.0.3/Chai5.3.3/Vitest3.2.7 npm dependencies with scripts disabled, preserve locks, full installed raw maps and byte-identical restorable sealed images. No W3 cases, verifier, pytest/collection, product imports, tests, global installation, host configuration, runner/collector adoption, formal execution or engine re-pin. Separate human admission and exact-source one-dispatch authorization required.",
+      "entry": "workloads/m12_w3_freeze_prepare/run.py",
+      "profile": "profile-ec-integrity",
+      "timeout_minutes": 35,
+      "cache": false,
+      "parameters": {}
+    },
     "m12-portable-witness-verify": {
       "description": "M12 portable raw J witness export and always-unverified offline inspection contracts plus the original eight focused groups and full frozen regression on LAPTOP-50KP71KA; synthetic records only, no formal W3, live runner/publisher/collector adoption, CLI measurement or engine re-pin. Separate human EC admission and exact-source execution required.",
       "entry": "workloads/m12_portable_witness_verify/run.py",

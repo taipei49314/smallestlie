@@ -31,6 +31,24 @@ does not establish authenticity or fresh source/human/semantic authority.
 Online verification still needs the original independent authorities, external
 J location and full frozen preparation. An offline object cannot supply them.
 
+## Offline command
+
+`smallestlie witness inspect <bundle_dir>` performs one strict offline inspection
+and prints JSON with fixed `structural_status: inspected` and
+`verification_status: unverified`. Exit 0 means only successful structural
+inspection. Rejected input returns `ExitCode.INVALID_CONFIG` (6), a rejected
+structural status and an unverified error envelope. Argument syntax errors use
+the existing argparse behavior.
+
+The complete roster and saved selection remain visible. Snapshot, review
+validations, rows and report stay under `claimed_*` keys; saved PASS or headline
+values cannot replace the public status. Raw reviews appear as present/missing
+state, raw byte length and SHA256 metadata without decoding or semantic
+validation. Original bytes remain in the bundle. J and manifest digests come
+from the same validated acquisition, with no renderer filesystem reads.
+JSON escapes control characters. The command supplies no grants or online
+verification and does not execute, replay, minimize or modify bundle contents.
+
 Both readers use the existing per-artifact byte bound; the complete bundle also
 has the existing evidence file-count and total-byte bounds. Only the fixed files
 and flat lowercase content-addressed artifact names are allowed. Duplicate,
@@ -50,6 +68,8 @@ contents, publish J or change workloads, dependencies, runners, pins or catalogs
 Actual human Phase1, independent semantic approval, live publisher and runner/
 collector/coordinator/storage adoption, formal W3 and full M12 D remain pending.
 
-Validation is `NOT_RUN: POLICY work-machine-local`; source and synthetic tests
-need a new exact-source pool authorization. PR40's grant covers only its frozen
-published-reader source and cannot be reused for this witness change.
+Validation of this new CLI/renderer source is `NOT_RUN: POLICY work-machine-local`;
+it needs a new exact-source pool authorization. PR41's sole witness-source run
+passed its actual focused320/full1242 cases, including the17 witness outcomes,
+and merged with the identical complete tree. That consumed grant covers its own
+source and cannot be reused for this interface change.

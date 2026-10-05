@@ -22,6 +22,18 @@ import xml.etree.ElementTree as ET
 from workloads.m12_adjudication_verify.protocol import (
     canonical, collection_result, digest, load, parameters, partition_result,
 )
+from workloads.m12_adjudication_verify.output_bound import OutputBudget, OutputRefusal, preserve_refusal
+
+_OUTPUT = None
+
+
+def output_for(out, budget, work=None):
+    global _OUTPUT
+    if _OUTPUT is None or _OUTPUT.out != Path(out).resolve():
+        _OUTPUT = OutputBudget(out, budget.deadline, create=True, work=work, clock=budget.clock)
+    if _OUTPUT.deadline != budget.deadline:
+        raise OutputRefusal("original entry output deadline changed")
+    return _OUTPUT
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -90,8 +102,9 @@ def read_bounded(path: Path, cap: int) -> bytes:
 
 
 def write_new(path: Path, raw: bytes):
-    with path.open("xb") as handle:
-        handle.write(raw)
+    if _OUTPUT is None:
+        raise OutputRefusal("entry output accounting not initialized")
+    _OUTPUT.write_new(path, raw)
 
 
 def acquire_input(name: str, path: Path | None, out: Path, artifact: str, cap: int,
@@ -102,6 +115,7 @@ def acquire_input(name: str, path: Path | None, out: Path, artifact: str, cap: i
                    "artifact": None, "semantic_validated": None, "error_type": None}
     observations[name] = observation
     try:
+        output_for(out, budget)
         if path is None:
             raise ValueError("missing fixed input path")
         if budget.remaining() <= 0:
@@ -130,6 +144,7 @@ def finalize(out: Path, result: dict, budget: Budget) -> int:
     wrapper exit/elapsed. Every final write is followed by the same clock check;
     a late final synchronous IO returns nonzero and retains a separate refusal.
     """
+    output_for(out, budget)
     phase_ready = result["phase_checks_complete"] is True
     result["partition_complete"] = False
     result["terminal_state"] = "PROVISIONAL"
@@ -143,6 +158,10 @@ def finalize(out: Path, result: dict, budget: Budget) -> int:
                    "error_type": error_type, "stage": failed_stage,
                    "entry_elapsed_seconds": round(budget.clock() - budget.started, 6),
                    "entry_budget_seconds": ENTRY_SECONDS, "native_exit_required": "nonzero"}
+        try:
+            preserve_refusal(out, refusal)
+        except (OSError, ValueError):
+            pass  # The first fixed refusal and all previous prefixes stay intact.
         # Keep the original provisional epoch and any actually written pending
         # result. Atomic replacement affects only this unpublished result path.
         result["partition_complete"] = False
@@ -199,6 +218,7 @@ def finalize(out: Path, result: dict, budget: Budget) -> int:
                 "phase_checks_complete": True, "ready_for_native_terminal": True,
                 "required_actual_wrapper_exit_code": 0, "actual_wrapper_elapsed_at_most": ENTRY_SECONDS,
                 "refusal_artifacts_absent": True, "raw_result_summary_provisional_digests_match": True,
+                "output_refusal_artifacts_absent": True,
             },
         }
         stage = "terminal-marker"
@@ -212,94 +232,7 @@ def finalize(out: Path, result: dict, budget: Budget) -> int:
         return refused(type(exc).__name__, stage)
 
 
-class Runner:
-    """Raw streams go directly to files, retaining prefixes even after hard kill."""
-
-    def __init__(self, root: Path, out: Path, env: dict[str, str], budget: Budget):
-        self.root, self.out, self.env, self.budget = root, out, env, budget
-        self.steps: list[dict] = []
-
-    def run(self, name: str, command: list[str], cap: float, *, final=False) -> int:
-        began = self.budget.clock()
-        record = {"name": name, "command": command, "exit_code": 2, "timed_out": False,
-                  "started": False, "entry_remaining_before": round(self.budget.remaining(), 3)}
-        stdout_path, stderr_path = self.out / f"{name}.stdout", self.out / f"{name}.stderr"
-        with stdout_path.open("xb") as stdout, stderr_path.open("xb") as stderr:
-            process = None
-            try:
-                timeout = self.budget.timeout(cap, final=final)
-                phase_deadline = min(began + cap, self.budget.clock() + timeout)
-                record["allocated_seconds"] = max(0.0, phase_deadline - began)
-                if phase_deadline <= self.budget.clock():
-                    raise BudgetExhausted("phase cap expired before native child start")
-                kwargs = ({"creationflags": subprocess.CREATE_NO_WINDOW} if sys.platform == "win32"
-                          else {"start_new_session": True})
-                process = subprocess.Popen(command, cwd=self.root, env=self.env,
-                                           stdout=stdout, stderr=stderr, **kwargs)
-                record.update(started=True, pid=process.pid)
-                try:
-                    remaining_wait = min(phase_deadline - self.budget.clock(),
-                                         self.budget.timeout(cap, final=final))
-                    if remaining_wait <= 0:
-                        raise subprocess.TimeoutExpired(command, timeout)
-                    process.wait(timeout=remaining_wait)
-                    record["exit_code"] = process.returncode
-                except subprocess.TimeoutExpired:
-                    record.update(exit_code=124, timed_out=True)
-                    record["cleanup"] = self._close_child(process, stderr)
-            except (OSError, BudgetExhausted) as exc:
-                stderr.write((f"error_type: {type(exc).__name__}\n").encode("utf-8"))
-                if process is not None and process.poll() is None:
-                    record["cleanup"] = self._close_child(process, stderr)
-                if isinstance(exc, BudgetExhausted):
-                    record["budget_exhausted"] = True
-        record["elapsed_seconds"] = round(self.budget.clock() - began, 3)
-        record["entry_remaining_after"] = round(self.budget.remaining(), 3)
-        # Hash the already written raw files incrementally, including failure prefixes.
-        for label, path in (("stdout", stdout_path), ("stderr", stderr_path)):
-            sha = hashlib.sha256()
-            with path.open("rb") as handle:
-                while chunk := handle.read(1024 * 1024):
-                    sha.update(chunk)
-            record[f"{label}_sha256"] = sha.hexdigest()
-        self.steps.append(record)
-        return record["exit_code"]
-
-    def _close_child(self, process, stderr) -> dict:
-        state = {"tree_kill": "UNCONFIRMED", "parent_reaped": False}
-        try:
-            if sys.platform == "win32":
-                system_root = next((value for name, value in self.env.items()
-                                    if name.upper() == "SYSTEMROOT"), None)
-                if not system_root:
-                    raise OSError("no SystemRoot for fixed taskkill")
-                killer = str(Path(system_root) / "System32" / "taskkill.exe")
-                timeout = self.budget.timeout(15, closing=True)
-                with (self.out / f"pid-{process.pid}-taskkill.stdout").open("xb") as killed_out, \
-                        (self.out / f"pid-{process.pid}-taskkill.stderr").open("xb") as killed_err:
-                    killed = subprocess.run([killer, "/PID", str(process.pid), "/T", "/F"],
-                                            stdout=killed_out, stderr=killed_err, timeout=timeout,
-                                            creationflags=subprocess.CREATE_NO_WINDOW, check=False)
-                state["tree_kill_exit"] = killed.returncode
-                if killed.returncode == 0:
-                    state["tree_kill"] = "COMMAND_SUCCEEDED"
-            else:
-                # Portable synthetic CI contracts only; production main requires Windows.
-                os.killpg(process.pid, signal.SIGKILL)
-                state["tree_kill"] = "COMMAND_SUCCEEDED"
-        except (OSError, subprocess.TimeoutExpired, BudgetExhausted) as exc:
-            stderr.write((f"Bounded tree cleanup unconfirmed: {type(exc).__name__}\n").encode("utf-8"))
-        if process.poll() is None:
-            try:
-                process.kill()
-            except OSError as exc:
-                stderr.write((f"Parent kill unconfirmed: {type(exc).__name__}\n").encode("utf-8"))
-        try:
-            process.wait(timeout=self.budget.timeout(5, closing=True))
-            state["parent_reaped"] = True
-        except (OSError, subprocess.TimeoutExpired, BudgetExhausted) as exc:
-            stderr.write((f"Bounded reap incomplete: {type(exc).__name__}\n").encode("utf-8"))
-        return state
+from workloads.m12_adjudication_verify.bounded_runner import Runner
 
 
 def locked_requirements(raw: bytes) -> list[str]:
@@ -374,7 +307,10 @@ def main() -> int:
     out, work = (Path(os.environ[name]).resolve() for name in ("EC_WORKLOAD_OUT", "EC_WORKLOAD_WORK"))
     out.mkdir(parents=True, exist_ok=True)
     work.mkdir(parents=True, exist_ok=True)
-    runner = Runner(ROOT, out, child_environment(dict(os.environ), ROOT), budget)
+    output = output_for(out, budget, work)
+    child_env = child_environment(dict(os.environ), ROOT)
+    child_env.update(SL_OUTPUT_ROOT=str(out), SL_OUTPUT_WORK=str(work), SL_OUTPUT_DEADLINE=str(budget.deadline))
+    runner = Runner(ROOT, out, child_env, budget, output)
     problems, suites, requirements, errors = [], {}, [], []
     actual, shard, raw_parameters, lock, plugin_sha = None, None, None, None, None
     acquisitions = {}
@@ -413,7 +349,7 @@ def main() -> int:
     def pytest_command(name):
         return [str(python), "-X", "utf8", "-B", "-m", "pytest", "-q", "--strict-markers",
                 "-p", "pytest_timeout", "-p", "no:cacheprovider", "-c", "pyproject.toml",
-                "-o", "addopts=", "--basetemp", str(work / name)]
+                "-o", "addopts=", "--capture=no", "--basetemp", str(work / name)]
 
     def plugin_options(mode, prefix):
         options = ["-p", PLUGIN, "--sl-partition-mode", mode,
@@ -513,7 +449,7 @@ def main() -> int:
         source_check("final", final=True)
     except (OSError, ValueError, UnicodeError, BudgetExhausted) as exc:
         refusal("final-source", "final source closure incomplete", exc)
-    ready = not problems and "partition" in suites and budget.remaining() > 0
+    ready = not problems and "partition" in suites and budget.remaining() > 0 and not (out / "output-refusal.json").exists()
     if budget.remaining() <= 0:
         problems.append("entry deadline exhausted before result finalization")
     result = {
@@ -530,6 +466,9 @@ def main() -> int:
         "entry_budget": {"seconds": ENTRY_SECONDS, "finalization_reserve": FINALIZATION_RESERVE,
                          "remaining_seconds": round(budget.remaining(), 3),
                          "origin": "entry invocation, after EC preparation"},
+        "output_bound": {"schema_version": "smallestlie-output-bound-v1", "trusted_attempt_bytes": 256 * 1024 * 1024,
+                         "sole_refusal_slot_bytes": 64 * 1024, "maximum_trusted_opens": 64,
+                         "whole_physical_disk": "NOT_ENFORCED", "publication_extra_copies": "NOT_BOUNDED_HERE"},
         "limitations": [
             "Partition completion requires the terminal raw-digest predicate and actual wrapper exit zero/elapsed<=1800; internal result alone is insufficient.",
             "One fixed partition only; full Windows requires four fresh same-source receipts and identity reconciliation.",

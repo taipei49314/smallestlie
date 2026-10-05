@@ -10,6 +10,7 @@ from pathlib import Path
 import pytest
 
 from workloads.m12_adjudication_verify.protocol import canonical
+from workloads.m12_adjudication_verify.output_bound import OutputBudget, bind_junit, close_preserving_primary
 
 _state = None
 
@@ -18,12 +19,15 @@ def pytest_addoption(parser):
     parser.addoption("--sl-outcome-evidence")
 
 
+@pytest.hookimpl(trylast=True)
 def pytest_configure(config):
     global _state
     prefix = config.getoption("sl_outcome_evidence")
     if not prefix:
         raise pytest.UsageError("focused outcome evidence path required")
-    _state = {"prefix": Path(prefix), "stream": Path(prefix + ".events.jsonl").open("xb")}
+    output = OutputBudget.child()
+    _state = {"prefix": Path(prefix), "stream": output.open(Path(prefix + ".events.jsonl")), "output": output}
+    bind_junit(config, output)
 
 
 def _write(record):
@@ -42,14 +46,13 @@ def pytest_sessionfinish(session, exitstatus):
                 "tests_collected": session.testscollected, "exitstatus": int(exitstatus)}
     try:
         _write({"event": "session_finish", **terminal})
-        with Path(str(_state["prefix"]) + ".session.json").open("xb") as handle:
-            handle.write(canonical(terminal))
+        _state["output"].write_new(Path(str(_state["prefix"]) + ".session.json"), canonical(terminal))
     finally:
-        _state["stream"].close()
+        close_preserving_primary(_state["stream"])
 
 
 def pytest_unconfigure(config):
     global _state
     if _state is not None and not _state["stream"].closed:
-        _state["stream"].close()
+        close_preserving_primary(_state["stream"])
     _state = None

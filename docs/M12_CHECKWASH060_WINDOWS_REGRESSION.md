@@ -77,8 +77,12 @@ phase checks and readiness must hold, all refusal artifacts must be absent, and
 the independent native EC wrapper must actually exit zero with elapsed <=1800
 seconds. Source fields or App labels cannot replace that native observation.
 Each final write is followed by the same deadline check; a write that crosses
-the deadline retains `late-refusal.json`, atomically records refusal in the
-unpublished result, and returns nonzero. An unavailable output filesystem also
+the deadline returns nonzero and attempts the separate fixed CreateNew
+`output-refusal.json` slot. Normal payload writes keep the same deadline, so
+late refusal must not promise another backup, `late-refusal.json`, or result
+replacement. Already-written provisional, pending result, summary and terminal
+bytes remain intact; the native nonzero exit and present refusal make terminal
+acceptance false. An unavailable output filesystem also
 returns nonzero; its missing closure is not a success. The final synchronous
 write or the interval until native return cannot self-authenticate, so actual
 wrapper exit/elapsed remain necessary even with a readiness marker.

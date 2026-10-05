@@ -1,0 +1,20 @@
+{
+  "human_source_approval": "Actual user 核准 after exact PR43/source/manifest question",
+  "human_delegation": "Actual latest user: 你來合併 並啟動w3",
+  "head": "d00c94afd5f9dad40d044b92b2e452962a52976b",
+  "base": "b3d316102430c4bd4e89465833857cd00e2db265",
+  "tree": "781e9047717df22dffc87222efd020bca72408af",
+  "manifest_sha256": "daf4497f252e141a5d13e2b1e8d461aa590b8089c3006b69703081b24c37c432",
+  "repository_id": 1329601461,
+  "operator_github_id": 82649657,
+  "operator_github_login": "taipei49314",
+  "operation_kind": "human-approved agent-operated ordinary exact-head merge",
+  "human_pressed_github_merge": false,
+  "runtime_qualification": "NOT_RUN",
+  "checks_absent_are_not_pass": true,
+  "admin_bypass": false,
+  "protection_change": false,
+  "delete_head_branch": false,
+  "formal_w3_started": false,
+  "at": "2026-10-04T15:54:14.3901110+00:00"
+}

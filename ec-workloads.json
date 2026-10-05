@@ -1,6 +1,14 @@
 {
   "schema_version": 1,
   "workloads": {
+    "m12-w3-bootstrap-qualify": {
+      "description": "Bounded W3 launch substrate qualification on LAPTOP-50KP71KA only: EC trusted step reacquires the exact original terminal preparation receipt, tokenless job-private entry verifies the unchanged Phase1 asset closure, restores sealed CPython/Node/JS images without installation, loads the frozen collector with private Python -I -B, captures benign native Python/Node/Git diagnostics and full installed/generation MinGit maps before and after. No W3 cases, Checkwash, formal lifecycle/tickets, campaign session storage, new trust/adoption, engine re-pin or global host changes. Separate human new declaration admission and exact-source one-dispatch approval required.",
+      "entry": "workloads/m12_w3_bootstrap_qualify/run.py",
+      "profile": "profile-ec-integrity",
+      "timeout_minutes": 35,
+      "cache": false,
+      "parameters": {}
+    },
     "m12-w3-freeze-prepare": {
       "description": "W3 results-free Phase1 input preparation on LAPTOP-50KP71KA only: download hash-pinned private CPython3.12.10 and Node24.19.0 archives plus uv.lock wheels; resolve exact Mocha12.0.3/Chai5.3.3/Vitest3.2.7 npm dependencies with scripts disabled, preserve locks, full installed raw maps and byte-identical restorable sealed images. No W3 cases, verifier, pytest/collection, product imports, tests, global installation, host configuration, runner/collector adoption, formal execution or engine re-pin. Separate human admission and exact-source one-dispatch authorization required.",
       "entry": "workloads/m12_w3_freeze_prepare/run.py",

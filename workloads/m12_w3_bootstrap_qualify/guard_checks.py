@@ -166,6 +166,95 @@ class ImageScannerGuards(unittest.TestCase):
         leaf.write_bytes(b"\x00\xff\r\n")
         return root, leaf
 
+    def spy_reads(self, *, short_limit=None):
+        original = subject.Path.open
+        requests = []
+        class ReadSpy:
+            def __init__(self, stream):
+                self.stream = stream
+
+            def __enter__(self):
+                self.stream.__enter__()
+                return self
+
+            def __exit__(self, *args):
+                return self.stream.__exit__(*args)
+
+            def fileno(self):
+                return self.stream.fileno()
+
+            def read(self, maximum):
+                requests.append(maximum)
+                return self.stream.read(maximum if short_limit is None
+                                        else min(maximum, short_limit))
+
+        def opened(path, *args, **kwargs):
+            return ReadSpy(original(path, *args, **kwargs))
+        return mock.patch.object(subject.Path, "open", new=opened), requests
+
+    def test_scanner_chunked_eof_preserves_all_raw_bytes_and_short_reads(self):
+        _, leaf = self.image()
+        raw = b"\x00\xff\r\n" * (subject.SCAN_READ_CHUNK // 4 + 2)
+        leaf.write_bytes(raw)
+        for short_limit in (None, 4093):
+            spy, requests = self.spy_reads(short_limit=short_limit)
+            totals = subject.ScanTotals()
+            with spy:
+                actual = subject.scan_read(leaf, 256 * 1024 * 1024, totals=totals)
+            self.assertEqual(actual, raw)
+            self.assertEqual(totals.raw_bytes, len(raw))
+            self.assertEqual(totals.samples["raw_read"]["calls"], len(requests))
+            self.assertTrue(requests)
+            self.assertTrue(all(0 < request <= 64 * 1024 for request in requests))
+            self.assertEqual(requests[0], 64 * 1024)
+
+    def test_scanner_exact_and_zero_quota_still_reads_eof_sentinel(self):
+        _, leaf = self.image()
+        raw = b"\x00\xff\r\n" * (subject.SCAN_READ_CHUNK // 4 + 2)
+        leaf.write_bytes(raw)
+        spy, requests = self.spy_reads()
+        with spy:
+            self.assertEqual(subject.scan_read(leaf, len(raw)), raw)
+        self.assertEqual(requests[-1], 1)
+        with self.assertRaisesRegex(subject.ProposalRefusal, "byte quota"):
+            subject.scan_read(leaf, len(raw) - 1)
+        with self.assertRaisesRegex(subject.ProposalRefusal, "byte quota"):
+            subject.scan_read(leaf, 0)
+        leaf.write_bytes(b"")
+        spy, requests = self.spy_reads()
+        with spy:
+            self.assertEqual(subject.scan_read(leaf, 0), b"")
+        self.assertEqual(requests, [1])
+
+    def test_scanner_totals_keep_full_map_and_actual_read_bytes(self):
+        root, leaf = self.image()
+        extra = root / "extra.raw"
+        extra.write_bytes(b"extra")
+        totals = subject.ScanTotals()
+        actual = self.scan(root, totals=totals)
+        self.assertEqual(actual, {leaf.relative_to(root).as_posix(): subject.sha(b"\x00\xff\r\n"),
+                                  "extra.raw": subject.sha(b"extra")})
+        self.assertEqual(totals.raw_bytes, len(b"\x00\xff\r\nextra"))
+        self.assertEqual(totals.samples["hash"]["calls"], len(actual))
+        self.assertEqual(set(totals.observation()), {"reader", "read_chunk_bytes",
+                          "sampled_operations", "observed_raw_bytes", "exhaustive_cost_model"})
+        self.assertFalse(totals.observation()["exhaustive_cost_model"])
+
+    def test_scanner_refusal_preserves_totals_without_completion(self):
+        root, _ = self.image()
+        output = self.root / "refused-scan-observations"
+        progress = subject.PrivateProgress(output)
+        with self.assertRaisesRegex(subject.ProposalRefusal, "byte quota"):
+            progress.measure_scan("guard-map", lambda totals:
+                                  self.scan(root, maximum=2, totals=totals))
+        records = [json.loads(path.read_bytes()) for path in
+                   sorted((output / "private-progress").glob("*.json"))]
+        self.assertEqual([record["stage"] for record in records],
+                         ["guard-map-started", "guard-map-scan-totals"])
+        self.assertEqual(records[-1]["observed_raw_bytes"], 3)
+        self.assertFalse(records[-1]["exhaustive_cost_model"])
+        self.assertTrue(all(record["formal_execution"] is False for record in records))
+
     def test_scanner_scoped_raw_map_and_extra_member(self):
         root, leaf = self.image()
         expected = {leaf.relative_to(root).as_posix(): subject.sha(b"\x00\xff\r\n")}

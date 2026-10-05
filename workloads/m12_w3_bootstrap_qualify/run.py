@@ -32,6 +32,7 @@ MAX_PART = 8_388_608
 MAX_ARCHIVE = 256 * 1024 * 1024
 IMAGE_BOUNDS = {"python": 100_000_000, "node": 256 * 1024 * 1024,
                 "js": 512 * 1024 * 1024}
+SCAN_READ_CHUNK = 64 * 1024
 
 
 class ProposalRefusal(ValueError):
@@ -143,6 +144,19 @@ class PrivateProgress:
         self.emit(stage + "-completed", files=len(value))
         return value
 
+    def measure_scan(self, stage, operation):
+        self.emit(stage + "-started")
+        totals = ScanTotals()
+        try:
+            value = operation(totals)
+        finally:
+            # One fixed-size observation per map, including ordinary refusal.
+            # A killed loader may never reach this finally; no completion is
+            # fabricated for an interrupted scan.
+            self.emit(stage + "-scan-totals", **totals.observation())
+        self.emit(stage + "-completed", files=len(value))
+        return value
+
 
 def expected_map(raw, bound):
     mapping = json_object(raw)
@@ -190,6 +204,33 @@ def full_map(root, bound):
     return result
 
 
+class ScanTotals:
+    """Diagnostic wall samples of named operations, never authority/cache.
+
+    These buckets are not an exhaustive cost model: walking, validation,
+    accumulation, serialization and scheduling also affect the whole map.
+    """
+
+    def __init__(self):
+        self.samples = {name: {"calls": 0, "seconds": 0.0} for name in
+                        ("path_checks", "open", "raw_read", "identity", "hash")}
+        self.raw_bytes = 0
+
+    def call(self, name, operation, *args, **kwargs):
+        sample = self.samples[name]
+        started = time.monotonic()
+        try:
+            return operation(*args, **kwargs)
+        finally:
+            sample["calls"] += 1
+            sample["seconds"] += time.monotonic() - started
+
+    def observation(self):
+        return {"reader": "chunked-eof-image-v2", "read_chunk_bytes": SCAN_READ_CHUNK,
+                "sampled_operations": self.samples, "observed_raw_bytes": self.raw_bytes,
+                "exhaustive_cost_model": False}
+
+
 def scan_plain(path):
     """Fresh lstat at each original ancestor/leaf checkpoint; no stat cache.
 
@@ -213,13 +254,16 @@ def scan_plain(path):
     return leaf
 
 
-def scan_read(path, maximum):
+def scan_read(path, maximum, *, totals=None):
     """Preserve walk-time and open-time checks, then check the opened identity.
 
     Raw EOF bytes set the quota. The post-read check detects observed changes;
     this path-based sample does not establish atomic filesystem custody.
     """
-    before = scan_plain(path)
+    if type(maximum) is not int or maximum < 0:
+        raise ProposalRefusal("nonnegative scanner read quota required")
+    totals = ScanTotals() if totals is None else totals
+    before = totals.call("path_checks", scan_plain, path)
     if not stat.S_ISREG(before.st_mode):
         raise ProposalRefusal("scanner input is not a regular file")
     def identity(info):
@@ -228,21 +272,32 @@ def scan_read(path, maximum):
             raise ProposalRefusal("scanner opened linked/nonregular/unidentified input")
         return (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns)
     original = identity(before)
-    with Path(path).open("rb") as stream:
-        if identity(os.fstat(stream.fileno())) != original:
+    with totals.call("open", Path(path).open, "rb") as stream:
+        if identity(totals.call("identity", os.fstat, stream.fileno())) != original:
             raise ProposalRefusal("scanner opened identity differs from fresh leaf")
-        raw = stream.read(maximum + 1)
-        if len(raw) > maximum:
-            raise ProposalRefusal("scanner file exceeds byte quota")
-        if identity(os.fstat(stream.fileno())) != original:
+        pieces, size = [], 0
+        while True:
+            # The +1 sentinel distinguishes EOF from overflow even at a zero
+            # remaining quota. Short reads are not EOF, and observed st_size
+            # never selects bytes or shortens the read.
+            chunk = totals.call("raw_read", stream.read,
+                                min(SCAN_READ_CHUNK, maximum - size + 1))
+            totals.raw_bytes += len(chunk)
+            if not chunk:
+                break
+            size += len(chunk)
+            if size > maximum:
+                raise ProposalRefusal("scanner file exceeds byte quota")
+            pieces.append(chunk)
+        if identity(totals.call("identity", os.fstat, stream.fileno())) != original:
             raise ProposalRefusal("scanner opened file changed during read")
-    if identity(os.lstat(path)) != original:
+    if identity(totals.call("identity", os.lstat, path)) != original:
         raise ProposalRefusal("scanner path identity changed during read")
-    return raw
+    return b"".join(pieces)
 
 
 def scan_image(root, *, maximum, path_rule, file_maximum=256 * 1024 * 1024,
-               file_count=50_000, physical=True):
+               file_count=50_000, physical=True, totals=None):
     """Full fresh qualification image map, with no expected-path projection.
 
     Frozen initial/final utility measurements independently cross-check normal
@@ -251,18 +306,19 @@ def scan_image(root, *, maximum, path_rule, file_maximum=256 * 1024 * 1024,
     if (type(maximum) is not int or maximum < 1 or type(file_maximum) is not int
             or file_maximum < 1 or type(file_count) is not int or file_count < 1):
         raise ProposalRefusal("positive scanner bounds required")
+    totals = ScanTotals() if totals is None else totals
     root = Path(root)
     if any(part.endswith((".", " ")) or ":" in part for part in root.parts[1:]):
         raise ProposalRefusal("ambiguous scanner root")
-    scan_plain(root)
-    root = root.resolve(strict=True)
-    if not stat.S_ISDIR(scan_plain(root).st_mode):
+    totals.call("path_checks", scan_plain, root)
+    root = totals.call("path_checks", root.resolve, strict=True)
+    if not stat.S_ISDIR(totals.call("path_checks", scan_plain, root).st_mode):
         raise ProposalRefusal("scanner root is not a directory")
     result, aliases, observed_dirs, total = {}, set(), set(), 0
     def failed(error):
         raise error
     for current, directories, files in os.walk(root, followlinks=False, onerror=failed):
-        if not stat.S_ISDIR(scan_plain(Path(current)).st_mode):
+        if not stat.S_ISDIR(totals.call("path_checks", scan_plain, Path(current)).st_mode):
             raise ProposalRefusal("scanner walk directory changed")
         for name in (*directories, *files):
             path = Path(current) / name
@@ -270,7 +326,7 @@ def scan_image(root, *, maximum, path_rule, file_maximum=256 * 1024 * 1024,
             if key.casefold() in aliases:
                 raise ProposalRefusal("scanner casefold file/directory alias")
             aliases.add(key.casefold())
-            info = scan_plain(path)
+            info = totals.call("path_checks", scan_plain, path)
             expected_directory = name in directories
             if expected_directory != stat.S_ISDIR(info.st_mode):
                 raise ProposalRefusal("scanner enumerated entry changed type")
@@ -281,9 +337,9 @@ def scan_image(root, *, maximum, path_rule, file_maximum=256 * 1024 * 1024,
             key = path_rule(path.relative_to(root).as_posix())
             if len(result) >= file_count:
                 raise ProposalRefusal("scanner file count exceeds quota")
-            raw = scan_read(path, min(file_maximum, maximum - total))
+            raw = scan_read(path, min(file_maximum, maximum - total), totals=totals)
             total += len(raw)
-            result[key] = sha(raw)
+            result[key] = totals.call("hash", sha, raw)
     implied_dirs = {"/".join(name.split("/")[:i]) for name in result
                     for i in range(1, len(name.split("/")))}
     if physical and observed_dirs != implied_dirs:
@@ -530,17 +586,20 @@ def private_qualification(source, work, out, generation):
     git_root = mingit.parent.parent
     git_map = progress.measure("initial-mingit-map", lambda: collector._image_tree(
         git_root, maximum=256 * 1024 * 1024))
-    progress.emit("qualification-image-scanner-selected", reader="fresh-lstat-image-v1")
+    progress.emit("qualification-image-scanner-selected", reader="chunked-eof-image-v2")
     def protected_maps():
-        py = progress.measure("protected-python-map", lambda: scan_image(
+        py = progress.measure_scan("protected-python-map", lambda totals: scan_image(
             private, maximum=IMAGE_BOUNDS["python"], path_rule=collector._artifact_path,
-            file_maximum=10_000_000, file_count=20_000, physical=False))
-        node = progress.measure("protected-node-map", lambda: scan_image(
-            node_root, maximum=IMAGE_BOUNDS["node"], path_rule=collector._installation_path))
-        js = progress.measure("protected-js-map", lambda: scan_image(
-            js_root, maximum=IMAGE_BOUNDS["js"], path_rule=collector._installation_path))
-        git = progress.measure("protected-mingit-map", lambda: scan_image(
-            git_root, maximum=256 * 1024 * 1024, path_rule=collector._installation_path))
+            file_maximum=10_000_000, file_count=20_000, physical=False, totals=totals))
+        node = progress.measure_scan("protected-node-map", lambda totals: scan_image(
+            node_root, maximum=IMAGE_BOUNDS["node"], path_rule=collector._installation_path,
+            totals=totals))
+        js = progress.measure_scan("protected-js-map", lambda totals: scan_image(
+            js_root, maximum=IMAGE_BOUNDS["js"], path_rule=collector._installation_path,
+            totals=totals))
+        git = progress.measure_scan("protected-mingit-map", lambda totals: scan_image(
+            git_root, maximum=256 * 1024 * 1024, path_rule=collector._installation_path,
+            totals=totals))
         sources = progress.measure("protected-frozen-source-map", lambda:
             qualification_source_closure(source)[1])
         if py != python_map or node != node_map or js != js_map or git != git_map:
@@ -647,7 +706,7 @@ def private_qualification(source, work, out, generation):
         "scope": "restoration/private-loader/raw-capture/Node-version/benign-MinGit-range only",
         "host": HOST, "generation": generation.name,
         "collector_sha256": COLLECTOR_SHA256, "native_capture_labels": captures,
-        "protected_image_reader": "qualification-only/fresh-lstat-image-v1",
+        "protected_image_reader": "qualification-only/chunked-eof-image-v2",
         "python_prefix_sha256": sha(canonical(python_map)), "node_tree_sha256": sha(canonical(node_map)),
         "js_tree_sha256": sha(canonical(js_map)), "mingit_tree_sha256": sha(canonical(git_map)),
         "mingit_executable_sha256": sha(read(mingit, 256 * 1024 * 1024)),

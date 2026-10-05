@@ -1,3 +1,7 @@
+# R3 narrow CI collection repair
+
+SOURCE_ONLY / NOT_RUN. PR50 source1721ac07 CI37381319188/1 fast job112003736712 failed collection: ModuleNotFoundError workloads. Complete native failure log preserved. New test_windows_output_bound.py applies the fixed repo-root sys.path setup already used by test_windows_partition_protocol.py BEFORE workloads imports; no arbitrary path/provider/dependency change. Only this test and these notes differ from r2; seven remaining package files retain r2 bytes. B1-B4/declaration/time/frozen assets/provider semantics unchanged. Independent narrow readback and actual new-head CI remain pending, no qualification/PASS/adoption.
+
 # Ordinary Windows output bound source cut — r2
 
 SOURCE_ONLY / STOP. NOT_RUN：工作機規則（POLICY work-machine-local），本輪只讀 r1／完整獨立 source review／既存來源及編輯，未 import／parser／AST／compile／pytest／產品／DNS／network probe／Git／EC／API。此稿只在新的 `outputs/checkwash060-windows-output-bound-r2-source/`；r1、獨立報告、product／EC harness／歷史授權／原始結果均保留。

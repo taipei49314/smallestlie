@@ -3,7 +3,13 @@ import io
 from pathlib import Path
 from types import SimpleNamespace
 import time
+import sys
 import pytest
+
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 from workloads.m12_adjudication_verify import output_bound as bound
 from workloads.m12_adjudication_verify import pipe_capture as pipes
 

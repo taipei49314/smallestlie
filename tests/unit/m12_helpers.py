@@ -13,7 +13,7 @@ from smallestlie.campaign.preregistration import (
 from smallestlie.oracle.runner_evidence import TrustedExecutionEnvelope
 
 ROOT = Path(__file__).resolve().parents[2]
-INDEX = "catalogs/residual-rows-checkwash-v0.5.0.json"
+INDEX = "catalogs/residual-rows-checkwash-v0.6.0.json"
 TARGET = "tests.test_billing::test_total"
 VITEST_TARGET = "tests/billing.test.js::billing > total includes tax"
 
@@ -44,8 +44,8 @@ class ApprovalAuthority:
 def design(root, *, twin=False, report_format="junit", change=None):
     root.mkdir(parents=True, exist_ok=True)
     asset_bytes = {}
-    for path in (INDEX, "verifiers/checkwash.pyz", "provenance/checkwash-v0.5.0/SPEC.md",
-                 "provenance/checkwash-v0.5.0/THREATMODEL.md", "pyproject.toml", "uv.lock"):
+    for path in (INDEX, "verifiers/checkwash.pyz", "provenance/checkwash-v0.6.0/SPEC.md",
+                 "provenance/checkwash-v0.6.0/THREATMODEL.md", "pyproject.toml", "uv.lock"):
         asset_bytes[path] = (ROOT / path).read_bytes()
     for source in (ROOT / "src/smallestlie").rglob("*.py"):
         asset_bytes[source.relative_to(ROOT).as_posix()] = source.read_bytes()

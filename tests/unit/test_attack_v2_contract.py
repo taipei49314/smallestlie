@@ -17,7 +17,7 @@ from smallestlie.campaign import runner
 from smallestlie.models import ComparisonResult, ExitCode
 
 ROOT = Path(__file__).resolve().parents[2]
-INDEX = "catalogs/residual-rows-checkwash-v0.5.0.json"
+INDEX = "catalogs/residual-rows-checkwash-v0.6.0.json"
 
 
 def declaration(case_id="D", *, control=False):

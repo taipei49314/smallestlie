@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 from typing import Any
 
+from smallestlie.adapters.checkwash import PINNED_VERSION
 from smallestlie.attacks.catalog import load_catalog
 from smallestlie.attacks.schema import load_attack_spec
 from smallestlie.meters.models import Measurement, MeterVerdict
@@ -130,26 +132,61 @@ def measure_composition_presence(project_root: Path) -> Measurement:
     )
 
 
+# Exact retained Phase-1 inputs; this registry is not a runtime/approval bypass.
+# Changed or renamed files still go through the current loader and fail normally.
+_HISTORICAL_W3_INPUTS = {
+    "catalogs/checkwash-wave-3.yaml": "ec7326ad7c9f3c5b28b13db7aabf6e4f8b516404f36ffbffe006226123d5ad11",
+    "campaigns/checkwash-wave-3/manifest.json": "daf4497f252e141a5d13e2b1e8d461aa590b8089c3006b69703081b24c37c432",
+    "catalogs/residual-rows-checkwash-v0.5.0.json": "fc8bab95563fd3b38ae8eb1e6949d38429aecc0ecc4f9625c5d2371344c90bdf",
+    "provenance/checkwash-v0.5.0/SPEC.md": "84dbfd719be56c8a8de59c84c6c34160c74d933ea1cda81623790486583c36e3",
+    "provenance/checkwash-v0.5.0/THREATMODEL.md": "7ab08e84cec01b9be3e6a683ef17dc68a9fa98b318ef94484ede467aaefe11e9",
+}
+
+
+def _retained_w3(project_root: Path, catalog: Path) -> dict | None:
+    if PINNED_VERSION == "0.5.0" or catalog != project_root / "catalogs/checkwash-wave-3.yaml":
+        return None
+    try:
+        for ref, expected in _HISTORICAL_W3_INPUTS.items():
+            path = project_root / ref
+            if any(part.is_symlink() for part in (path, *path.parents)):
+                return None
+            if hashlib.sha256(path.read_bytes()).hexdigest() != expected:
+                return None
+    except OSError:
+        return None
+    return {"path": str(catalog), "verdict": "NOT_MEASURED", "engine_version": "0.5.0",
+            "phase1_source_commit": "f673f07110ba6e0b592e6e3ee1e69278ba05e731",
+            "manifest_sha256": _HISTORICAL_W3_INPUTS["campaigns/checkwash-wave-3/manifest.json"],
+            "reason": "Retained exact historical inputs; current-pin loadability not measured. "
+                      "Source lineage does not authenticate approval or execution."}
+
 def measure_catalog_load(project_root: Path) -> Measurement:
     catalogs = list((project_root / "catalogs").glob("*.yaml")) if (project_root / "catalogs").is_dir() else []
     loaded = []
     errors = []
+    retained = []
     for c in catalogs:
+        historical = _retained_w3(project_root, c)
+        if historical is not None:
+            retained.append(historical)
+            continue
         try:
             cat = load_catalog(c, attacks_root=project_root / "attacks")
             loaded.append({"name": cat.name, "n": len(cat.attack_ids), "mode": cat.plan_mode})
         except Exception as exc:
             errors.append({"path": str(c), "error": str(exc)})
-    verdict = MeterVerdict.MEASURED_PASS if loaded and not errors else (
+    verdict = MeterVerdict.MEASURED_PASS if loaded and not errors and not retained else (
         MeterVerdict.MEASURED_FAIL if errors else MeterVerdict.MEASURED_WARN
     )
     return Measurement(
         meter_id="catalog.loadable",
-        name="All catalog YAML files load",
+        name="Current catalogs load; exact historical inputs remain unmeasured",
         verdict=verdict,
         value=len(loaded),
         unit="catalogs",
-        evidence={"loaded": loaded, "errors": errors},
+        evidence={"loaded": loaded, "errors": errors, "retained": retained},
+        notes=["Retained NOT_MEASURED catalogs do not contribute to loaded count or PASS."],
     )
 
 

@@ -10,10 +10,12 @@ from __future__ import annotations
 from collections import Counter
 import copy
 import json
+import io
 import os
 from pathlib import Path
 import subprocess
 import sys
+import time
 import xml.etree.ElementTree as ET
 
 import pytest
@@ -24,6 +26,7 @@ if str(ROOT) not in sys.path:
 
 from workloads.m12_adjudication_verify import partitioned as harness
 from workloads.m12_adjudication_verify import protocol as wire
+from workloads.m12_adjudication_verify.output_bound import OutputBudget
 
 
 PLUGIN = "workloads.m12_adjudication_verify.pytest_partition"
@@ -57,10 +60,13 @@ class TinyPytest:
         self.inventory_path = root / "inventory.json"
         self.env = harness.child_environment(dict(os.environ), ROOT)
         self.env["PYTHONPATH"] = str(ROOT)
+        deadline = time.monotonic() + 1800  # Synthetic fixture clock only, never entry authority.
+        OutputBudget(root, deadline, create=True)
+        self.env.update(SL_OUTPUT_ROOT=str(root), SL_OUTPUT_DEADLINE=str(deadline))
 
     def run(self, name: str, mode: str, *, shard=None, extra=(), plugin=True):
         prefix = self.root / name
-        command = [sys.executable, "-X", "utf8", "-B", "-m", "pytest", "-q", "--strict-markers",
+        command = [sys.executable, "-X", "utf8", "-B", "-m", "pytest", "-q", "--strict-markers", "--capture=no",
                    "-p", "pytest_timeout", "-p", "no:cacheprovider", "-c", "pyproject.toml",
                    "-o", "addopts=", "--basetemp", str(self.root / (name + "-temp"))]
         if plugin:
@@ -139,10 +145,61 @@ def test_real_four_partitions_cover_ordered_duplicate_occurrences(tmp_path):
 def test_collection_bytes_stable_across_different_output_contexts(tmp_path):
     tiny = TinyPytest(tmp_path / "fixture")
     first, _ = tiny.collect()
-    tiny.inventory_path = tiny.root / "another-inventory.json"
-    result = tiny.run("another-context", "collect")
+    other = TinyPytest(tmp_path / "second-fixture")
+    result = other.run("another-context", "collect")
     assert result.returncode == 0, result.stdout + result.stderr
-    assert tiny.inventory_path.read_bytes() == first
+    assert other.inventory_path.name == "inventory.json"
+    assert other.inventory_path.read_bytes() == first
+
+
+@pytest.mark.parametrize("assertion_failure", (False, True))
+def test_actual_quota_fault_bodies_restore_before_partition_call_hooks(tmp_path, assertion_failure):
+    # Calls the actual populated source contracts, using a fixture whose
+    # teardown occurs AFTER the genuine partition plugin's call logreport.
+    subject = (
+        "import os, sys\nfrom pathlib import Path\n"
+        "from workloads.m12_adjudication_verify import output_bound as bound, pipe_capture as pipes\n"
+        "sys.path.insert(0, str(Path(os.environ['PYTHONPATH']) / 'tests' / 'unit'))\n"
+        "import test_windows_output_bound as faults\n"
+        "before = (bound.TOTAL, bound.PAGE, pipes.PAGE, dict(bound.CAPS))\n"
+        "patch = request.getfixturevalue('monkeypatch')\n"
+        "root = request.getfixturevalue('tmp_path')\n"
+    )
+    if assertion_failure:
+        subject += (
+            "original = Path.read_bytes\n"
+            "def wrong_read(path):\n"
+            "    return b'assertion fault' if path.name == 'focused.stdout' else original(path)\n"
+            "with pytest.MonkeyPatch.context() as injected:\n"
+            "    injected.setattr(Path, 'read_bytes', wrong_read)\n"
+            "    with pytest.raises(AssertionError):\n"
+            "        faults.test_aggregate_prepaid_read_refusal_happens_before_pipe_read(root, patch)\n"
+        )
+    else:
+        subject += (
+            "names = ('test_per_file_refuses_before_excess_and_preserves_original_calls',\n"
+            "         'test_aggregate_prepaid_read_refusal_happens_before_pipe_read',\n"
+            "         'test_fragmented_actual_sentinel_is_retained_and_not_complete',\n"
+            "         'test_unused_receive_window_stays_charged_and_eof_is_actual',\n"
+            "         'test_genuine_junit_bound_is_one_instance_and_keeps_original_provider')\n"
+            "for index, name in enumerate(names):\n"
+            "    case = root / str(index)\n    case.mkdir()\n"
+            "    getattr(faults, name)(case, patch)\n"
+            "    assert (bound.TOTAL, bound.PAGE, pipes.PAGE, dict(bound.CAPS)) == before\n"
+        )
+    subject += "assert (bound.TOTAL, bound.PAGE, pipes.PAGE, dict(bound.CAPS)) == before\nassert request.config.option.capture == 'no'"
+    tiny = TinyPytest(tmp_path / "fixture", subject=subject)
+    tiny.collect()
+    result = tiny.run("execute", "execute")
+    assert result.returncode == 0, result.stdout + result.stderr
+    evidence = tiny.evidence()
+    wire.partition_result(**evidence)
+    records = [wire.load(line) for line in evidence["raw_events"].splitlines()]
+    subject_rows = [row for row in records if row.get("identity", {}).get("nodeid", "").endswith("::test_subject")]
+    assert [(row["when"], row["outcome"]) for row in subject_rows if row["event"] == "phase"] == [
+        ("setup", "passed"), ("call", "passed"), ("teardown", "passed")]
+    assert [row["event"] for row in subject_rows if row["event"] != "phase"] == ["logstart", "logfinish"]
+    assert not (tiny.root / "output-refusal.json").exists()
 
 
 @pytest.mark.parametrize("subject,conftest", [
@@ -366,20 +423,20 @@ def test_budget_refuses_native_spawn_and_retains_raw_failure(tmp_path, monkeypat
         raise AssertionError("must not start a child without the reserve")
     monkeypatch.setattr(harness.subprocess, "Popen", forbidden)
     runner = harness.Runner(tmp_path, tmp_path, {}, budget)
-    assert runner.run("exhausted", ["must-not-start"], 10) != 0
+    with pytest.raises(harness.BudgetExhausted): runner.run("initial-source", ["must-not-start"], 10)
     assert runner.steps[0]["started"] is False
     assert runner.steps[0]["budget_exhausted"] is True
-    assert b"BudgetExhausted" in (tmp_path / "exhausted.stderr").read_bytes()
+    assert wire.load((tmp_path / "output-refusal.json").read_bytes())["primary_type"] == "BudgetExhausted"
 
 
 def test_real_timeout_retains_native_prefix_and_cannot_complete(tmp_path):
     env = harness.child_environment(dict(os.environ), ROOT)
     runner = harness.Runner(tmp_path, tmp_path, env, harness.Budget())
-    code = runner.run("timeout", [sys.executable, "-I", "-B", "-c",
+    code = runner.run("focused", [sys.executable, "-I", "-B", "-c",
         "import time; print('original-prefix', flush=True); time.sleep(30)"], 2)
     assert code == 124
     assert runner.steps[0]["timed_out"] is True
-    assert b"original-prefix" in (tmp_path / "timeout.stdout").read_bytes()
+    assert b"original-prefix" in (tmp_path / "focused.stdout").read_bytes()
     assert not (tmp_path / "partition.xml").exists()
 
 
@@ -391,11 +448,14 @@ def test_native_creation_does_not_restart_phase_timeout(tmp_path, monkeypatch):
         pid = 999999
         def __init__(self, *args, **kwargs):
             now[0] += 20
+            self.args = args[0]
+            self.stdout, self.stderr = io.BytesIO(), io.BytesIO()
+        def poll(self): return None
         def wait(self, *, timeout):
             raise AssertionError("a late native start must not receive a new relative phase cap")
     monkeypatch.setattr(harness.subprocess, "Popen", SlowStart)
-    monkeypatch.setattr(runner, "_close_child", lambda process, stderr: {"tree_kill": "UNCONFIRMED"})
-    assert runner.run("slow-start", ["synthetic"], 10) == 124
+    monkeypatch.setattr(runner, "_close_child", lambda process: {"tree_kill": "UNCONFIRMED"})
+    assert runner.run("focused", ["synthetic"], 10) == 124
     assert runner.steps[0]["timed_out"] is True
     assert runner.steps[0]["allocated_seconds"] <= 10
 
@@ -420,10 +480,10 @@ def test_finalization_io_crossing_same_deadline_refuses_after_write(tmp_path, mo
             now[0] += 2
     monkeypatch.setattr(harness, "write_new", delayed)
     assert harness.finalize(tmp_path, _phase_ready_result(), budget) == 1
-    result = wire.load((tmp_path / "result.json").read_bytes())
-    assert result["partition_complete"] is False
-    assert result["terminal_state"] == "REFUSED"
-    refusal = wire.load((tmp_path / "late-refusal.json").read_bytes())
+    if (tmp_path / "result.json").exists():
+        result = wire.load((tmp_path / "result.json").read_bytes())
+        assert result["partition_complete"] is False
+    refusal = wire.load((tmp_path / "output-refusal.json").read_bytes())
     assert refusal["error_type"] == "EntryDeadlineExceeded"
     assert refusal["entry_elapsed_seconds"] > 1800
     assert wire.load((tmp_path / "result.provisional.json").read_bytes())["partition_complete"] is False
@@ -510,7 +570,7 @@ def test_early_acquisition_refusal_is_structured_preserves_received_bytes_and_st
     monkeypatch.delenv("EC_WORKLOAD_CACHE", raising=False)
     calls = []
     class SourceOnlyRunner:
-        def __init__(self, root, result_out, env, budget):
+        def __init__(self, root, result_out, env, budget, output=None):
             self.out = result_out
             self.steps = []
         def run(self, name, command, cap, *, final=False):

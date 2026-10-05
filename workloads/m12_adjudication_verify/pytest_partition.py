@@ -16,6 +16,7 @@ from workloads.m12_adjudication_verify.protocol import (
     CONFIGURATION, IDENTITY_PROPERTIES, PROTOCOL, canonical, digest, identities,
     inventory, selected,
 )
+from workloads.m12_adjudication_verify.output_bound import OutputBudget, bind_junit, close_preserving_primary
 
 _session_state = None
 
@@ -61,7 +62,8 @@ class State:
         self.path = Path(path)
         self.prefix = Path(prefix)
         self.prefix.parent.mkdir(parents=True, exist_ok=True)
-        self.events = Path(str(self.prefix) + ".events.jsonl").open("xb")
+        self.output = OutputBudget.child()
+        self.events = self.output.open(Path(str(self.prefix) + ".events.jsonl"))
         self.errors = 0
         self.external_deselection = False
         self.own_deselection = False
@@ -83,14 +85,16 @@ class State:
         self.events.flush()
 
     def write(self, suffix, value):
-        with Path(str(self.prefix) + suffix).open("xb") as handle:
-            handle.write(canonical(value))
+        self.output.write_new(Path(str(self.prefix) + suffix), canonical(value))
 
 
+@pytest.hookimpl(trylast=True)
 def pytest_configure(config):
     global _session_state
     config._sl_partition = State(config)
     _session_state = config._sl_partition
+    if config.option.xmlpath:
+        bind_junit(config, _session_state.output)
 
 
 @pytest.hookimpl(hookwrapper=True)
@@ -167,8 +171,7 @@ def pytest_collection_finish(session):
             or [item.nodeid for item in session.items] != [row["nodeid"] for row in state.rows]):
         raise pytest.UsageError("incomplete or subsequently modified collection")
     if state.mode == "collect":
-        with state.path.open("xb") as handle:
-            handle.write(state.raw)
+        state.output.write_new(state.path, state.raw)
     else:
         state.write(".assignment.json", state.assignment)
     state.complete = True
@@ -275,12 +278,12 @@ def pytest_sessionfinish(session, exitstatus):
         state.event({"event": "session_end", **value})
         state.write(".session.json", value)
     finally:
-        state.events.close()
+        close_preserving_primary(state.events)
 
 
 def pytest_unconfigure(config):
     global _session_state
     state = getattr(config, "_sl_partition", None)
     if state is not None and not state.events.closed:
-        state.events.close()
+        close_preserving_primary(state.events)
     _session_state = None

@@ -42,12 +42,17 @@
       "parameters": {}
     },
     "m12-adjudication-verify": {
-      "description": "M12 slice-C raw observation/review qualification, paired case counts and additive finding preservation plus existing full-suite regression on LAPTOP-50KP71KA; synthetic records only, no W3 evaluation, runner adoption, measurement or engine re-pin.",
+      "description": "One mandatory shard (0..3) of the complete Windows pytest inventory on LAPTOP-50KP71KA, with the unchanged five focused groups, fixed hash assignment, raw occurrence/invocation identities and genuine JUnit. Each invocation supplies conditional partition evidence only: artifact closure plus the actual wrapper exit/elapsed must establish partition_complete; four fresh immutable receipts must reconcile the complete denominator before any full Windows verdict. Entry-wide 1800-second budget inside the existing 35-minute EC job; no automatic retry, source mixing, formal W3, runner adoption, measurement or engine re-pin.",
       "entry": "workloads/m12_adjudication_verify/run.py",
       "profile": "profile-ec-integrity",
       "timeout_minutes": 35,
       "cache": false,
-      "parameters": {}
+      "parameters": {
+        "shard": {
+          "pattern": "[0-3]",
+          "description": "Required string identifying exactly one fixed partition; no default or retry."
+        }
+      }
     },
     "m12-prereg-evidence-verify": {
       "description": "M12 slice-B preregistration, external evidence and opt-in ledger contracts plus existing full-suite regression on LAPTOP-50KP71KA; synthetic records only, no W3 evaluation, real runner adoption, measurement or engine re-pin.",

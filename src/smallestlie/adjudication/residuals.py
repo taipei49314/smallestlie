@@ -16,7 +16,7 @@ from smallestlie.attacks.schema import AttackSchemaError, load_mapping_bytes
 STATUSES = {"documented_residual", "closed", "out_of_scope", "narrowed", "mixed"}
 # Reviewed index bytes bind source blobs AND interpretations to the engine pin.
 # This value must never be taken from the untrusted case/catalog being loaded.
-PINNED_INDEX_SHA256 = "fc8bab95563fd3b38ae8eb1e6949d38429aecc0ecc4f9625c5d2371344c90bdf"
+PINNED_INDEX_SHA256 = "eff583bd2f0ef9e4e77527f410a07d5f35e16667f9e8ca21d4ce55ea292661aa"
 
 
 class ResidualSourceError(ValueError):

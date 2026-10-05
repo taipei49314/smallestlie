@@ -1,25 +1,24 @@
 # Adapter design & M0 plan: Checkwash (the real engine)
 
 **Document type:** Real-repository adapter — **brand-new M0 plan (executed)**
-**Status:** `M11_PINNED_CAMPAIGN_PENDING` — M0–M2 recorded against v0.2.8; M3 re-pinned to v0.2.9; M4 to v0.2.11; M5 to v0.2.12. Later pins: v0.2.13 (maintenance pin, no campaign); M6 v0.3.0 and M7 v0.3.1 (release-pin reruns not executed); M8 v0.3.2 (executed); M9 v0.3.3 (executed); M10 v0.4.2 (campaign run not recorded); M11 **v0.5.0** (current pin, campaign pending). Logs: wave0 / [M1](CHECKWASH_M1.md) / [M2](CHECKWASH_M2.md) / [M3](CHECKWASH_M3.md) / [M4](CHECKWASH_M4.md) / [M5](CHECKWASH_M5.md) / [M6](CHECKWASH_M6.md) (also the v0.2.12 model-arm brief) / [M7](CHECKWASH_M7.md) / [M8](CHECKWASH_M8.md) / [M9](CHECKWASH_M9.md) / [M10](CHECKWASH_M10.md).
+**Status:** `M12_060_PINNED_VALIDATION_PENDING` — M0–M2 recorded against v0.2.8; M3 re-pinned to v0.2.9; M4 to v0.2.11; M5 to v0.2.12. Later pins: v0.2.13 (maintenance pin, no campaign); M6 v0.3.0 and M7 v0.3.1 (release-pin reruns not executed); M8 v0.3.2 (executed); M9 v0.3.3 (executed); M10 v0.4.2 (campaign run not recorded); M11 v0.5.0 (historical pin); M12 **v0.6.0** (current pin, validation pending). Logs: wave0 / [M1](CHECKWASH_M1.md) / [M2](CHECKWASH_M2.md) / [M3](CHECKWASH_M3.md) / [M4](CHECKWASH_M4.md) / [M5](CHECKWASH_M5.md) / [M6](CHECKWASH_M6.md) (also the v0.2.12 model-arm brief) / [M7](CHECKWASH_M7.md) / [M8](CHECKWASH_M8.md) / [M9](CHECKWASH_M9.md) / [M10](CHECKWASH_M10.md).
 **Adapter id:** `checkwash`
 **Plan version:** 0.1.0
 **Target repo:** `taipei49314/checkwash` (owned, local observation; never mutated by this line)
 **Observed HEAD (at planning):** `50e969fdbbe169284b380c7f544c8afcd5990cdf` — `v0.2.8` (2026-09-02 01:36 +0800)
-**Engine artifact (current pin):** `verifiers/checkwash.pyz` — v0.5.0, SHA-256 `b305bc3f7d35f827190051f7a676ac40e3e86badf9eaed750f22f082fd10b05c`
+**Engine artifact (current pin):** `verifiers/checkwash.pyz` — v0.6.0, SHA-256 `4f9c7b836d1e1c40dc0a7b88ef6d63f25d482c8eafda18c05eb5a4fbac9ad949`
 **SmallestLie baseline:** v0.7.1 @ `4485c6b`
 **Campaign coordination:** estate-consolidation LEDGER T-11..T-16 (M0–M2) + **T-18** (M3 re-pin) + **T-47** (M4 re-pin) + **T-55** (M5 re-pin) + **T-199** (M6 re-pin) + **T-208** (M7 re-pin) + **T-218** (M8 re-pin) + **T-229** (M9 re-pin); M10 re-pin: one-time named human grant, 2026-09-29; M11 re-pin: one-time human grant, 2026-10-01 (neither is an estate task; EC POLICY `independent-repos`, T-451)
 **Supersedes:** [`greenwash.md`](greenwash.md) **for the real-engine line only.** The synthetic-SUT campaigns it records remain valid history.
 
-**Current pin maintenance (2026-10-01):** v0.5.0 is vendored from the
-published asset under a one-time human grant recorded in
-[M11](CHECKWASH_M11.md), which carries its own campaign status. The v0.4.2
-pin is recorded in [M10](CHECKWASH_M10.md). The v0.3.3
-[M9 campaign](CHECKWASH_M9.md) and the v0.3.2 [M8 campaign](CHECKWASH_M8.md)
-remain completed evidence for their old pins. Historical model-generated M6
-partial results against v0.2.12 are separate from the unexecuted v0.3.0/M6 and
-v0.3.1/M7 release-pin wave reruns. Those records are not relabeled as v0.5.0
-measurements.
+**Current pin maintenance (2026-10-06 Asia/Taipei):** v0.6.0 is vendored
+from the published release asset under Nelson's one-time named instruction,
+「已發佈 套過去繼續」. [M12: 0.6.0 migration](CHECKWASH_M12_060.md) records
+its immutable release identities, source snapshots and validation status.
+The [M11](CHECKWASH_M11.md) v0.5.0 record and all earlier records retain
+their own original pins. W3 cases, detectable controls and prepared runner
+images are reused. A new results-free Phase-1 amendment must bind the 0.6.0
+source epoch before formal W3 execution; final human start remains pending.
 
 ### Human decisions (recorded 2026-09-02)
 

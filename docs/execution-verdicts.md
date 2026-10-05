@@ -1,8 +1,9 @@
 # Execution validity before verdict comparison
 
-This draft changes how SmallestLie adjudicates incomplete executions.
+PR #22, merged on 2026-10-02, changes how SmallestLie adjudicates incomplete
+executions.
 The engine pin follows the separately authorized published release on master.
-PR #23 advanced it to CheckWash v0.5.0; PR #22 incorporates that merged base.
+PR #23 advanced it to CheckWash v0.5.0; PR #22 incorporated that merged base.
 
 ## Contract
 
@@ -117,9 +118,23 @@ dated evidence, not passes for v0.5.0.
 
 NOT_RUN: work-machine policy prohibits local product execution, pytest
 collection, compilation, lint and dependency installation. No new attack
-campaign, benchmark or cross-OS verification was dispatched. Public PR #22
-remains draft/unmerged for human review; result documentation carries `[skip ci]`,
-and skipped workflows are not passes.
+campaign, benchmark or cross-OS verification was dispatched for this retest.
+Result documentation and the subsequent merge carry `[skip ci]`; skipped
+workflows are not passes.
+
+### Owner-directed closeout (2026-10-02)
+
+Nelson instructed 「Pr 過了先收尾然後記帳」. [PR #22](https://github.com/taipei49314/smallestlie/pull/22)
+merged at `ba979215e682d7bfdfc3db27f0ef7ede76c45c4f`,
+2026-10-02T01:52:08Z (09:52:08 Asia/Taipei), with reviewed head
+`bf1758a943ab523b43fb16191c4be82edca2fb05`. Its merge tree
+`fec80c642d668ad256e5665db1815d1475677dcf` exactly matches that head's tree.
+The only file changed between the tested product `9cf9432` and the merge is
+this result document; code, tests and workload are identical to the tested
+source. The closeout did not produce another test run, pin or release.
+
+The v0.5.0 fixed-catalog regression record, including the earlier re-pin CI
+and this bounded pool retest, is in [M11](adapters/CHECKWASH_M11.md).
 
 ### Output validity / execution binding follow-up (historical v0.4.2)
 

@@ -7,7 +7,3 @@
 /catalogs/checkwash-wave-3.yaml -text
 /catalogs/.gitattributes -text
 /provenance/.gitattributes -text
-/workloads/m12_adjudication_verify/*.py -text
-/tests/unit/test_windows_output_bound.py -text
-/tests/unit/test_windows_partition_protocol.py -text
-/docs/M12_CHECKWASH060_WINDOWS_OUTPUT_BOUND.md -text

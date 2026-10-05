@@ -491,7 +491,18 @@ def test_finalization_io_crossing_same_deadline_refuses_after_write(tmp_path, mo
         # The prior marker is retained, but refusal + native exit 1 makes its
         # closed predicate false. No artifact may override those observations.
         assert (tmp_path / "terminal.json").exists()
-        assert (tmp_path / "result.pre-refusal.json").exists()
+        pending = (tmp_path / "result.json").read_bytes()
+        marker = wire.load((tmp_path / "terminal.json").read_bytes())
+        assert marker["partition_complete"] is False
+        assert marker["result_sha256"] == wire.digest(pending)
+        assert marker["summary_sha256"] == wire.digest((tmp_path / "SUMMARY.md").read_bytes())
+        assert marker["provisional_sha256"] == wire.digest((tmp_path / "result.provisional.json").read_bytes())
+        assert wire.load(pending)["terminal_state"] == "NATIVE_TERMINAL_REQUIRED"
+        assert refusal["stage"] == "terminal-marker"
+        # Normal writes refuse on the original deadline before opening another
+        # copy. The separate fixed refusal slot and actual nonzero return close
+        # acceptance, while all already-written raw epochs remain intact.
+        assert not (tmp_path / "result.pre-refusal.json").exists()
 
 
 def test_closed_artifacts_require_actual_native_terminal_even_before_deadline(tmp_path):

@@ -1,0 +1,3 @@
+/.gitattributes -text
+/test_windows_output_bound.py -text
+/test_windows_partition_protocol.py -text

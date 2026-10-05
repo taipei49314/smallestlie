@@ -12,7 +12,7 @@ from smallestlie.adapters.checkwash import PINNED_SHA256, PINNED_SOURCE_REVISION
 from smallestlie.adjudication.residuals import PINNED_INDEX_SHA256, ResidualSourceError, load_residual_catalog
 
 ROOT = Path(__file__).resolve().parents[2]
-INDEX = "catalogs/residual-rows-checkwash-v0.5.0.json"
+INDEX = "catalogs/residual-rows-checkwash-v0.6.0.json"
 
 
 def load(path, **changes):
@@ -38,6 +38,7 @@ def test_spec_two_hop_and_closed_or_mixed_rows_keep_different_meanings():
     assert rows["THREATMODEL:5"]["status"] == "closed"
     assert rows["THREATMODEL:108"]["status"] == "mixed"
     assert rows["THREATMODEL:109"]["status"] == "mixed"
+    assert rows["THREATMODEL:117"]["status"] == "mixed"
     assert "matched_residual" not in catalog
 
 
@@ -89,7 +90,7 @@ def test_sources_cannot_be_reused_under_a_different_pin(field, value):
 
 def test_source_newline_change_invalidates_record(tmp_path):
     path = copy_index(tmp_path)
-    source = tmp_path / "provenance/checkwash-v0.5.0/SPEC.md"
+    source = tmp_path / "provenance/checkwash-v0.6.0/SPEC.md"
     source.write_bytes(source.read_bytes().replace(b"\n", b"\r\n"))
     with pytest.raises(ResidualSourceError, match="digest mismatch"):
         load(path)

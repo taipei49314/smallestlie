@@ -1,2 +1,3 @@
 # The reviewed residual index is pinned by its exact bytes.
 residual-rows-checkwash-*.json -text
+checkwash-wave-3-v0.6.0.yaml -text

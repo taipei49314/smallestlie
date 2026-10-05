@@ -19,9 +19,9 @@ import sys
 
 
 HOST = "LAPTOP-50KP71KA"
-MANIFEST = "campaigns/checkwash-wave-3/manifest.json"
-PHASE1 = "f673f07110ba6e0b592e6e3ee1e69278ba05e731"
-MANIFEST_SHA = "daf4497f252e141a5d13e2b1e8d461aa590b8089c3006b69703081b24c37c432"
+MANIFEST = "campaigns/checkwash-wave-3/manifest-v0.6.0.json"
+PHASE1 = "7db15f04574d4b10821db96aac7040396a4291ff"
+MANIFEST_SHA = "e7beb853fbdbc3ffdbf426b4508f68aeea019b69a312fa0d3eb2a233d6f1f32b"
 COLLECTOR = "campaigns/checkwash-wave-3/contracts/w3_external_collector.py"
 COLLECTOR_SHA = "ee972284ec1052937afb7ddf078da6e6a28a265e7fec318454ef0cf8eeb0fa29"
 MAX_RAW = 10_000_000

@@ -1,6 +1,14 @@
 {
   "schema_version": 1,
   "workloads": {
+    "m12-w3-doorstep-qualify": {
+      "description": "HOST50-only W3 readiness qualification through the separately admitted trusted EC parent route: authenticate original preparation and complete source/image maps, restore sealed inputs without installation, run native toy session/custody/private launch/broker checks and synthetic coordinator/source contracts, preserve raw streams and immutable receipts. The declared product entry refuses generic/direct invocation; the trusted EC importer owns this route and its credential, while native children are tokenless. No formal W3 initialization, cases, Checkwash, action tickets, series dispatch, formal grant/adoption, new host/listener/cache, security change or engine re-pin. Readiness authorization covers bounded qualification; actual W3 startup needs a later exact human decision.",
+      "entry": "workloads/m12_w3_doorstep_qualify/run.py",
+      "profile": "profile-ec-integrity",
+      "timeout_minutes": 35,
+      "cache": false,
+      "parameters": {}
+    },
     "m12-w3-bootstrap-qualify": {
       "description": "Bounded W3 launch substrate qualification on LAPTOP-50KP71KA only: EC trusted step reacquires the exact original terminal preparation receipt, tokenless job-private entry verifies the unchanged Phase1 asset closure, restores sealed CPython/Node/JS images without installation, loads the frozen collector with private Python -I -B, captures benign native Python/Node/Git diagnostics and full installed/generation MinGit maps before and after. No W3 cases, Checkwash, formal lifecycle/tickets, campaign session storage, new trust/adoption, engine re-pin or global host changes. Separate human new declaration admission and exact-source one-dispatch approval required.",
       "entry": "workloads/m12_w3_bootstrap_qualify/run.py",

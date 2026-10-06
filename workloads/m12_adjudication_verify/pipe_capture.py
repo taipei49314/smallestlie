@@ -4,7 +4,7 @@ import base64
 import hashlib
 import subprocess
 import threading
-from workloads.m12_adjudication_verify.output_bound import OutputRefusal,PAGE
+from workloads.m12_adjudication_verify.output_bound import OutputRefusal,PAGE,refusal_diagnostic
 
 _UNCLOSED=[]  # Retain BEFORE start/join/cleanup can fail; no native closure claim.
 
@@ -25,7 +25,9 @@ class PipeCapture:
         self.process,self.output,self.paths,self.budget=process,output,paths,budget
         self.rows={name:dict(bytes=0,sha256=None,eof=False,writer_closed=False,pipe_closed=False,
                             unwritten_page_base64=None,reader_start='NOT_ATTEMPTED',
-                            reader_entered=False,reader_finished=False,reader_joined=False)
+                            reader_entered=False,reader_finished=False,reader_joined=False,
+                            refusal_diagnostic=None,execution_stage=output.stage_name,
+                            stage_absolute_deadline=output.deadline)
                    for name in ('stdout','stderr')}
         self.owners={name:dict(pipe=None,associated=False,thread=None,attempted=False,returned=False,
                                entered=threading.Event(),done=threading.Event())
@@ -66,6 +68,7 @@ class PipeCapture:
             try:
                 row['sha256']=sha.hexdigest() if row['writer_closed'] and primary is None else None
                 row['failure_type']=None if primary is None else type(primary).__name__
+                row['refusal_diagnostic']=refusal_diagnostic(primary)
                 row['written_bytes']=0 if writer is None else writer.written
             except BaseException as error: primary=first(primary,error)
             if primary is not None and all(error is not primary for error in self.errors): self.errors.append(primary)

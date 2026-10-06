@@ -61,10 +61,10 @@ class TinyPytest:
         self.env = harness.child_environment(dict(os.environ), ROOT)
         self.env["PYTHONPATH"] = str(ROOT)
         deadline = time.monotonic() + 1800  # Synthetic fixture clock only, never entry authority.
-        OutputBudget(root, deadline, create=True)
+        self.output=OutputBudget(root, deadline, create=True)
         self.env.update(SL_OUTPUT_ROOT=str(root), SL_OUTPUT_DEADLINE=str(deadline))
 
-    def run(self, name: str, mode: str, *, shard=None, extra=(), plugin=True):
+    def run(self, name: str, mode: str, *, shard=None, extra=(), plugin=True, stage_fields=None, expected_stage=None):
         prefix = self.root / name
         command = [sys.executable, "-X", "utf8", "-B", "-m", "pytest", "-q", "--strict-markers", "--capture=no",
                    "-p", "pytest_timeout", "-p", "no:cacheprovider", "-c", "pyproject.toml",
@@ -80,7 +80,14 @@ class TinyPytest:
             command += ["--collect-only"]
         else:
             command += ["--junitxml", str(prefix) + ".xml"]
-        result = subprocess.run(command + list(extra) + ["tests"], cwd=self.root, env=self.env,
+        stage=expected_stage if expected_stage is not None else ('collection' if mode=='collect' else 'partition')
+        owner=self.output.for_stage(stage,min(self.output.entry_deadline,time.monotonic()+30))
+        environment=dict(self.env,SL_OUTPUT_STAGE=owner.stage_name,SL_OUTPUT_STAGE_DEADLINE=repr(owner.deadline))
+        if stage_fields is not None:
+            for key,value in stage_fields.items():
+                if value is None: environment.pop(key,None)
+                else: environment[key]=value
+        result = subprocess.run(command + list(extra) + ["tests"], cwd=self.root, env=environment,
                                 capture_output=True, timeout=30, check=False)
         (self.root / (name + ".stdout")).write_bytes(result.stdout)
         (self.root / (name + ".stderr")).write_bytes(result.stderr)
@@ -202,6 +209,69 @@ def test_actual_quota_fault_bodies_restore_before_partition_call_hooks(tmp_path,
     assert not (tiny.root / "output-refusal.json").exists()
 
 
+@pytest.mark.parametrize("assertion_failure", (False, True))
+def test_actual_mutex_fault_bodies_restore_before_partition_call_hooks(tmp_path, assertion_failure):
+    # Invoke the populated fault functions under the genuine partition plugin.
+    # Its call logreport precedes teardown of this real monkeypatch fixture.
+    subject = (
+        "import os, sys\nfrom pathlib import Path\n"
+        "from workloads.m12_adjudication_verify import output_bound as bound\n"
+        "sys.path.insert(0, str(Path(os.environ['PYTHONPATH']) / 'tests' / 'unit'))\n"
+        "import test_windows_output_bound as faults\n"
+        "before = (bound._acquire_output_mutex, bound._release_output_mutex, bound.os.fsync)\n"
+        "patch = request.getfixturevalue('monkeypatch')\n"
+        "root = request.getfixturevalue('tmp_path')\n"
+        "cases = (('test_actual_mutex_refusal_and_original_entry_deadline_have_distinct_reasons', ()),\n"
+        "         ('test_late_mutex_return_releases_actual_known_owner_and_rejects_charge', ()),\n"
+        "         ('test_real_mutex_unknown_attempt_is_sticky_across_repeat_and_stage_views', ('acquire',)),\n"
+        "         ('test_real_mutex_unknown_attempt_is_sticky_across_repeat_and_stage_views', ('release',)),\n"
+        "         ('test_real_concurrent_success_cannot_erase_other_pending_then_unknown_take', (False,)),\n"
+        "         ('test_real_concurrent_success_cannot_erase_other_pending_then_unknown_take', (True,)),\n"
+        "         ('test_inflight_known_outcome_retires_only_itself_after_other_release_uncertainty', (False,)),\n"
+        "         ('test_inflight_known_outcome_retires_only_itself_after_other_release_uncertainty', (True,)))\n"
+        "for index, (name, arguments) in enumerate(cases):\n"
+        "    case = root / str(index)\n    case.mkdir()\n"
+        "    getattr(faults, name)(case, patch, *arguments)\n"
+        "    assert (bound._acquire_output_mutex, bound._release_output_mutex, bound.os.fsync) == before\n"
+    )
+    if assertion_failure:
+        subject += (
+            "original = bound.refusal_diagnostic\n"
+            "def wrong_diagnostic(error):\n"
+            "    observed = original(error)\n"
+            "    return {} if observed and observed['reason_code'] == 'MUTEX_WAIT_EXHAUSTED' else observed\n"
+            "case = root / 'assertion-failure'\ncase.mkdir()\n"
+            "with pytest.MonkeyPatch.context() as injected:\n"
+            "    injected.setattr(bound, 'refusal_diagnostic', wrong_diagnostic)\n"
+            "    faults.test_actual_mutex_refusal_and_original_entry_deadline_have_distinct_reasons(case, patch)\n"
+        )
+    subject += "assert (bound._acquire_output_mutex, bound._release_output_mutex, bound.os.fsync) == before\nassert request.config.option.capture == 'no'"
+    conftest = (
+        "import pytest\n"
+        "from workloads.m12_adjudication_verify import output_bound as bound\n"
+        "@pytest.fixture(autouse=True)\n"
+        "def actual_helper_closure():\n"
+        "    before = (bound._acquire_output_mutex, bound._release_output_mutex, bound.os.fsync, bound.refusal_diagnostic)\n"
+        "    yield\n"
+        "    assert (bound._acquire_output_mutex, bound._release_output_mutex, bound.os.fsync, bound.refusal_diagnostic) == before\n"
+    )
+    tiny = TinyPytest(tmp_path / "fixture", subject=subject, conftest=conftest)
+    tiny.collect()
+    result = tiny.run("execute", "execute")
+    assert result.returncode == (1 if assertion_failure else 0), result.stdout + result.stderr
+    evidence = tiny.evidence(code=result.returncode)
+    if assertion_failure:
+        with pytest.raises(ValueError): wire.partition_result(**evidence)
+    else:
+        wire.partition_result(**evidence)
+    records = [wire.load(line) for line in evidence["raw_events"].splitlines()]
+    subject_rows = [row for row in records if row.get("identity", {}).get("nodeid", "").endswith("::test_subject")]
+    assert [(row["when"], row["outcome"]) for row in subject_rows if row["event"] == "phase"] == [
+        ("setup", "passed"), ("call", "failed" if assertion_failure else "passed"), ("teardown", "passed")]
+    assert [row["event"] for row in subject_rows if row["event"] != "phase"] == ["logstart", "logfinish"]
+    assert not (tiny.root / "output-refusal.json").exists()
+
+
 @pytest.mark.parametrize("subject,conftest", [
     ("pytest.skip('real skip')", ""),
     ("pytest.fail('call failed')", ""),
@@ -286,7 +356,7 @@ def test_focused_guard_reads_final_real_xpass_outcome(tmp_path, xpass):
                 "            item.add_marker(pytest.mark.xfail(strict=False))\n") if xpass else ""
     tiny = TinyPytest(tmp_path / "fixture", conftest=conftest)
     name = "diagnostic"
-    result = tiny.run(name, "execute", plugin=False, extra=(
+    result = tiny.run(name, "execute", plugin=False, expected_stage='focused', extra=(
         "-p", "workloads.m12_adjudication_verify.pytest_outcome_guard",
         "--sl-outcome-evidence", str(tiny.root / name)))
     assert result.returncode == 0, result.stdout + result.stderr
@@ -298,6 +368,24 @@ def test_focused_guard_reads_final_real_xpass_outcome(tmp_path, xpass):
             harness.focused_result(*args)
     else:
         assert harness.focused_result(*args)["tests"] > 0
+
+
+@pytest.mark.parametrize('fields',({'SL_OUTPUT_STAGE':None},{'SL_OUTPUT_STAGE':'focused'},
+    {'SL_OUTPUT_STAGE':'partition'},{'SL_OUTPUT_STAGE_DEADLINE':'nan'},
+    {'SL_OUTPUT_STAGE_DEADLINE':'inf'},{'SL_OUTPUT_STAGE_DEADLINE':'1'},
+    {'SL_OUTPUT_STAGE_DEADLINE':'1e100'}))
+def test_real_collection_plugin_rejects_wrong_or_missing_original_stage(tmp_path,fields):
+    tiny=TinyPytest(tmp_path/'fixture')
+    result=tiny.run('reject','collect',stage_fields=fields)
+    assert result.returncode!=0 and not tiny.inventory_path.exists()
+
+
+def test_real_focused_guard_cannot_borrow_collection_stage(tmp_path):
+    tiny=TinyPytest(tmp_path/'fixture'); name='reject'
+    result=tiny.run(name,'execute',plugin=False,expected_stage='collection',extra=(
+        '-p','workloads.m12_adjudication_verify.pytest_outcome_guard',
+        '--sl-outcome-evidence',str(tiny.root/name)))
+    assert result.returncode!=0 and not (tiny.root/(name+'.events.jsonl')).exists()
 
 
 @pytest.mark.parametrize("mutation", ("missing", "extra", "duplicate", "wrong_identity", "duplicate_property"))

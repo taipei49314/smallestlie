@@ -62,7 +62,7 @@ class State:
         self.path = Path(path)
         self.prefix = Path(prefix)
         self.prefix.parent.mkdir(parents=True, exist_ok=True)
-        self.output = OutputBudget.child()
+        self.output = OutputBudget.child(expected_stage='collection' if self.mode=='collect' else 'partition')
         self.events = self.output.open(Path(str(self.prefix) + ".events.jsonl"))
         self.errors = 0
         self.external_deselection = False

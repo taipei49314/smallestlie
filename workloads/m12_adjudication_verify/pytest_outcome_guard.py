@@ -25,7 +25,7 @@ def pytest_configure(config):
     prefix = config.getoption("sl_outcome_evidence")
     if not prefix:
         raise pytest.UsageError("focused outcome evidence path required")
-    output = OutputBudget.child()
+    output = OutputBudget.child(expected_stage='focused')
     _state = {"prefix": Path(prefix), "stream": output.open(Path(prefix + ".events.jsonl")), "output": output}
     bind_junit(config, output)
 

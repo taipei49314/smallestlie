@@ -519,7 +519,7 @@ def test_reader_refusal_during_actual_join_precedes_later_cleanup_refusal(tmp_pa
             return super().read(n)
     with monkeypatch.context() as fault:
         fault.setitem(bound.CAPS,'focused.stdout',3)
-        capture,process=capture_fixture(tmp_path,BlockedObservation())
+        capture,process=capture_fixture(tmp_path,BlockedObservation(b'prefix'))
         writer=capture.sinks['stdout']; original_close=writer.close
         def refused_close():
             assert capture.errors  # Real _reader recorded before closing.

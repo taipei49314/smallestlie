@@ -258,3 +258,7 @@ This map grants no deployment/dispatch, retries, fit or completed qualification.
 
 Original consumed failure and stopped later shards remain unchanged. Formal
 NOT_STARTED; final_start=null; C OFF. NOT_RUN under work-machine-local. STOP.
+
+## R5: preserve the first observed reader refusal through closure
+
+Actual PR51 R4 source CI37396312113/1 fast112053008445 failed1/1415pass727.96s. The separate full job passed its catalog gate. PipeCapture.finish previously initialized a new primary after the reader had already recorded FILE_CAP, allowing a later unknown resource close to replace it. R5 adopts the recorded first error before later cleanup errors and after actual joins, retaining independent cleanup and every unknown owner. The original identity/diagnostic/prefix/terminal assertions remain; new Event-controlled actual-thread contracts cover refusal during join and later join failure. Only pipe_capture and output tests change. Original failed CI and R1-R4 sources remain preserved. Root independent source review found no narrow blocker. Fresh exact-source CI and Windows qualification remain pending. Formal NOT_STARTED, final_start=null, C OFF.

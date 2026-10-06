@@ -461,13 +461,20 @@ def test_actual_runner_first_refusal_survives_secondary_close_and_wrapper_cannot
     from workloads.m12_adjudication_verify import partitioned
     runner,process,entry=runner_fixture(tmp_path)
     opened=[]; captures=retained_synthetic_captures; actual_open=bound.OutputBudget.open; actual_capture=runner._capture
+    first_reader=[]
     def watched_capture(child,name,**kwargs):
         capture=actual_capture(child,name,**kwargs); captures.append(capture); return capture
     def watched_open(owner,path):
         writer=actual_open(owner,path)
         if path.name=='focused.stdout':
             opened.append(writer); original_close=writer.close
-            def secondary_close(): original_close(); raise OSError('SECRET secondary close')
+            def secondary_close():
+                # The actual reader already recorded its cap before this
+                # cleanup fault. This is an event/order assertion, not sleep.
+                assert captures and captures[0].errors
+                primary=captures[0].errors[0]; first_reader.append(primary)
+                assert bound.refusal_diagnostic(primary)==dict(reason_code='FILE_CAP',operation='pipe_reader',stage='read')
+                original_close(); raise OSError('SECRET secondary close')
             writer.close=secondary_close
         return writer
     def refused_child_close(child): raise OSError('SECRET secondary child cleanup')
@@ -481,6 +488,8 @@ def test_actual_runner_first_refusal_survives_secondary_close_and_wrapper_cannot
         with pytest.raises(bound.OutputRefusal) as caught: runner.run('focused',['synthetic'],10)
         row=runner.steps[-1]; saved=json.loads((tmp_path/'output-refusal.json').read_bytes())
         assert caught.value is captures[0].errors[0]
+        assert first_reader==[caught.value]
+        assert captures[0] in pipes._UNCLOSED and row['streams']['stdout']['writer_closed'] is False
         assert row['exit_code']==2 and row['child_return_observed'] is False and row['child_return_code'] is None
         assert row['execution_stage']=='focused' and row['refusal_diagnostic']==saved['refusal_diagnostic']
         assert saved['refusal_diagnostic']==dict(reason_code='FILE_CAP',operation='pipe_reader',stage='read')
@@ -496,6 +505,60 @@ def test_actual_runner_first_refusal_survives_secondary_close_and_wrapper_cannot
         marker=json.loads((tmp_path/'terminal.json').read_bytes())
         assert marker['ready_for_native_terminal'] is False and marker['partition_complete'] is False
         assert result['partition_complete'] is False
+
+
+@pytest.mark.parametrize('join_fault',(False,True))
+def test_reader_refusal_during_actual_join_precedes_later_cleanup_refusal(tmp_path,monkeypatch,join_fault):
+    import threading
+    entered=threading.Event(); release=threading.Event(); observed=[]
+    close_error=OSError('SECRET later writer close'); join_error=OSError('SECRET later join return')
+    class BlockedObservation(ObservedPipe):
+        def read(self,n):
+            entered.set()
+            if not release.wait(timeout=3): raise OSError('fixture barrier not released')
+            return super().read(n)
+    with monkeypatch.context() as fault:
+        fault.setitem(bound.CAPS,'focused.stdout',3)
+        capture,process=capture_fixture(tmp_path,BlockedObservation())
+        writer=capture.sinks['stdout']; original_close=writer.close
+        def refused_close():
+            assert capture.errors  # Real _reader recorded before closing.
+            observed.append(capture.errors[0]); original_close(); raise close_error
+        fault.setattr(writer,'close',refused_close)
+        real_threads=[]
+        try:
+            capture.start()  # Actual thread targets; only BytesIO pipe is synthetic.
+            real_threads=list(capture.threads)
+            assert entered.wait(timeout=2) and not capture.errors
+            raw=capture.owners['stdout']['thread']
+            class JoinedObservation:
+                def join(self,**kwargs):
+                    assert not capture.errors  # finish initialized with no refusal.
+                    release.set(); raw.join(**kwargs)
+                    assert capture.owners['stdout']['done'].is_set() and not raw.is_alive()
+                    assert capture.errors and observed==[capture.errors[0]]
+                    if join_fault: raise join_error  # After exact reader refusal/done.
+                def is_alive(self): return raw.is_alive()
+            capture.owners['stdout']['thread']=JoinedObservation()  # Retains actual exact thread.
+            with pytest.raises(bound.OutputRefusal) as caught: capture.finish()
+            assert caught.value is observed[0] is capture.errors[0]
+            assert bound.refusal_diagnostic(caught.value)==dict(reason_code='FILE_CAP',operation='pipe_reader',stage='read')
+            assert capture in pipes._UNCLOSED and not capture.complete()
+            assert writer.closed and capture.rows['stdout']['writer_closed'] is False
+            assert capture.rows['stdout']['reader_joined'] is (not join_fault)
+            assert capture.rows['stderr']['reader_joined'] and capture.rows['stderr']['writer_closed']
+            assert process.stdout.closed and process.stderr.closed
+            assert (tmp_path/'focused.stdout').read_bytes()==b'pre'
+            assert any('OutputRefusal' in note for note in caught.value.__notes__)
+            if join_fault: assert any('OSError' in note for note in caught.value.__notes__)
+        finally:
+            release.set()
+            for thread in real_threads: thread.join(timeout=2)
+            # Only these fixture-owned BytesIO/resources, after real joins.
+            # If a real target remains live, retain rather than force-close.
+            if real_threads and all(not thread.is_alive() for thread in real_threads):
+                if not writer.closed: original_close()
+                dispose_known_synthetic_capture(capture)
 
 
 def test_actual_runner_success_records_return_separately_from_capture_refusal(tmp_path,monkeypatch):

@@ -1,5 +1,8 @@
 # Collaboration protocol (humans and coding agents)
 
+**This repository was archived on 2026-10-18 and is read-only. No further
+work, re-pins or campaigns. The rules below are kept as history.**
+
 ## checkwash pin follows an authorized published release
 
 - The vendored engine `verifiers/checkwash.pyz` is re-pinned **only** in the

@@ -1,10 +1,9 @@
-# Nightly automatic campaigns against known synthetic fixtures only.
-# schedule: 02:17 UTC daily (stable off-peak offset)
+# Campaigns against known synthetic fixtures only.
+# The daily schedule was removed when the repository was archived (2026-10-18);
+# the workflow can still be started by hand.
 name: smallestlie-nightly
 
 on:
-  schedule:
-    - cron: "17 2 * * *"
   workflow_dispatch:
 
 permissions:

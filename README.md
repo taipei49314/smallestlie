@@ -66,8 +66,9 @@ Read these before reusing anything here.
 
 - For wave0–M2, whether a case is a lie was declared by the person who wrote
   the case. The oracle only checks that the declared paths changed.
-- Every checkwash case that was actually run used one small synthetic fixture
-  (`fixtures/checkwash_target`).
+- Every case run against the real checkwash engine used one small synthetic
+  fixture (`fixtures/checkwash_target`). The blind controls used a second one
+  (`fixtures/checkwash_blind`).
 - "Network denied" means proxy variables are removed and a marker variable is
   set. There is no OS-level network isolation, and the `doctor` network check
   only checks that marker.
@@ -80,10 +81,10 @@ Read these before reusing anything here.
 
 ## Language rule
 
-SmallestLie reports only `FALSE_ACCEPT_OBSERVED`, `ATTACK_REJECTED`,
-`TRUE_REJECT_OBSERVED`, `TRUE_ACCEPT_OBSERVED`, `INCONCLUSIVE`,
-`HARNESS_ERROR` and `BLOCKED_BY_POLICY`. It never reports a repository as
-secure. The strongest positive statement it makes is:
+Each run reports one of `FALSE_ACCEPT_OBSERVED`, `ATTACK_REJECTED`,
+`TRUE_ACCEPT_OBSERVED`, `FALSE_REJECT_OBSERVED`, `INCONCLUSIVE`,
+`HARNESS_ERROR`, `BLOCKED_BY_POLICY`, `INAPPLICABLE` or `NOT_RUN`
+(`src/smallestlie/models.py`). It never reports a repository as secure. The strongest positive statement it makes is:
 
 > No false acceptance was observed within the declared campaign, attack
 > catalog, target revision, oracle version, and execution boundary.
